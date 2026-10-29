@@ -6,7 +6,7 @@ export class GameError extends Error {
   constructor(public code: ErrorCode) { super(code); }
 }
 export interface Player {
-  id: string; name: string; connected: boolean; ready: boolean; alive: boolean; role?: Role;
+  colorIndex:number;id: string; name: string; connected: boolean; ready: boolean; alive: boolean; role?: Role;
   heal: boolean; poison: boolean; investigations: Investigation[];
 }
 export interface Room {
@@ -37,7 +37,7 @@ function shuffle<T>(items: T[]): T[] {
 }
 const fail = (code: ErrorCode): never => { throw new GameError(code); };
 export function newPlayer(name: string): Player {
-  return { id: randomUUID(), name, connected: true, ready: false, alive: true, heal: true, poison: true, investigations: [] };
+  return { colorIndex:0,id: randomUUID(), name, connected: true, ready: false, alive: true, heal: true, poison: true, investigations: [] };
 }
 export function newRoom(code: string, mode: Mode, host: Player, now: number): Room {
   return {
@@ -58,7 +58,7 @@ export class Game {
     if (room.phase !== 'lobby') fail('started');
     if (room.players.length >= (room.mode === 'classic' ? 8 : 2)) fail('room_full');
     if (room.players.some(p => p.name.toLocaleLowerCase() === name.toLocaleLowerCase())) fail('name_taken');
-    const player = newPlayer(name); room.players.push(player); this.touch(room, now); return player;
+    const player = newPlayer(name);player.colorIndex=Array.from({length:8},(_,i)=>i).find(i=>!room.players.some(p=>p.colorIndex===i))??0; room.players.push(player); this.touch(room, now); return player;
   }
   ready(room: Room, id: string, ready: boolean, now: number) {
     if (room.phase !== 'lobby') fail('wrong_phase');
@@ -325,7 +325,7 @@ export class Game {
     const view: GameView = {
       code: room.code, mode: room.mode, phase: room.phase, day: room.day,
       serverNow: now, deadline: room.deadline, hostId: room.hostId, youId: id,
-      players: room.players.map(p => ({ id: p.id, name: p.name, connected: p.connected, ready: p.ready, alive: p.alive,
+      players: room.players.map(p => ({ colorIndex:p.colorIndex,id: p.id, name: p.name, connected: p.connected, ready: p.ready, alive: p.alive,
         ...((!p.alive || room.phase === 'ended') && p.role ? { role: p.role } : {}),
       })),
       events: room.events.map(e => ({ ...e, players: e.players?.map(p => ({ ...p })) })),

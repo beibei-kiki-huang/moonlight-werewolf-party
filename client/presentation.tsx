@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, ChevronDown, Eye, EyeOff, FlaskConical, Hourglass, Languages, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote, Sunrise } from 'lucide-react';
 import type { ChatMessage, GameView, PublicPlayer, Role } from '../shared/types';
+import {ParticipantAvatar,participantStyle} from './Participant';
 import { phaseScript, type Language, type PublicPhase } from '../shared/publicPhase';
 import { isQuickPhraseId, QUICK_PHRASES, QUICK_PHRASE_IDS, type QuickPhraseId } from '../shared/quickChat';
 
@@ -168,7 +169,7 @@ export function DiscussionChat({ view, canChat, connected, pending, send, sendQu
     {discussion && <p className="chat-invitation">{canChat ? tr('Share a theory. Question an alibi. Who do you trust?', '分享推测，质疑证词。你会相信谁？') : tr('You are watching quietly. Your team’s story continues.', '请安静观战，你的阵营仍在继续故事。')}</p>}
     <div className="conversation" ref={list} role="log" aria-label={tr('Table conversation', '牌桌对话')} aria-live="polite" aria-relevant="additions" onScroll={() => { const el = list.current!; nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 65; if (nearBottom.current) setUnread(0); }}>
       {!view.chat.length && <div className="conversation-empty"><MessageCircle size={30} strokeWidth={1} /><strong>{tr('Break the silence.', '打破沉默。')}</strong><p>{tr('A simple “Who do you suspect?” is a good place to start.', '不妨先问一句：“你在怀疑谁？”')}</p></div>}
-      {view.chat.map(m => <div className={`conversation-message ${m.playerId === view.youId ? 'mine' : ''}`} key={m.id}><span className="message-avatar">{m.name.slice(0, 1).toUpperCase()}</span><div><strong>{m.name}<small>{m.playerId === view.youId ? tr('you', '你') : ''}</small></strong><ChatMessageContent message={m} language={language} tr={tr} /></div></div>)}
+      {view.chat.map(m => <div className={`conversation-message ${m.playerId === view.youId ? 'mine' : ''}`} key={m.id} style={participantStyle(view.players.find(p=>p.id===m.playerId))}><ParticipantAvatar player={view.players.find(p=>p.id===m.playerId)??{id:m.playerId,name:m.name}}/><div><strong>{m.name}<small>{m.playerId === view.youId ? tr('you', '你') : ''}</small></strong><ChatMessageContent message={m} language={language} tr={tr} /></div></div>)}
     </div>
     {unread > 0 && <button className="new-messages" onClick={() => { nearBottom.current = true; setUnread(0); if (list.current) list.current.scrollTop = list.current.scrollHeight; }}>{tr(`${unread} new message${unread > 1 ? 's' : ''}`, `${unread}条新消息`)}<ChevronDown size={14} /></button>}
     {canChat && <details className="quick-picker" ref={picker}><summary><Languages size={16} /><span>{tr('Quick Chat', '快捷短语')}</span><ChevronDown size={14} /></summary><p className="quick-hint">{tr('Tap to send in everyone’s language. Typed messages stay as written.', '轻触发送，每人看到自己的语言。手动输入的消息保持原文。')}</p><div className="quick-choices">{QUICK_PHRASE_IDS.map(id => <button type="button" key={id} disabled={!connected || pending} onClick={() => void choosePhrase(id)}>{QUICK_PHRASES[id][language]}</button>)}</div></details>}

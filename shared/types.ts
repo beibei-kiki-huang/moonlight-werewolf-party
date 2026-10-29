@@ -5,7 +5,7 @@ export type Mode = 'classic' | 'quick';
 export type Phase = 'lobby' | 'reveal' | 'nightfall' | 'wolves' | 'seer' | 'witch' | 'dawn' | 'discussion' | 'voting' | 'verdict' | 'last_words' | 'ended';
 export type Winner = 'village' | 'wolves' | 'draw';
 export type ErrorCode = 'seat_in_use' | 'invalid' | 'room_missing' | 'room_full' | 'name_taken' | 'started' | 'unauthorized' | 'not_host' | 'not_ready' | 'wrong_phase' | 'invalid_target' | 'already_acted' | 'rate_limit' | 'capacity';
-export interface PublicPlayer { id: string; name: string; connected: boolean; ready: boolean; alive: boolean; role?: Role }
+export interface PublicPlayer { colorIndex?:number;id: string; name: string; connected: boolean; ready: boolean; alive: boolean; role?: Role }
 export interface GameEvent { id: number; kind: 'start' | 'dawn' | 'elimination' | 'no_elimination' | 'result'; day: number; players?: { name: string; role: Role }[]; winner?: Winner }
 export interface ChatMessage { id: string; playerId: string; name: string; text: string; phraseId?: QuickPhraseId }
 export interface PackChatState { stageId: string; messages: ChatMessage[] }

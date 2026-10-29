@@ -1,0 +1,4 @@
+import type{CSSProperties,ReactNode}from'react';import type{PublicPlayer}from'../shared/types';
+export const participantColors=['#c8b5f5','#8fd4ec','#e9bb80','#a9d4ac','#eea9c4','#9dc0ff','#d3cf95','#eab8a7'];
+export function participantStyle(player?:Pick<PublicPlayer,'id'|'colorIndex'>):CSSProperties{let index=player?.colorIndex;if(index===undefined){index=0;for(const c of player?.id??'')index=(index*31+c.charCodeAt(0))>>>0}const color=participantColors[index%participantColors.length];return{'--participant-color':color,'--participant-tint':color+'18'} as CSSProperties}
+export function ParticipantAvatar({player,children}:{player:Pick<PublicPlayer,'id'|'name'|'colorIndex'>;children?:ReactNode}){return <span className="avatar participant-avatar" style={participantStyle(player)}>{player.name.slice(0,1).toUpperCase()}{children}</span>}
