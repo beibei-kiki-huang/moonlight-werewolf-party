@@ -6,10 +6,10 @@ export type Translate = (en: string, zh: string) => string;
 type RoleName = (role: Role) => string;
 const roleIcons = { werewolf: Moon, villager: Shield, seer: Eye, witch: FlaskConical };
 const lore: Record<Role, [string, string]> = {
-  werewolf: ['The shadow in the gathering', '月下集会中的暗影'],
-  villager: ['A light against the dark', '守望黑夜的一盏灯'],
-  seer: ['The truth beyond the veil', '帷幕之外的真相'],
-  witch: ['The keeper of second chances', '执掌命运的药师'],
+  werewolf: ['The Hunter', '夜行猎手'],
+  villager: ['The Ordinary Hero', '平凡的英雄'],
+  seer: ['The Divine Oracle', '神谕先知'],
+  witch: ['The Keeper of Life and Death', '生死守望者'],
 };
 const descriptions: Record<Role, [string, string]> = {
   werewolf: ['Hide in plain sight. Hunt with your pack at night, and turn suspicion away by day.', '隐藏你的身份。夜晚与同伴狩猎，白天转移怀疑。'],
@@ -18,8 +18,8 @@ const descriptions: Record<Role, [string, string]> = {
   witch: ['Two potions. Two chances to change fate. Save a life or take one—choose carefully.', '两瓶药水，两次改变命运的机会。救人或毒杀，请谨慎选择。'],
 };
 export function Portrait({ role, className = '', decorative = false, name, small = false }: { role: Role; className?: string; decorative?: boolean; name?: string; small?: boolean }) {
-  return <img className={`character-portrait ${className}`} src={`/art/${role}-${small ? 120 : 360}.webp`}
-    srcSet={small ? undefined : `/art/${role}-360.webp 360w, /art/${role}-720.webp 720w`}
+  return <img className={`character-portrait ${className}`} src={`/art/v2/${role}-${small ? 120 : 360}.webp`}
+    srcSet={small ? undefined : `/art/v2/${role}-360.webp 360w, /art/v2/${role}-720.webp 720w`}
     sizes={small ? undefined : '(max-width: 680px) 340px, 310px'} width={small ? 120 : 360} height={small ? 180 : 540}
     alt={decorative ? '' : name || role} decoding="async" />;
 }

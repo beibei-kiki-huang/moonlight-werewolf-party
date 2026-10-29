@@ -72,7 +72,7 @@ function App() {
   useEffect(() => {
     if (!view?.code) return;
     // Load the same four public portraits for every seat, regardless of its secret role.
-    for (const role of ['werewolf', 'villager', 'seer', 'witch']) { const image = new Image(); image.src = `/art/${role}-360.webp`; }
+    for (const role of ['werewolf', 'villager', 'seer', 'witch']) { const image = new Image(); image.src = `/art/v2/${role}-360.webp`; }
   }, [view?.code]);
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(''), 3000); return () => clearTimeout(timer); }, [toast]);
   useEffect(() => {

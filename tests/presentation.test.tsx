@@ -19,15 +19,15 @@ describe('illustrated interface privacy and feedback', () => {
   it.each(['werewolf', 'villager', 'seer', 'witch'] as Role[])('keeps %s artwork and private details out of a concealed card', role => {
     const state = view(role); state.investigations = [{ day: 1, targetId: 'other', name: 'Secret investigation', isWolf: true }];
     const html = renderToStaticMarkup(<RoleCard view={state} visible={false} onToggle={() => {}} tr={en} roleName={names} />);
-    expect(html).toContain('Reveal my role'); expect(html).not.toContain(`/art/${role}`);
+    expect(html).toContain('Reveal my role'); expect(html).not.toContain(`/art/v2/${role}`);
     expect(html).not.toContain('Your pack:'); expect(html).not.toContain('Secret investigation');
     expect(html).not.toContain('is-revealed');
   });
   it.each(['werewolf', 'villager', 'seer', 'witch'] as Role[])('reveals only the authorized %s portrait with readable text', role => {
     const html = renderToStaticMarkup(<RoleCard view={view(role)} visible onToggle={() => {}} tr={en} roleName={names} />);
-    expect(html).toContain(`/art/${role}-360.webp`); expect(html).toContain('Hide my role');
+    expect(html).toContain(`/art/v2/${role}-360.webp`); expect(html).toContain('Hide my role');
     expect(html).toContain(`<h2>${names(role)}</h2>`);
-    for (const other of ['werewolf', 'villager', 'seer', 'witch']) if (other !== role) expect(html).not.toContain(`/art/${other}-`);
+    for (const other of ['werewolf', 'villager', 'seer', 'witch']) if (other !== role) expect(html).not.toContain(`/art/v2/${other}-`);
   });
   it('distinguishes an unconfirmed draft from a saved vote and allows a new draft without hiding the saved receipt', () => {
     const state = { ...view('villager'), phase: 'voting' as const };

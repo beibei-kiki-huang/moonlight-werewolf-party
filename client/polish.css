@@ -82,3 +82,12 @@ button:focus-visible{outline:2px solid #e5d3ff;outline-offset:4px}.button:disabl
 }
 @media(max-width:360px){.hero h1{font-size:53px}.card-illustration{height:295px;min-height:295px}.card-story{padding:21px}.card-story h2{font-size:44px}.character-lore{font-size:20px}.table-heading h1{font-size:32px}.phase-steps{gap:8px}.phase-steps>span{font-size:9px}.phase-steps i{display:none}.section-heading h2{font-size:28px}.voting-panel{padding:23px 17px}.vote-progress>span{font-size:8px;gap:4px}.vote-progress i{height:17px;width:17px;font-size:7px}.duel-options .vote-person strong{font-size:12px}.duel-options .vote-person small{font-size:9px}.outcome-copy h2{font-size:46px}.outcome-copy{padding-left:21px;padding-right:21px}.discussion-chat{padding:22px 17px}.chat-heading .eyebrow{font-size:6px}.chat-heading h3{font-size:25px}.cast-preview-card h3{font-size:25px}.cast-preview-card>div{left:13px;bottom:15px}.character-ability{font-size:12px}.ballot-footnote{font-size:9px!important}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Approved V2 paintings have their own silver frame; keep the full composition and both potions visible. */
+.character-card{min-height:0;align-items:center}
+.card-illustration{height:auto;min-height:0;aspect-ratio:2/3;width:100%;align-self:start}
+.card-illustration>.character-portrait{object-fit:contain;object-position:center}
+.is-revealed .card-corner{display:none}
+.cast-preview-card{aspect-ratio:2/3}
+.cast-preview-card .character-portrait{object-fit:contain;object-position:center}
+.cast-preview-card:hover .character-portrait{transform:none}
