@@ -4,13 +4,13 @@ Title: Moonlight — Play Beyond Borders
 
 Public game: https://moonlight-werewolf-party.onrender.com/
 
-Cover: `cover.jpg` — 1200×800 JPEG (3:2). `cover-gameplay.jpg` is an actual controlled public Duel discussion screenshot from the stable build, showing bilingual Quick Chat. The participants are QA clients; this is not a claim of a human group playtest. No private roles or credentials are visible.
+Cover: `cover.jpg` — 1200×800 JPEG (3:2), captured from the final deployed homepage. `cover-gameplay.jpg` is an actual controlled public Duel discussion screenshot from the stable build, showing bilingual Quick Chat. The participants are QA clients; this is not a claim of a human group playtest. No private roles or credentials are visible.
 
 Description: copy `description.txt` (460 characters, excluding the trailing newline).
 
 Current stable baseline: 745847e30fc571216eaad74c4b546ee32d66e3be. Rollback checkpoint: pre-submission-final-20261028. The public baseline was confirmed available before changes.
 
-Release verification and final build details will be added after the approved changes pass.
+Release verification: see `VERIFICATION.md`. All 86 tests, build checks and public Classic/Duel acceptance passed. Application commit: `6fecf9bc157b85593abcde5712c1164d66485d39`. The code is frozen for submission except critical fixes. The isolated tour is at https://moonlight-werewolf-party.onrender.com/demo.html?lang=en .
 
 ## Manual entry
 
@@ -22,3 +22,11 @@ Open https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/subm
 4. Review all fields and submit yourself; save the receipt. No form has been submitted by the coding agent.
 
 Official deadline: October 30, 2026, 11:59 PM Pacific. Aim to submit by 8 PM Pacific. Free hosting can take about a minute to wake; restarts/redeploys end in-memory rooms. Refresh recovery works only in the same browser while the server room still exists.
+
+## Exactly what remains
+
+- A documented five-to-six-person mixed-language beginner/physical-phone session; use HUMAN_PLAYTEST.md.
+- An idle cold-start observation; free-host wake-up/restart limitations remain documented.
+- Your review of eligibility/terms, final cover/description, and manual Publish with Share to Showcase selected; save confirmation. No automated entry.
+
+The ZIP is a convenience package: extract it, use the public game URL in the form, upload cover.jpg and paste description.txt. Do not substitute the ZIP for the playable project URL.
