@@ -1,0 +1,47 @@
+{
+  "codeCommit": "cba5360c88f8fd3933d9bcfc01b861a54133e068",
+  "renderDeploy": "dep-dbhso77avr4c73d3hii0",
+  "checkedAt": "2026-10-29T22:52:39.219492+00:00",
+  "publicAutomaticRefresh": true,
+  "publicSeerPrivateRecovery": true,
+  "publicSeerFindingUnchanged": true,
+  "outsiderPrivateFindingRegions": 0,
+  "publicBrowserClassicCompleted": true,
+  "publicBrowserSeats": 5,
+  "actualPublicDawnEliminations": [
+    "Freeze ZH",
+    "Freeze KO"
+  ],
+  "sharedWinner": "village",
+  "publicWitchInventoryLocked": true,
+  "publicWitchConfirmationNamesTarget": true,
+  "publicFiveLanguageRecipients": [
+    "en",
+    "zh",
+    "ko",
+    "ja",
+    "es"
+  ],
+  "publicTypedMultilingualTextPreserved": true,
+  "mobile320HorizontalOverflow": false,
+  "mobile320HeaderLanguageControlHeight": 44,
+  "mobile320HostRematchBottom": 436.59,
+  "mobile320DawnDetailsTop": 547.59,
+  "viewportHeight": 568,
+  "earlierActualBrowserClassicSeats": 8,
+  "witchLanguagesTested": [
+    "en",
+    "zh"
+  ],
+  "witchWidthsTested": [
+    1200,
+    430,
+    390,
+    375,
+    320
+  ],
+  "simulatedViewportsOnly": true,
+  "physicalPhoneFinalBuildValidation": "pending",
+  "humanMixedLanguageBeginnerGroupValidation": "pending",
+  "note": "Controlled independent browser clients, not independent human testers. No credentials or private active-room tokens included."
+}

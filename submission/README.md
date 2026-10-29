@@ -1,30 +1,32 @@
 # Manual Handshake submission package
 
-Title: Moonlight — Play Beyond Borders
+**Title:** Moonlight — Play Beyond Borders
 
-Public game: https://moonlight-werewolf-party.onrender.com/
+**Public URL:** https://moonlight-werewolf-party.onrender.com/
 
-Cover: cover.jpg — 1200×800 JPEG captured from the final deployed homepage. cover-gameplay.jpg and mobile-gameplay.jpg show actual deployed English/Chinese Duel conversation by controlled QA clients. They are not a claim of a human group playtest. No private role or credential appears in them.
+**Cover:** cover.jpg — 1200×800 actual deployed homepage. Additional screenshots show controlled public QA clients, not human group validation.
 
-Description: copy description.txt (460 characters, excluding its trailing newline).
+**Description:** copy description.txt — 487 characters, under 500.
 
-Release: 0fd60b56f5d90a1028720dda44823dadc39472aa. Render Live: dep-dbhqchnb9u1s73aajekg. All 165 regression tests, production build, public full Classic at all four player counts, Duel, structured turns/last words, Pack packet privacy and terminal dawn checks passed. See VERIFICATION.md and the four public logs.
+Release cba5360c88f8fd3933d9bcfc01b861a54133e068; Render Live dep-dbhso77avr4c73d3hii0. All 205 tests, production build, demo isolation and public Classic/Duel/Pack/structured/runoff/terminal-dawn gates passed. See VERIFICATION.md and five logs. Rollback/checkpoints remain in Git. The release is frozen.
 
-All seven stages have separate Git checkpoints. Rollback: pre-classic-reliability-20261029; current application: stage7-conversation-release-20261029. The release is frozen except critical fixes. No further feature development before submission.
+Interface/narration: EN/ZH. Ten predefined phrases: EN/ZH/KO/JA/ES. Typed text remains original; no free-text translator is claimed. The translation assessment/glossary and full notices are included.
 
-## Manual entry
+## Manual submission
 
 Open https://app.joinhandshake.com/learn/create-a-multiplayer-game-8d7d59b5/submit
 
-1. Review eligibility and contest terms personally.
-2. Enter the title and public URL, upload cover.jpg, and paste description.txt.
-3. Keep Share to Showcase selected if entering the challenge.
-4. Review and submit yourself; save the receipt. The agent has not submitted the form.
+1. Review eligibility and terms personally.
+2. Enter title/public URL, upload cover.jpg and paste description.txt.
+3. Keep Share to Showcase selected when entering the challenge.
+4. Review, submit yourself and save the receipt. Nothing has been submitted by the agent.
 
-Deadline supplied by the creator: October 30, 2026, 11:59 PM Pacific. Aim for 8 PM Pacific. Free hosting can take about a minute to wake; restarts end rooms. The ZIP is a convenience package to extract; the playable project URL belongs in the form.
+The ZIP is a convenience package to extract, not a replacement for the playable public URL.
 
 ## Exactly what remains
 
-- Document a 5–6-person mixed-language beginner session using physical phones/IME; use HUMAN_PLAYTEST.md. Use 7–8 players for human Pack validation.
-- Observe an idle cold start if practical; the free-host limitation is already documented.
-- Personally review entry/terms, submit with Share to Showcase selected, and save confirmation.
+- Refresh existing tabs and run the physical-phone mixed-language beginner checklist in HUMAN_PLAYTEST.md. Browser size simulation is not physical iPhone/Android validation.
+- Optional native-speaker KO/JA/ES phrase check and idle cold-start observation. Render Free wake-up can take about a minute; server restart loses rooms.
+- Personally review the four items and contest terms, submit and save confirmation.
+
+Deadline supplied by creator: October 30, 2026, 11:59 PM Pacific. Aim for 8 PM Pacific. No more feature development before submission.

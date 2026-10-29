@@ -1,47 +1,52 @@
-# Final release verification — October 29, 2026
+# Frozen integrated release verification — October 29, 2026
 
-Application commit: 0fd60b56f5d90a1028720dda44823dadc39472aa
-Render Free Live deployment: dep-dbhqchnb9u1s73aajekg
+Application: cba5360c88f8fd3933d9bcfc01b861a54133e068
+Render Free Live: dep-dbhso77avr4c73d3hii0
 Public URL: https://moonlight-werewolf-party.onrender.com/
-Rollback: pre-classic-reliability-20261029 (prior frozen source/package at 0b6d591).
-Final application checkpoint: stage7-conversation-release-20261029.
+Rollback: pre-integrated-improvements-20261029 (previous frozen package ade0eee, deployed source 0fd60b5).
 
-## Passed release gates
+## Release gates passed
 
-- 165 automated tests across 19 files, including independent real sockets, 19 Pack security cases, potion consumption, simultaneous/peaceful/terminal dawn, dead/absent roles, fixed night timing, refresh, vote privacy, early resolution, role examples, localization and audio.
-- Production type/build checks and isolated demo bundle audit passed. Original notices ship publicly; no additional runtime dependency, paid service or backend architecture change.
-- Public full Structured Classic matches with 5, 6 and 8 independent authenticated clients. Default/host settings, random fallback attack, private Seer result, healing/poison, authoritative dawn, living seat-order speakers, stale/out-of-turn denial, reconnect/color stability, early ballots, automatic full 30-second last words and shared victory passed.
-- Public full Open Classic matches with 5 and 7 clients; simultaneous living chat, private ballots and immediate final-confirmation victory passed. The seven-player scenario verified agreed/private selections, random tied-leading attack, authorized pack refresh/closure, simultaneous attack/poison dawn, and zero additional packets to outsiders during private sends.
-- Public two-client Duel completed with unchanged accusation rules and shared results. Public terminal-dawn five-client match passed: correct deaths and victory, no public cause/potion disclosure.
-- All 34 bilingual AAC announcements, approved licensed piano excerpt, attribution and exact locally tested homepage/demo bundles are publicly available.
+- **205 tests / 23 files**; production type/build and isolated demo graph checks passed. No new dependency, paid service or architecture.
+- Rule tests include one-vote elimination against abstentions, unique plurality, all abstain, two/multi-way initial ties, seat-order 60-second candidate turns in both discussion modes, out-of-turn/stale/dead/forged restrictions, runoff voter/target eligibility, no eligible runoff voters, second tie/all abstain/timeout, one runoff only, last words, victory, duplicate final confirmations, rematches and private ballot packets.
+- Independent connected 5/6/7/8-client matches completed. Fixed 60-second wolves/Seer/Witch clocks retain full duration for alive/dead/absent/spent actors; attack random tie/fallback, potion consumption and simultaneous dawn/win rules remain covered. Duel rules/timers/accusation outcomes and early confirmations passed unchanged.
+- The original 19 Pack security cases passed, plus five-language authorized rendering. Public seven-player acceptance measured zero additional outsider packets while living wolves sent private messages, and verified refresh, closure, tied attack target, actual dawn, ballots and full victory.
+- Public Structured Classic completed at 5/6/8 seats; Open Classic completed at 5/7. Separate public runoff matches exercised both Open (5) and Structured (8), a full candidate speaking timeout, secret noncandidate runoff ballots, one positive vote against other abstentions, automatic 30-second last words and identical victory. Public terminal dawn passed with accurate shared eliminations and no potion/cause disclosure. See all five public logs.
+- All **38** EN/ZH narration clips, licensed piano and notices are served. New tie/runoff clips were rendered offline using the same previously approved voices; sound remains optional and non-blocking.
 
-## Browser UI evidence
+## Actual browser acceptance
 
-The earlier public browser reproduction showed a new invite tab silently replacing an active saved host seat. The fix uses per-tab automatic recovery and requires explicit takeover. Actual browser UI starts were verified at 5/6/7/8 seats after the fix; a five-browser match completed before proceeding to later stages. The lobby names missing Ready/offline seats, count and host restrictions.
+Actual five-client private Witch screens were checked in EN/ZH at desktop 1200px and 430/390/375/320px. The legacy 20px icon track was the root cause of vertical text; sentence spans now occupy the full text width, at least 208px even in the 320px fixture. Both healing and poison dialogs named their real targets. Locked inventories and one-use constraints remained intact.
 
-Final local browser Classic completed through healing → peaceful dawn → structured speakers → synchronized typed bilingual chat → confirmed ballots → last words → victory. Host mode/time selection, explicit mobile recovery and English/Chinese locked inventory were checked. Real Seer inspection displayed a prominent private Werewolf finding, recovered after refresh, and switched to Chinese; an outsider had no result region. The test fixture extended action windows only for manual inspection; deployed timers remain normal.
+An actual eight-browser Classic completed through role reveal, night poison/attack, authoritative dawn, structured turns, public mixed-language text, confirmed initial tie, candidate-only speaking, restricted runoff, last words and shared victory. A deadline counted missing runoff ballots as abstentions. Mobile candidate rows were about 70–71px at every requested phone width. Result hero height was 256–293px. The Seer role/faction and essential instructions fit within a 320×568 initial reveal (36svh artwork); desktop paintings remain large. The deliberately opened identity stayed open through later phases. Mobile status remained at the top while scrolling and confirming actions.
 
-390px and 320px browser layouts, typing/Enter, Chinese text, scrollable conversation and reduced 320×400 keyboard-sized viewport were verified with no horizontal overflow. The private drawer does not overlay chat. Public English/Chinese browser Duel separately verified role reveal, recipient-language presets, original free text and mobile layout. These are controlled QA clients, not independent human participants or physical phone testing.
+One actual synchronized preset rendered independently in all five chat languages; typed multilingual content stayed original. Authorized Pack recipients could switch all five translations and recover their own Spanish preference/history after another tab selected Korean. Outsiders had no Pack region/content. The final public browser check verified private Seer recovery and automatic refresh on the deployed build; see browser-acceptance.json and current public screenshots.
 
-## Release bundles
+A real public refresh exposed an old transport still holding its seat. The final bounded correction uses the existing authenticated takeover path only for reload/established reconnect. Newly navigated invitations remain passive and cannot displace an active owner. Denied copied tabs clear only their own session credential. Focused tests and repeated actual browser reloads passed, with role/seat/color continuity preserved.
 
-- Homepage: assets/main-BhQ8t9AM.js
-- Guided Demo: assets/demo-0xgLvCIy.js
+Browser viewports, reduced keyboard-sized windows, focus/typing/scrolling and safe-area-aware CSS were checked. These are **simulated browser sizes, not physical iOS Safari/Chrome certification**. Physical-phone/IME and mixed-language beginner testing remain human steps.
 
-## Checkpoints
+## Scope, assets and honesty
 
-- stage1-classic-reliable-20261029
-- stage2-discussion-20261029
-- stage3-private-results-20261029
-- stage4-compact-identity-20261029
-- stage5-participant-colors-20261029
-- stage6-attack-resolution-20261029
-- stage7-conversation-release-20261029
+Interface and narration: English/Simplified Chinese. Predefined phrases: English/Chinese/Korean/Japanese/Spanish. Free text is **not translated**. No account, translator key, cloud processing, ML runtime or external translation retention was introduced. TRANSLATION_ASSESSMENT.md compares official free tiers and browser/self-hosted options and supplies a five-language glossary and future privacy/cache gate. No provider quality benchmark or native-speaker review is claimed.
 
-## Remaining human steps and honest limits
+Original role artwork, distributions, faction victory rules, Pack authorization and night attack resolution are retained. No Hunter, matchmaking, friends or profiles. Original notices ship unchanged; approved licensed music/model/font/icon notices are included.
 
-Complete HUMAN_PLAYTEST.md with 5–6 independent English/Chinese players, a beginner and physical phones (including actual keyboards/IME). Use 7–8 people for human Pack Chat validation. Prior real two-person playtests were reported by the creator; automated clients are not a substitute for group usability validation.
+## Exact release bundles and checkpoints
 
-An idle cold start was not timed. Render Free can take about a minute to wake; restart/redeploy loses in-memory rooms. Same-browser refresh recovers only an existing server room. No host migration, persistent accounts/messages or voice chat.
+Homepage: assets/main-BrR5YlmB.js
+Demo: assets/demo-BPe_yXgU.js
 
-The release is feature-frozen. Review the four entry items and contest terms, submit manually, and save the receipt. No submission has been made by the agent.
+- integrated-phase-a-20261029
+- integrated-phase-b-20261029
+- integrated-phase-c-20261029
+- integrated-refresh-fix-20261029
+- integrated-mobile-final-20261029
+
+## Remaining before manual entry
+
+Refresh existing tabs. Complete HUMAN_PLAYTEST.md with real phones, EN/ZH speakers and a beginner; add native KO/JA/ES phrase review if available. No automated clients are represented as humans. Prior user-reported two-person/physical-iPhone feedback motivated the changes but is not final-build group validation.
+
+Idle cold-start timing remains unmeasured. Render Free can take about a minute to wake, and restart/redeploy ends in-memory rooms. Same-browser refresh restores existing rooms; no restart recovery/host migration.
+
+The application is frozen except critical fixes. The creator must review terms/eligibility, enter title/URL/cover/description, select Share to Showcase and submit manually. No submission was made by the agent.
