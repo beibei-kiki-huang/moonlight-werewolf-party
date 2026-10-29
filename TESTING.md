@@ -2,7 +2,7 @@
 
 ## Verified October 28, 2026
 
-- 58 automated rules/privacy/socket/presentation/audio tests passed; TypeScript and production build passed.
+- Latest suite: 86 automated rules/privacy/socket/presentation/audio/demo tests; TypeScript and production build checks. Earlier counts below are historical checkpoints.
 - Public beta deployed successfully on Render Free: https://moonlight-werewolf-party.onrender.com/
 - Five independent public WebSocket clients completed Classic with normal timers: private roles, Seer investigation, synchronized phases, discussion chat, secret voting, elimination and identical village victory.
 - Two independent public WebSocket clients completed Quick with normal timers, hidden accusations and matching final result/center-card reveal.
@@ -48,7 +48,7 @@ The free server can sleep or restart, which ends rooms. Refresh recovery is same
 ## Flow/audio regression checks (October 28 update)
 
 - P0 passed 52 tests and a production build before audio work started; saved in commit `aa56453`. Pre-change rollback tag: `pre-flow-narrator-20261028`.
-- Current suite: 58 tests, including actual independent Socket.IO clients in both modes. Checks immediate completion, duplicate confirms, secret packet delivery, offline timeout, dead-seat exclusion, invalid targets, fixed slots, repeated nights, opt-in audio, language changes, delayed/missing voices, cancellation and sound-source cleanup.
+- At this checkpoint: 58 tests, including actual independent Socket.IO clients in both modes. Checks immediate completion, duplicate confirms, secret packet delivery, offline timeout, dead-seat exclusion, invalid targets, fixed slots, repeated nights, opt-in audio, language changes, delayed/missing voices, cancellation and sound-source cleanup.
 - Sound must remain off until Enable Sound on each page load. Check Mute/Unmute, separate narration/background toggles, quiet volume, EN/Chinese public cues, language change, tab hiding, reconnect and refresh. No microphone or paid service is involved.
 - Browser speech voices and autoplay behavior depend on the device. Verify that written guidance and gameplay continue if speech is missing or reports an error. Automated audio checks validate API behavior and cancellation; they do not establish subjective audibility or quality on every physical phone.
 - Local browser review: two independent origins plus three socket seats traversed nightfall, wolf/Seer/Witch actions and dawn. Private wolf targeting and Witch healing remained absent from the other browser's controls. Chinese chat synchronized; refresh restored the seat, concealed its card and required sound activation again. Phone widths 390px/320px had no horizontal overflow; chat input stayed 16px. Native speech failure displayed written guidance and did not interrupt phases.
@@ -66,7 +66,16 @@ The free server can sleep or restart, which ends rooms. Refresh recovery is same
 ## Approved recordings and atmosphere refinement (October 28)
 
 - Rollback checkpoint: `pre-approved-audio-20261028` (`26d2a69`). No game, protocol, dependency or hosting changes.
-- Current automated suite: **80 tests**; TypeScript and production build pass. Prior regression sections above record earlier checkpoints.
+- At this audio checkpoint: **80 tests**; TypeScript and production build pass. Prior regression sections above record earlier checkpoints.
 - New checks cover all 28 EN/Chinese clip paths, script parity, AAC headers, fixed phase duration budgets, total asset budget and license notices. Mocked Web Audio tests cover opt-in, cached assets, live volume without repeated narration, ducking without restarting music, stale-load cancellation, clip failure with one native fallback, unavailable audio and improved Mandarin locale matching.
 - Independent local EN/Chinese browser seats plus three socket seats traverse fixed Classic night slots. The Chinese Witch sees her private controls while the English wolf sees a neutral screen. Narration settings show no native fallback/error during playback. Separate sliders remain usable on mobile; no horizontal overflow at 390px. Browser API checks cannot guarantee subjective audio quality or autoplay behavior on every physical phone.
 - Public acceptance must be rerun after deploying: normal-clock Classic and Duel with independent clients, private projections, chat, synchronized night/day, early confirmed voting and victory. The acceptance script also checks deployed music, bilingual narration files and attribution.
+
+## Final homepage and isolated demo
+
+- Baseline rollback: `pre-submission-final-20261028` (`745847e`). Server, rules, protocol, character art and dependencies unchanged.
+- Six tour tests cover gesture-only start, exact 60-second sequence, pause/resume/Next, selection versus confirmation, sealed ballots, complete Replay cleanup, fictional rule-consistent outcomes and transport/storage-free entry sources.
+- `node scripts/verify-demo-build.mjs` inspects the compiled demo dependency graph for game transport, credential storage and room APIs; validates shipped notices and all four submission artifacts. Static script/font/image loading is allowed.
+- Local production-style browser testing verifies an existing seat stays online while another same-origin tab opens, replays and exits the demo. Server logs show one connected client and one room, with no extra connection/resume/create. The saved seat remains explicitly resumable on the return landing page.
+- English/Chinese homepage and demo, mobile 390px/320px, separate draft/confirmed sample votes, optional equivalent translations, and Next/Pause/Replay are reviewed through the UI. Public acceptance is run after deployment against matching built bundles and full Classic/Duel production clocks.
+- Human validation with 5–6 independent mixed-language people and a Werewolf beginner remains a separate manual task, not substituted by QA sockets or the scripted tour.

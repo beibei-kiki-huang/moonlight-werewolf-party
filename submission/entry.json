@@ -1,0 +1,10 @@
+{
+  "title": "Moonlight — Play Beyond Borders",
+  "url": "https://moonlight-werewolf-party.onrender.com/",
+  "cover": "cover.jpg",
+  "description": "Moonlight — Play Beyond Borders is a bilingual, moderator-free Werewolf game for friends. Try the 60-second scripted Guided Demo solo. Join a private room on your phone or computer—no accounts. Secret roles, synchronized phases and confirmed voting run automatically. Ten Quick Chat phrases appear in each player’s English or Chinese interface. Built with OpenAI; I learned to protect private roles while keeping devices in sync. Classic: 5–8 players. Duel: 2.",
+  "descriptionCharacters": 460,
+  "stableBaseline": "745847e30fc571216eaad74c4b546ee32d66e3be",
+  "rollback": "pre-submission-final-20261028",
+  "submitted": false
+}

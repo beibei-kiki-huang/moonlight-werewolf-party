@@ -1,0 +1,18 @@
+/* A bounded copy/entry update; existing game presentation is unchanged. */
+.hero .positioning-title{font-size:clamp(47px,4.7vw,66px);line-height:1.03;letter-spacing:-1.8px;max-width:530px;margin:26px 0 20px}
+.hero .hero-promise{font-size:17px;line-height:1.65;color:#e3d8ed;max-width:440px;margin-bottom:12px}
+.hero .hero-copy{font-size:13px;line-height:1.9;max-width:425px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;position:relative;margin:22px 0 10px}.hero-actions a{text-decoration:none}
+.hero .demo-disclosure{font-size:11px;color:#bfb2cf;line-height:1.7;margin:0 0 20px}
+.hero-meta{flex-wrap:wrap;row-gap:10px}.entry-card{scroll-margin-top:22px}
+.beginner-guide{grid-column:1/-1;padding:30px;border:1px solid #c6b0da30;border-radius:16px;background:linear-gradient(130deg,#1a1d30,#141928)}
+.beginner-guide h2{font-size:37px;margin:6px 0 12px}.guide-intro{color:#bfb7ce;font-size:13px;line-height:1.8}
+.beginner-guide ol{list-style:none;padding:0;margin:25px 0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px}
+.beginner-guide li{display:flex;align-items:flex-start;gap:11px}.guide-number{font-family:'Cormorant Garamond',serif;display:grid;place-items:center;border:1px solid #c9b4df44;border-radius:50%;width:29px;height:29px;flex-shrink:0;color:#d3c0e6;font-size:20px}
+.beginner-guide h3{font:500 13px/1.6 'DM Sans',sans-serif;margin:2px 0 8px;color:#e4d9f1}.beginner-guide li p,.guide-goals{font-size:11px;line-height:1.9;color:#b9b2c7;margin:0}
+.guide-goals{margin-top:9px}.guide-goals strong{color:#ddcee9;font-weight:500}.rules-modal .beginner-guide{padding:20px;margin:25px 0}.rules-modal .beginner-guide ol{grid-template-columns:1fr;gap:17px}.rules-modal .beginner-guide h2{font-size:30px}
+.site-footer a{color:#b8aac9;text-underline-offset:3px}
+a:focus-visible{outline:2px solid #e5d3ff;outline-offset:4px}
+@media(max-width:1000px){.beginner-guide ol{grid-template-columns:repeat(2,minmax(0,1fr))}.hero .positioning-title{font-size:55px}}
+@media(max-width:680px){.hero .positioning-title{font-size:52px;max-width:350px}.hero .hero-promise{font-size:15px}.hero .hero-copy{font-size:12px}.hero-actions{gap:9px;margin-top:18px}.hero-actions .button{font-size:12px;min-height:46px;padding:12px 14px}.beginner-guide{padding:22px}.beginner-guide ol{grid-template-columns:1fr;gap:20px}.beginner-guide h2{font-size:33px}.beginner-guide li p,.guide-goals{font-size:12px}.hero .demo-disclosure{font-size:11px}.hero{min-height:0}}
+@media(max-width:360px){.hero .positioning-title{font-size:46px}.hero-actions{flex-direction:column;align-items:stretch}.hero-actions .button{justify-content:center}}

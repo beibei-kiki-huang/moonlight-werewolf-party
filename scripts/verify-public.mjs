@@ -117,8 +117,21 @@ async function audioAssets() {
   assert.equal(credits.status, 200); assert.match(await credits.text(), /Kevin MacLeod[\s\S]*creativecommons.org\/licenses\/by\/4.0/);
   console.log('PASS audio assets: approved piano, all 28 bilingual recordings and attribution served publicly.');
 }
+async function releaseAssets() {
+  const manifest = JSON.parse(await readFile(new URL('../dist/client/.vite/manifest.json', import.meta.url), 'utf8'));
+  for (const page of ['index.html', 'demo.html']) {
+    const response = await fetch(`${url}/${page === 'index.html' ? '' : page}`);
+    assert.equal(response.status, 200);
+    assert((await response.text()).includes('/' + manifest[page].file), `${page} must match the tested release bundle`);
+  }
+  const response = await fetch(`${url}/THIRD_PARTY_NOTICES.txt`);
+  assert.equal(response.status, 200);
+  const notices = await response.text();
+  for (const name of ['Kevin MacLeod', 'MyShell.ai', 'SIL OPEN FONT LICENSE', 'Lucide', 'FEATHER-DERIVED ICONS']) assert(notices.includes(name));
+  console.log('PASS release assets: tested homepage/demo bundles and complete attribution are deployed.');
+}
 try {
   const response = await fetch(`${url}/api/health`); assert.equal(response.status, 200);
   assert.equal((await response.json()).status, 'ok');
-  await Promise.all([classic(), quick(), audioAssets()]); console.log('ALL PUBLIC ACCEPTANCE CHECKS PASSED.');
+  await Promise.all([classic(), quick(), audioAssets(), releaseAssets()]); console.log('ALL PUBLIC ACCEPTANCE CHECKS PASSED.');
 } finally { clearInterval(heartbeat); sockets.forEach(s => s.disconnect()); }

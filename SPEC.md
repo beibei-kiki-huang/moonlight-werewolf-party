@@ -1,4 +1,4 @@
-# Moonlight — Werewolf Party · MVP specification
+# Moonlight — Play Beyond Borders · MVP specification
 
 Updated October 28, 2026. Build order: real multiplayer Classic → public test → two-player Quick → Chinese → polish. No purchases are authorized.
 
@@ -64,3 +64,9 @@ Each device must explicitly Enable Sound. Narration uses approved English/Simpli
 Ten fixed phrases in English/Simplified Chinese, using shared stable IDs and server-authored fallback text. Each recipient sees their selected interface language. A collapsed language control on each preset reveals the equivalent phrase locally. A compact collapsed picker offers all ten phrases equally to all eligible players; it never reads private role or action data. Presets preserve typed drafts and mix with unchanged free-text messages.
 
 Existing chat permissions, room-only lifetime/history cap, sender authentication and shared rate limit apply. No night chat, no eliminated-player discussion messages, no player targeting, auto-translated free text, accounts, permanent messages or translation APIs. No gameplay, artwork, dependency or hosting changes.
+
+## Bounded judge access and feature freeze
+
+The homepage states bilingual, moderator-free play and includes a five-step beginner guide. A separate, clearly labeled 60-second Guided Demo shows fictional role reveal, condensed phases, canonical bilingual presets, local draft/confirmed sample voting and a consistent result. It has no real room, credentials, player APIs or multiplayer transport and does not modify real game rules. Controls: Start, Next, Pause/Resume, Exit, Replay. Returning to the landing page requires explicit seat resumption to protect other open tabs.
+
+No further product features before submission. Complete regression/build checks, public Classic/Duel, notices and manual entry materials; finish a genuine five-or-six-person mixed-language usability test. The manual Handshake entry remains the creator's action.

@@ -1,6 +1,6 @@
-# Moonlight — Werewolf Party
+# Moonlight — Play Beyond Borders
 
-A real multiplayer Werewolf game for friends. Each player joins from their own browser with a nickname and a six-character code. No player accounts, installs, AI services, or payments are needed.
+A bilingual, moderator-free multiplayer Werewolf game for friends. Each player joins from their own browser with a nickname and a six-character code. No player accounts, installs, AI services, or payments are needed.
 
 **Public beta:** https://moonlight-werewolf-party.onrender.com/ · Hosted on Render Free.
 
@@ -99,3 +99,13 @@ The 28 short AAC narration clips use the unchanged public script in English and 
 One approved piano recording is reused with quiet phase-based levels, reduced further during discussion and ducked during narration. Results use a brief excerpt and faction-specific spoken cue, rather than introducing unreviewed music. Public phase accents vary subtly from crimson/charcoal through silver-blue and muted gold to warm discussion and burgundy voting. Existing illustrations are unchanged.
 
 Sound remains off until a user gesture on every page load. Music defaults off; saved settings are local. Cues cancel on phase/language change, mute, hidden tab or disconnect. Delayed loads cannot start stale narration, announcements do not overlap, and failed loads never delay the server. Only public phase metadata selects recordings, colors and levels. The full audio pack is under 3 MB and loads on demand.
+
+## Final competition entry
+
+Rollback checkpoint: `pre-submission-final-20261028` at stable build `745847e`. The homepage explains the bilingual value and includes a five-step beginner guide. The original game rules, role artwork, server and protocol remain unchanged.
+
+`/demo.html` is a clearly labeled, 60-second fictional tour with Next, Pause/Resume, Exit and Replay. It is a separate Vite entry, never mounts the real App, and never opens a multiplayer connection or accesses seat storage. The small shared module contains only public Quick Chat phrases and static styles/font loading. The returning `/?welcome=1` landing route deliberately avoids automatic saved-seat takeover; normal refresh/resume behavior is unchanged. A demo is not evidence of live multiplayer; the actual game remains independently tested.
+
+No new dependency or paid service was added. Complete installed-version notices are shipped at `/THIRD_PARTY_NOTICES.txt` and linked in both entries. Reproduce notices with `node scripts/collect-notices.mjs`. After `npm test` and `npm run build`, run `node scripts/verify-demo-build.mjs` to check the separate dependency graph, notices and submission items.
+
+The manual entry package is in `submission/`. It contains the title, public URL, 3:2 cover, 460-character description, judge instructions and human test checklist. No form is submitted automatically. Free-host cold starts, room loss on server restart and uncompleted human group validation remain disclosed.

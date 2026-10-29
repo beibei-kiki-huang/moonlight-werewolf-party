@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: { proxy: { '/socket.io': { target: 'http://127.0.0.1:3001', ws: true }, '/api': 'http://127.0.0.1:3001' } },
-  build: { outDir: 'dist/client' },
+  build: { outDir: 'dist/client', manifest: true, rollupOptions: { input: { main: 'index.html', demo: 'demo.html' } } },
 });
