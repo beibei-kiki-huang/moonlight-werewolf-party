@@ -17,7 +17,7 @@ export interface Room {
 }
 export type Durations = Partial<Record<Phase, number>> & { quickDiscussion?: number };
 export const DURATIONS: Durations = {
-  reveal: 30_000, wolves: 25_000, seer: 15_000, witch: 20_000, dawn: 8_000,
+  reveal: 30_000, nightfall: 5_000, wolves: 25_000, seer: 15_000, witch: 20_000, dawn: 8_000,
   discussion: 120_000, quickDiscussion: 90_000, voting: 30_000, verdict: 8_000,
 };
 export const DISTRIBUTIONS: Record<number, Role[]> = {
@@ -132,7 +132,12 @@ export class Game {
     if (room.mode === 'quick') {
       if (target !== 'other' && target !== 'center') fail('invalid_target');
     } else if (target !== 'skip') this.target(room, target, id);
-    room.votes[id] = target; this.touch(room, now);
+    room.votes[id] = target;
+    // Every living seat counts, including offline seats and the Duel's decoy voter.
+    // Synchronous resolution changes the phase before another packet/timer can act.
+    const resolved = room.players.filter(p => p.alive).every(p => Object.hasOwn(room.votes, p.id))
+      && this.resolveVoting(room, now);
+    this.touch(room, now); return resolved;
   }
   chat(room: Room, id: string, text: string, now: number) {
     const player = this.player(room, id);
@@ -167,17 +172,33 @@ export class Game {
     const sorted = [...totals].sort((a, b) => b[1] - a[1]);
     return sorted.length && (sorted.length === 1 || sorted[0][1] > sorted[1][1]) ? sorted[0][0] : null;
   }
+  private resolveVoting(room: Room, now: number): boolean {
+    if (room.phase !== 'voting') return false;
+    const eligible = room.players.filter(p => p.alive);
+    room.ballots = Object.fromEntries(eligible.map(p => [p.id, room.votes[p.id] ?? (room.mode === 'quick' ? 'missing' : 'skip')]));
+    if (room.mode === 'quick') {
+      const correct = room.centerRole === 'werewolf' ? 'center' : 'other';
+      this.finish(room, eligible.filter(p => p.role === 'villager').every(p => room.votes[p.id] === correct) ? 'village' : 'wolves', now);
+    } else {
+      const target = this.plurality(Object.values(room.ballots));
+      if (target && target !== 'skip') {
+        const player = this.player(room, target); player.alive = false; room.deathThisCycle = true;
+        this.event(room, { kind: 'elimination', day: room.day, players: [{ name: player.name, role: player.role! }] });
+      } else this.event(room, { kind: 'no_elimination', day: room.day });
+      room.quietCycles = room.deathThisCycle ? 0 : room.quietCycles + 1;
+      if (!this.victory(room, now)) {
+        if (room.quietCycles >= 3) this.finish(room, 'draw', now);
+        else this.phase(room, 'verdict', now);
+      }
+    }
+    return true;
+  }
   tick(room: Room, now: number): boolean {
     if (room.deadline === null || now < room.deadline) return false;
     if (room.mode === 'quick') {
       if (room.phase === 'reveal') this.phase(room, 'discussion', now);
       else if (room.phase === 'discussion') { room.votes = {}; this.phase(room, 'voting', now); }
-      else if (room.phase === 'voting') {
-        room.ballots = Object.fromEntries(room.players.map(p => [p.id, room.votes[p.id] ?? 'missing']));
-        const villagers = room.players.filter(p => p.role === 'villager');
-        const correct = room.centerRole === 'werewolf' ? 'center' : 'other';
-        this.finish(room, villagers.every(p => room.votes[p.id] === correct) ? 'village' : 'wolves', now);
-      }
+      else if (room.phase === 'voting') this.resolveVoting(room, now);
       this.touch(room, now); return true;
     }
     switch (room.phase) {
@@ -186,8 +207,9 @@ export class Game {
         if (room.phase === 'verdict') room.day++;
         room.attacks = {}; room.inspected = new Set(); room.witchAction = undefined; room.victim = null;
         room.votes = {}; room.ballots = undefined; room.deathThisCycle = false;
-        this.phase(room, 'wolves', now); break;
+        this.phase(room, 'nightfall', now); break;
       }
+      case 'nightfall': this.phase(room, 'wolves', now); break;
       case 'wolves': {
         room.victim = this.plurality(Object.values(room.attacks)); this.phase(room, 'seer', now); break;
       }
@@ -204,20 +226,7 @@ export class Game {
       }
       case 'dawn': this.phase(room, 'discussion', now); break;
       case 'discussion': room.votes = {}; room.ballots = undefined; this.phase(room, 'voting', now); break;
-      case 'voting': {
-        room.ballots = Object.fromEntries(room.players.filter(p => p.alive).map(p => [p.id, room.votes[p.id] ?? 'skip']));
-        const target = this.plurality(Object.values(room.ballots));
-        if (target && target !== 'skip') {
-          const player = this.player(room, target); player.alive = false; room.deathThisCycle = true;
-          this.event(room, { kind: 'elimination', day: room.day, players: [{ name: player.name, role: player.role! }] });
-        } else this.event(room, { kind: 'no_elimination', day: room.day });
-        room.quietCycles = room.deathThisCycle ? 0 : room.quietCycles + 1;
-        if (!this.victory(room, now)) {
-          if (room.quietCycles >= 3) this.finish(room, 'draw', now);
-          else this.phase(room, 'verdict', now);
-        }
-        break;
-      }
+      case 'voting': this.resolveVoting(room, now); break;
     }
     this.touch(room, now); return true;
   }

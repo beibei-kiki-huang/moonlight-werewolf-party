@@ -45,6 +45,9 @@ async function table(mode, count) {
 async function classic() {
   const { peers } = await table('classic', 5);
   const wolf = peers.find(p => p.view.role === 'werewolf');
+  await waitFor(peers, 'nightfall');
+  assert(peers.every(p => p.view.deadline === peers[0].view.deadline));
+  await waitFor(peers, 'wolves');
   await waitFor(peers, 'seer');
   const seer = peers.find(p => p.view.role === 'seer');
   await emit(seer.socket, 'action', { kind: 'inspect', target: wolf.view.youId });
@@ -55,9 +58,13 @@ async function classic() {
   assert(peers.every(p => p.view.chat.at(-1).text === 'Public network acceptance test.'));
   console.log('classic: synchronized night and dawn; private Seer result and public discussion verified.');
   await waitFor(peers, 'voting');
-  for (const p of peers) await emit(p.socket, 'vote', { target: p === wolf ? 'skip' : wolf.view.youId });
+  for (const p of peers.slice(0, -1)) await emit(p.socket, 'vote', { target: p === wolf ? 'skip' : wolf.view.youId });
   assert(peers.every(p => p.view.ballots === undefined));
-  await waitFor(peers, 'ended', 45_000);
+  const deadline = peers[0].view.deadline;
+  const last = peers.at(-1);
+  await emit(last.socket, 'vote', { target: last === wolf ? 'skip' : wolf.view.youId });
+  await waitFor(peers, 'ended', 5_000);
+  assert(Date.now() < deadline);
   assert(peers.every(p => p.view.winner === 'village' && p.view.players.every(other => !!other.role)));
   console.log('PASS classic: secret votes, elimination, and identical village victory across five public clients.');
 }
@@ -65,9 +72,12 @@ async function quick() {
   const { peers } = await table('quick', 2);
   await waitFor(peers, 'voting');
   const wolfPresent = peers.some(p => p.view.role === 'werewolf');
-  for (const p of peers) await emit(p.socket, 'vote', { target: wolfPresent ? 'other' : 'center' });
+  await emit(peers[0].socket, 'vote', { target: wolfPresent ? 'other' : 'center' });
   assert(peers.every(p => p.view.ballots === undefined && !p.view.centerRole));
-  await waitFor(peers, 'ended', 45_000);
+  const deadline = peers[0].view.deadline;
+  await emit(peers[1].socket, 'vote', { target: wolfPresent ? 'other' : 'center' });
+  await waitFor(peers, 'ended', 5_000);
+  assert(Date.now() < deadline);
   assert(peers.every(p => p.view.winner === 'village' && !!p.view.centerRole));
   console.log('PASS quick: both public clients completed the duel with identical results and center-card reveal.');
 }

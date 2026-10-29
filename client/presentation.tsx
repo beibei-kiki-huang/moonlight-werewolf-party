@@ -1,8 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, ChevronDown, Eye, EyeOff, FlaskConical, Hourglass, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote } from 'lucide-react';
 import type { GameView, PublicPlayer, Role } from '../shared/types';
+import { phaseScript, type Language, type PublicPhase } from '../shared/publicPhase';
 
 export type Translate = (en: string, zh: string) => string;
+export function NightSequence({ phase, language, tr }: { phase: PublicPhase; language: Language; tr: Translate }) {
+  const slots = ['nightfall', 'wolves', 'seer', 'witch', 'dawn'];
+  const labels = [tr('Nightfall', '入夜'), tr('Wolves', '狼人'), tr('Seer', '预言家'), tr('Witch', '女巫'), tr('Dawn', '黎明')];
+  return <section className={`night-sequence ${phase.phase === 'dawn' ? 'is-dawn' : ''}`} aria-label={tr('Public night guidance', '公开夜间引导')}>
+    <div className="night-moon" aria-hidden="true"><Moon size={38} strokeWidth={1} /></div>
+    <p className="eyebrow">{tr('THE VOICE OF THE VILLAGE', '村庄之声')}</p>
+    <p className="night-script" role="status">{phaseScript(phase, language)}</p>
+    <ol className="night-schedule">{slots.map((slot, i) => <li key={slot} aria-current={phase.phase === slot ? 'step' : undefined}><span />{labels[i]}</li>)}</ol>
+    <small>{tr('A fixed nightly ritual. Every stage runs in full, even when a role cannot act.', '固定的夜间流程。即使某身份无法行动，每阶段仍完整进行。')}</small>
+  </section>;
+}
 type RoleName = (role: Role) => string;
 const roleIcons = { werewolf: Moon, villager: Shield, seer: Eye, witch: FlaskConical };
 const lore: Record<Role, [string, string]> = {
@@ -89,7 +101,7 @@ export function VotingPanel({ view, eligible, selected, onSelect, onConfirm, dis
         : <><span className="receipt-icon"><Vote size={21} /></span><div><strong>{draft ? tr('Ready to seal your choice?', '准备确认你的选择？') : tr('Your ballot is still empty', '你还没有投票')}</strong><p>{draft ? `${choiceName(draft, view, tr)} · ${tr('Not confirmed yet', '尚未确认')}` : tr('Select an option above, then confirm below.', '先在上方选择，再点击下方确认。')}</p></div></>}
     </div>
     <button className={`button primary confirm-vote ${saved ? 'confirmed-button' : ''}`} disabled={disabled || !draft || saved} onClick={() => onConfirm(draft)}>{pending ? <Hourglass size={18} /> : saved ? <Check size={18} /> : <Vote size={18} />}{pending ? tr('Saving your ballot…', '正在保存选票…') : saved ? tr('Vote confirmed', '投票已确认') : view.acted ? tr('Confirm new vote', '确认更改投票') : tr('Confirm my vote', '确认投票')}{!saved && !pending && <ArrowRight size={17} />}</button>
-    <p className="ballot-footnote"><Shield size={13} />{tr('Only you can see your choice. You may change it until the timer ends.', '只有你能看到自己的选择，倒计时结束前可更改。')}</p>
+    <p className="ballot-footnote"><Shield size={13} />{tr('Your ballot stays private until resolution. All living players confirmed? Voting ends immediately. Otherwise it ends at the deadline. Reconfirm changes while voting is open.', '结算前选票保密。所有存活玩家确认后立即结算，否则在倒计时结束时结算。投票开放期间，更改需再次确认。')}</p>
     {view.acted && changed && <p className="previous-vote">{tr('Your saved vote is still: ', '当前已保存的投票仍为：')}{choiceName(view.selection, view, tr)}</p>}
   </section>;
 }

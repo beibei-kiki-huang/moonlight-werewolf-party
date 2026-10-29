@@ -14,13 +14,36 @@ async function client(url: string) {
 function send<T>(socket: Socket, event: string, data: unknown): Promise<Reply<T>> {
   return new Promise(resolve => socket.emit(event, data, resolve));
 }
-async function running() {
-  server = createApp(new Game({ reveal: 50, wolves: 250, seer: 250, witch: 250, dawn: 50, discussion: 50, quickDiscussion: 50, voting: 250, verdict: 50 }, cards => [...cards]));
+async function running(voting = 250) {
+  server = createApp(new Game({ reveal: 50, nightfall: 50, wolves: 250, seer: 250, witch: 250, dawn: 50, discussion: 50, quickDiscussion: 50, voting, verdict: 50 }, cards => [...cards]));
   await new Promise<void>(resolve => server!.http.listen(0, '127.0.0.1', resolve));
   const address = server.http.address(); if (!address || typeof address === 'string') throw new Error('address');
   return `http://127.0.0.1:${address.port}`;
 }
 describe('real multiplayer transport', () => {
+  it.each(['classic', 'quick'] as const)('broadcasts %s resolution immediately, without leaking confirmations before the last vote', async mode => {
+    const url = await running(10_000);
+    const peers = await Promise.all(Array.from({ length: mode === 'classic' ? 5 : 2 }, () => client(url)));
+    const views: GameView[] = [], received: number[] = peers.map(() => 0);
+    peers.forEach((p, i) => p.on('state', v => { views[i] = v; received[i]++; }));
+    const made = await send<Seat>(peers[0], 'create', { mode, name: 'Host' }); if (!made.ok) throw new Error('create');
+    for (let i = 1; i < peers.length; i++) await send(peers[i], 'join', { code: made.data.code, name: `Peer ${i}` });
+    for (const p of peers) await send(p, 'ready', { ready: true });
+    await send(peers[0], 'start', {});
+    await expect.poll(() => views.every(v => v.phase === 'voting'), { timeout: 5000, interval: 10 }).toBe(true);
+    const last = peers.length - 1, before = received[last], deadline = views[0].deadline!;
+    const target = mode === 'classic' ? 'skip' : 'other';
+    for (const p of peers.slice(0, -1)) expect((await send(p, 'vote', { target })).ok).toBe(true);
+    await new Promise(resolve => setTimeout(resolve, 30));
+    expect(received[last]).toBe(before); // even packet timing/counts must not disclose private confirmations
+    expect(views[last].ballots).toBeUndefined(); expect(views[last].selection).toBeUndefined();
+    const acknowledgements = await Promise.all([send(peers[last], 'vote', { target }), send(peers[last], 'vote', { target })]);
+    expect(acknowledgements).toEqual([{ ok: true, data: undefined }, { ok: false, error: 'wrong_phase' }]);
+    await expect.poll(() => views.every(v => v.phase === (mode === 'classic' ? 'verdict' : 'ended')), { interval: 10 }).toBe(true);
+    expect(Date.now()).toBeLessThan(deadline);
+    expect(views.every(v => Object.keys(v.ballots ?? {}).length === peers.length)).toBe(true);
+    expect(views.every(v => v.events.filter(e => e.kind === 'no_elimination' || e.kind === 'result').length === 1)).toBe(true);
+  });
   it('runs five independent clients through a full game, protecting roles and restoring refreshes', async () => {
     const url = await running(); const peers = await Promise.all(Array.from({ length: 5 }, () => client(url)));
     const views: (GameView | undefined)[] = [];

@@ -142,7 +142,9 @@ export function createApp(game = new Game()) {
       emitPrivate(room, playerId, action.kind === 'attack');
     });
     handle('vote', z.object({ target: z.union([idSchema, z.literal('skip'), z.literal('other'), z.literal('center')]) }), ({ target }) => {
-      const { room, playerId } = getSession(socket); game.vote(room, playerId, target, Date.now()); emitPrivate(room, playerId);
+      const { room, playerId } = getSession(socket);
+      if (game.vote(room, playerId, target, Date.now())) emitViews(room);
+      else emitPrivate(room, playerId);
     });
     command('chat', z.object({ text: z.string().trim().min(1).max(300) }), ({ room, playerId }, { text }) => {
       limit(`chat:${playerId}`, 5, 10_000); game.chat(room, playerId, text, Date.now());

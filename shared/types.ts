@@ -1,6 +1,6 @@
 export type Role = 'werewolf' | 'villager' | 'seer' | 'witch';
 export type Mode = 'classic' | 'quick';
-export type Phase = 'lobby' | 'reveal' | 'wolves' | 'seer' | 'witch' | 'dawn' | 'discussion' | 'voting' | 'verdict' | 'ended';
+export type Phase = 'lobby' | 'reveal' | 'nightfall' | 'wolves' | 'seer' | 'witch' | 'dawn' | 'discussion' | 'voting' | 'verdict' | 'ended';
 export type Winner = 'village' | 'wolves' | 'draw';
 export type ErrorCode = 'invalid' | 'room_missing' | 'room_full' | 'name_taken' | 'started' | 'unauthorized' | 'not_host' | 'not_ready' | 'wrong_phase' | 'invalid_target' | 'already_acted' | 'rate_limit' | 'capacity';
 export interface PublicPlayer { id: string; name: string; connected: boolean; ready: boolean; alive: boolean; role?: Role }
