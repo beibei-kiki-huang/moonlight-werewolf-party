@@ -16,7 +16,7 @@ describe('bounded role examples and wording',()=>{
  });
  it.each(['kai','rui','mei','sam','lin'])('resolves valid sample pack choice %s using the existing tie rule',target=>{
   const t=new GuidedTour();t.next();t.openWolf();t.selectWolf('ash');expect(t.wolfTarget).toBeNull();t.selectWolf(target);t.resolveWolf();expect(t.wolfVictim).toBe(target==='kai'?'kai':null);t.selectWolf(target==='kai'?'rui':'kai');expect(t.wolfTarget).toBe(target);
-  expect(wolfExample(t,en)).toContain('Ash');expect(wolfExample(t,en)).toContain(target==='kai'?'intended victim':'no attack');t.next();t.previous();t.openWolf();expect(t.wolfResolved).toBe(true);t.resetWolf();expect(t.wolfTarget).toBeNull();t.replay();expect(t).toEqual(new GuidedTour());
+  expect(wolfExample(t,en)).toContain('Ash');expect(wolfExample(t,en)).toContain('Scripted participants.');expect(wolfExample(t,en)).toContain(target==='kai'?'intended victim':'no attack');t.next();t.previous();t.openWolf();expect(t.wolfResolved).toBe(true);t.resetWolf();expect(t.wolfTarget).toBeNull();t.replay();expect(t).toEqual(new GuidedTour());
  });
  it('keeps real Seer results concealed with the card and uses faction labels in both languages',()=>{
   for(const tr of [en,zh])for(const isWolf of [true,false]){

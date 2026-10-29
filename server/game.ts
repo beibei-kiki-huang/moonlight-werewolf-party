@@ -1,5 +1,5 @@
 import { randomInt, randomUUID } from 'node:crypto';
-import type { Action, ChatMessage, ErrorCode, GameEvent, GameView, Investigation, Mode, Phase, Role, Winner } from '../shared/types.js';
+import type { Action, ChatMessage, ErrorCode, GameEvent, GameView, Investigation, Mode, Phase, Role, Winner, PackChatState, PackSubmission } from '../shared/types.js';
 import { isQuickPhraseId, QUICK_PHRASES } from '../shared/quickChat.js';
 
 export class GameError extends Error {
@@ -46,6 +46,8 @@ export function newRoom(code: string, mode: Mode, host: Player, now: number): Ro
   };
 }
 export class Game {
+  // Private, bounded current-stage storage; never part of public Room chat/events/revisions.
+  private packStores = new WeakMap<Room, PackChatState & { receipts: Map<string, ChatMessage> }>();
   constructor(private durations: Durations = DURATIONS, private deal: (cards: Role[]) => Role[] = shuffle) {}
   player(room: Room, id: string): Player { return room.players.find(p => p.id === id) ?? fail('unauthorized'); }
   touch(room: Room, now: number) { room.revision++; room.lastActivity = now; }
@@ -87,6 +89,7 @@ export class Game {
   }
   private event(room: Room, event: Omit<GameEvent, 'id'>) { room.events.push({ ...event, id: room.events.length + 1 }); }
   private phase(room: Room, phase: Phase, now: number) {
+    this.packStores.delete(room);
     room.phase = phase;
     room.deadline = phase === 'lobby' || phase === 'ended' ? null : now +
       (room.mode === 'quick' && phase === 'discussion' ? this.durations.quickDiscussion ?? 90_000 : this.durations[phase] ?? 1000);
@@ -142,6 +145,45 @@ export class Game {
   }
   chat(room: Room, id: string, text: string, now: number) {
     this.appendChat(room, id, { text }, now);
+  }
+  canPackChat(room: Room, id: string, now: number) {
+    const player=room.players.find(p=>p.id===id);
+    return room.mode==='classic' && room.phase==='wolves' && room.deadline!==null && now<room.deadline
+      && player?.alive===true && player.role==='werewolf' && room.players.filter(p=>p.alive && p.role==='werewolf').length>=2;
+  }
+  assertPackAccess(room: Room, id: string, now: number) {
+    this.actor(room,id,'wolves','werewolf',now);
+    if (!this.canPackChat(room,id,now)) fail('unauthorized');
+  }
+  private packStore(room: Room) {
+    let store=this.packStores.get(room);
+    if (!store) { store={stageId:randomUUID(),messages:[],receipts:new Map()}; this.packStores.set(room,store); }
+    return store;
+  }
+  packState(room: Room, id: string, now: number): PackChatState | undefined {
+    if (!this.canPackChat(room,id,now)) return;
+    const store=this.packStore(room);
+    return {stageId:store.stageId,messages:store.messages.map(m=>({...m}))};
+  }
+  packMessage(room: Room, id: string, input: PackSubmission, now: number) {
+    // Re-authorize before duplicate lookup, including retries from an earlier night/rematch.
+    this.assertPackAccess(room,id,now);
+    const store=this.packStore(room);
+    if (store.stageId!==input.stageId) fail('wrong_phase');
+    const phraseId=input.phraseId;
+    if (phraseId!==undefined && !isQuickPhraseId(phraseId)) fail('invalid');
+    if ((input.text===undefined)===(phraseId===undefined)) fail('invalid');
+    const text=phraseId===undefined ? input.text!.trim() : QUICK_PHRASES[phraseId].en;
+    if (!text || text.length>300 || !/^[0-9a-f-]{36}$/i.test(input.clientMessageId)) fail('invalid');
+    const key=id+'/'+input.clientMessageId, existing=store.receipts.get(key);
+    if (existing) {
+      if (existing.text!==text || existing.phraseId!==phraseId) fail('invalid');
+      return {messageId:existing.id,duplicate:true};
+    }
+    if (store.receipts.size>=60) fail('rate_limit');
+    const player=this.player(room,id),message:ChatMessage={id:randomUUID(),playerId:id,name:player.name,text,...(phraseId?{phraseId}:{})};
+    store.receipts.set(key,message);store.messages.push(message);store.messages=store.messages.slice(-30);
+    return {messageId:message.id,duplicate:false};
   }
   quickChat(room: Room, id: string, phraseId: string, now: number) {
     if (!isQuickPhraseId(phraseId)) return fail('invalid');
@@ -271,6 +313,7 @@ export class Game {
     if (room.phase === 'voting') { view.selection = room.votes[id]; view.acted = !!room.votes[id]; }
     if (room.ballots) view.ballots = { ...room.ballots };
     if (room.winner) view.winner = room.winner;
+    const pack=this.packState(room,id,now); if (pack) view.packChat=pack;
     if (room.phase === 'ended' && room.centerRole) view.centerRole = room.centerRole;
     return view;
   }

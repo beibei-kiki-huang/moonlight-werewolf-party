@@ -7,6 +7,8 @@ export type ErrorCode = 'invalid' | 'room_missing' | 'room_full' | 'name_taken' 
 export interface PublicPlayer { id: string; name: string; connected: boolean; ready: boolean; alive: boolean; role?: Role }
 export interface GameEvent { id: number; kind: 'start' | 'dawn' | 'elimination' | 'no_elimination' | 'result'; day: number; players?: { name: string; role: Role }[]; winner?: Winner }
 export interface ChatMessage { id: string; playerId: string; name: string; text: string; phraseId?: QuickPhraseId }
+export interface PackChatState { stageId: string; messages: ChatMessage[] }
+export type PackSubmission = { stageId: string; clientMessageId: string } & ({ text: string; phraseId?: never } | { phraseId: QuickPhraseId; text?: never });
 export interface Investigation { day: number; targetId: string; name: string; isWolf: boolean }
 export interface GameView {
   code: string; mode: Mode; phase: Phase; day: number; serverNow: number; deadline: number | null;
@@ -14,6 +16,7 @@ export interface GameView {
   role?: Role; wolfTeam?: string[]; wolfSelections?: Record<string, string>; investigations?: Investigation[];
   potions?: { heal: boolean; poison: boolean }; victim?: string | null; acted: boolean; selection?: string;
   ballots?: Record<string, string>; winner?: Winner; centerRole?: Role;
+  packChat?: PackChatState;
 }
 export interface Seat { code: string; playerId: string; token: string }
 export type Reply<T = undefined> = { ok: true; data: T } | { ok: false; error: ErrorCode };

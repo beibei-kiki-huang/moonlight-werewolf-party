@@ -2,7 +2,7 @@
 
 ## Verified October 28, 2026
 
-- Latest suite: 102 automated rules/privacy/socket/presentation/audio/demo tests; TypeScript and production build checks. Earlier counts below are historical checkpoints.
+- Latest suite: 133 automated rules/privacy/socket/presentation/audio/demo tests; TypeScript and production build checks. Earlier counts below are historical checkpoints.
 - Public beta deployed successfully on Render Free: https://moonlight-werewolf-party.onrender.com/
 - Five independent public WebSocket clients completed Classic with normal timers: private roles, Seer investigation, synchronized phases, discussion chat, secret voting, elimination and identical village victory.
 - Two independent public WebSocket clients completed Quick with normal timers, hidden accusations and matching final result/center-card reveal.
@@ -95,3 +95,13 @@ The free server can sleep or restart, which ends rooms. Refresh recovery is same
 - Independently passed 114 tests, TypeScript/production build and compiled demo isolation before any Pack Chat implementation.
 - Browser checks: both Seer factions, hide/reopen and fresh-example retry; Werewolf agreement/tie, teammate identity and valid targets; Witch retry/return; explicit Abstain confirmation with Previous preserving the ballot. Chinese 390px and English 320px have no overflow or browser warnings/errors.
 - Stage 1 does not alter server, protocol, attack resolution, voting payloads, role distribution, audio or artwork. Main-story clues are hidden until explicitly opened. Duel still has no abstention.
+
+
+## Stage 2 private-channel security gate — October 29
+
+- 133 tests pass, including 19 Pack Chat cases. The production build and demo-isolation check pass. No new dependency, paid service, artwork, audio or hosting change.
+- Network packet assertions verify zero additional data packets and no private fields/canary text for Villagers, Seer, Witch and an extra dead-wolf fixture during authorized sends. Production distribution remains two wolves in seven/eight-player Classic.
+- Current-living-role authorization precedes duplicate lookup. Strict socket schemas reject forged identity/room/role fields and malformed text/presets; unbound clients and forged tokens are denied. Rate limiting, recipient-language presets, HTML escaping, bounded history/receipts and concurrent nonce retries are covered.
+- Reconnection recovers current history only for authorized living wolves. Dead-seat reconnect, phase closure, deadline-boundary sends, next-night and rematch stage IDs, and stale duplicate packets are denied or have no history. Public chat still rejects night sends.
+- Eight independent local clients (two browser teammates, six socket guests): Chinese 390px and English desktop free text, localized presets, refresh recovery, independent attack choices, and removal of messages on stage exit and subsequent refresh were checked through the UI. No browser warnings/errors.
+- Public acceptance must complete after deployment: ordinary five-player Classic, Duel and the new seven-player pack match. Human/physical-phone validation remains a separate manual requirement.

@@ -14,6 +14,10 @@ const nameSchema = z.string().trim().min(2).max(20).regex(/^[^\p{Cc}\p{Cf}<>]+$/
 const codeSchema = z.string().trim().toUpperCase().regex(/^[A-HJ-NP-Z2-9]{6}$/);
 const idSchema = z.string().uuid();
 const modeSchema = z.enum(['classic', 'quick']);
+const packSchema = z.union([
+  z.object({stageId:idSchema,clientMessageId:idSchema,text:z.string().trim().min(1).max(300)}).strict(),
+  z.object({stageId:idSchema,clientMessageId:idSchema,phraseId:z.string().refine(isQuickPhraseId)}).strict(),
+]);
 const actionSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('attack'), target: idSchema }),
   z.object({ kind: z.literal('inspect'), target: idSchema }),
@@ -146,6 +150,18 @@ export function createApp(game = new Game()) {
       const { room, playerId } = getSession(socket);
       if (game.vote(room, playerId, target, Date.now())) emitViews(room);
       else emitPrivate(room, playerId);
+    });
+    handle('pack_chat', packSchema, input => {
+      const {room,playerId}=getSession(socket),now=Date.now();
+      game.assertPackAccess(room,playerId,now);
+      limit(`pack_chat:${playerId}`,5,10_000);
+      const reply=game.packMessage(room,playerId,input,now);
+      if (!reply.duplicate) for (const player of room.players) {
+        if (!game.canPackChat(room,player.id,now)) continue;
+        const connection=connections.get(player.id);
+        if (connection) io.to(connection).emit('pack_state',game.packState(room,player.id,now));
+      }
+      return reply;
     });
     command('chat', z.object({ text: z.string().trim().min(1).max(300) }), ({ room, playerId }, { text }) => {
       limit(`chat:${playerId}`, 5, 10_000); game.chat(room, playerId, text, Date.now());

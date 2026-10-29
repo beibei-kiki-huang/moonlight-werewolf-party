@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { io, type Socket } from 'socket.io-client';
 import { ArrowRight, Check, ChevronRight, Copy, Eye, EyeOff, FlaskConical, Globe2, Heart, Info, Link, LogOut, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote, Wifi, WifiOff, X } from 'lucide-react';
-import type { Action, ErrorCode, GameEvent, GameView, Mode, Reply, Role, Seat } from '../shared/types';
+import type { PackChatState, PackSubmission, Action, ErrorCode, GameEvent, GameView, Mode, Reply, Role, Seat } from '../shared/types';
 import './styles.css';
 import './polish.css';
 import './flow.css';
@@ -10,6 +10,7 @@ import './quick-chat.css';
 import './atmosphere.css';
 import './submission.css';
 import { BeginnerGuide } from './BeginnerGuide';
+import { PackChat } from './PackChat';
 import { WitchPanel } from './WitchPanel';
 import { DawnResult } from './DawnResult';
 import { publishedDawn, publishedDawnCue } from './publicDawn';
@@ -105,6 +106,10 @@ function App() {
         } else setError(null);
       });
     });
+    s.on('pack_state', (pack: PackChatState) => {
+      setView(current => current?.phase === 'wolves' && current.role === 'werewolf' && current.packChat?.stageId === pack.stageId
+        ? {...current,packChat:pack} : current);
+    });
     s.on('disconnect', () => { setConnected(false); setPending(false); });
     s.on('connect_error', () => { setConnecting(false); setError('connection'); });
     s.on('state', (state: GameView) => {
@@ -136,6 +141,11 @@ function App() {
         else resolve(result.data);
       });
     });
+  }
+  function sendPack(input: PackSubmission): Promise<ErrorCode | 'connection' | null> {
+    const s=socket.current;
+    if(!s?.connected)return Promise.resolve('connection');
+    return new Promise(resolve=>s.timeout(4000).emit('pack_chat',input,(err:Error|null,result:Reply)=>resolve(err?'connection':result.ok?null:result.error)));
   }
   async function enter(event: React.FormEvent) {
     event.preventDefault(); if (pending || connecting) return;
@@ -277,7 +287,7 @@ function App() {
           <p className="muted small">{view.players.length < (view.mode === 'classic' ? 5 : 2) ? tr(`Waiting for ${Math.max(0, (view.mode === 'classic' ? 5 : 2) - view.players.length)} more player(s).`, `还需要${Math.max(0, (view.mode === 'classic' ? 5 : 2) - view.players.length)}位玩家。`) : tr('Everyone must be online and ready to start.', '所有玩家需在线并准备。')}</p>
           {isHost && <div className="host-settings"><label htmlFor="lobby-mode">{tr('Game mode', '游戏模式')}</label><select id="lobby-mode" value={view.mode} disabled={pending || !connected} onChange={e => void request('mode', { mode: e.target.value })}><option value="classic">{tr('Classic · 5–8 players', '经典模式 · 5–8人')}</option><option value="quick" disabled={view.players.length > 2}>{tr('Moonlight Duel · 2 players', '月光对决 · 2人')}</option></select></div>}
           <p className="small muted">{tr('Refresh restores your seat. If the host leaves, return in the same browser. Server restarts end rooms in this early version.', '刷新可恢复座位。房主离线后需使用原浏览器返回。本测试版本在服务器重启后会结束房间。')}</p>
-        </section> : <>{publishedDawn(view) && <DawnResult event={publishedDawn(view)!} tr={tr} roleName={roleName} />}<div className="phase-scene" key={`${view.day}-${view.phase}`}>{actionPanel()}</div>{view.phase === 'discussion' && discussionChat()}{view.phase !== 'ended' && (view.phase === 'discussion' ? <details className="private-pocket"><summary><EyeOff size={16} />{tr('Your private character card', '你的秘密身份牌')}<ChevronRight size={16} /></summary>{roleCard()}</details> : roleCard())}{view.phase !== 'ended' && view.phase !== 'reveal' && !!view.events.length && <section className="panel journal"><p className="eyebrow">{tr('THE STORY SO FAR', '故事进展')}</p>{view.events.slice(-4).map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}{view.phase === 'ended' && <section className="panel journal"><p className="eyebrow">{tr('A NIGHT TO REMEMBER', '今夜回顾')}</p>{view.events.map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}</>}
+        </section> : <>{publishedDawn(view) && <DawnResult event={publishedDawn(view)!} tr={tr} roleName={roleName} />}<div className="phase-scene" key={`${view.day}-${view.phase}`}>{actionPanel()}</div>{seconds > 0 && view.phase === 'wolves' && view.packChat && <PackChat key={view.code+view.packChat.stageId} view={view} connected={connected} language={lang} tr={tr} send={sendPack}/>} {view.phase === 'discussion' && discussionChat()}{view.phase !== 'ended' && (view.phase === 'discussion' ? <details className="private-pocket"><summary><EyeOff size={16} />{tr('Your private character card', '你的秘密身份牌')}<ChevronRight size={16} /></summary>{roleCard()}</details> : roleCard())}{view.phase !== 'ended' && view.phase !== 'reveal' && !!view.events.length && <section className="panel journal"><p className="eyebrow">{tr('THE STORY SO FAR', '故事进展')}</p>{view.events.slice(-4).map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}{view.phase === 'ended' && <section className="panel journal"><p className="eyebrow">{tr('A NIGHT TO REMEMBER', '今夜回顾')}</p>{view.events.map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}</>}
       </div><aside className="side-column"><section className="panel players-panel"><div className="panel-title"><h3><Users size={17} />{tr('At the table', '牌桌上的玩家')}</h3><span>{view.players.length}/{view.mode === 'classic' ? 8 : 2}</span></div><div className="player-list">{view.players.map(p => <div className={`player-row ${!p.alive ? 'eliminated' : ''}`} key={p.id}><span className={`avatar ${p.id === view.youId ? 'you-avatar' : ''}`}>{p.name.slice(0, 1).toUpperCase()}<i className={p.connected ? 'online-dot' : 'offline-dot'} /></span><div><strong>{p.name}{p.id === view.youId && <small> {tr('(you)', '(你)')}</small>}</strong><span>{p.role ? roleName(p.role) : p.id === view.hostId ? tr('Host', '房主') : p.connected ? tr('At the table', '已入座') : tr('Reconnecting', '等待重连')}{!p.alive && ` · ${tr('Eliminated', '已出局')}`}</span></div>{view.phase === 'lobby' && p.ready && <Check className="ready-check" size={17} />}{view.phase === 'lobby' && isHost && p.id !== view.youId && <button className="icon-button remove-player" title={tr('Remove from lobby', '移出大厅')} disabled={pending || !connected} onClick={() => void request('remove', { playerId: p.id })}><X size={14} /></button>}</div>)}</div><div className="connection-status">{connected ? <Wifi size={13} /> : <WifiOff size={13} />}{connected ? tr('Live · synchronized with the table', '实时 · 已与牌桌同步') : tr('Connection interrupted', '连接已中断')}</div></section>
         {showChat && view.phase !== 'discussion' && discussionChat()}
         {isNight && <div className="night-note"><Moon size={18} /><p>{tr('Night actions stay private. The table chat returns at dawn.', '夜间行动保密，黎明后恢复聊天。')}</p></div>}
