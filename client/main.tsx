@@ -11,6 +11,7 @@ import './atmosphere.css';
 import './submission.css';
 import { BeginnerGuide } from './BeginnerGuide';
 import {tabSeat,savedSeat as readSavedSeat,storeSeat,clearSeat} from './seatStorage';
+import {SeerNightResult,PackAttackSummary} from './PrivateActions';
 import {DiscussionSettings,DayControls,maySpeak} from './DayControls';
 import {LobbyReadiness,lobbyBlockers} from './LobbyReadiness';
 import { PackChat } from './PackChat';
@@ -239,8 +240,9 @@ function App() {
     if (isNight) {
       if (!myTurn) return <section className="panel instruction night-wait"><Moon size={32} /><p className="eyebrow">{tr('THE VILLAGE SLEEPS', '村庄沉睡中')}</p><h2>{tr('Keep your secrets close', '守好你的秘密')}</h2><p>{tr('Rest beneath the moon. Follow the public guidance and wait for dawn. No action is needed on this screen.', '在月光下静候。跟随公开引导，等待黎明。此屏幕无需操作。')}</p></section>;
       if (view.phase === 'witch') return <WitchPanel view={view} disabled={disabled} target={target} onTarget={setTarget} onConfirm={setConfirm} onPass={() => void request('action', {kind:'pass'})} tr={tr} />;
+      if(view.phase==='seer'&&view.acted)return <SeerNightResult view={view} tr={tr}/>;
       if (view.acted && view.phase !== 'wolves') return <section className="panel instruction"><Check size={30} /><h2>{tr('Your choice is sealed', '行动已确认')}</h2><p>{tr('Your private action is confirmed. The night continues until the timer ends.', '你的秘密行动已确认，倒计时结束后夜晚继续。')}</p></section>;
-      return <section className="panel action-panel"><p className="eyebrow">{tr('YOUR NIGHT ACTION', '你的夜间行动')}</p><h2>{view.phase === 'wolves' ? tr('Choose your prey', '选择狩猎目标') : tr('Who hides behind the mask?', '谁藏在面具之后？')}</h2><p>{view.phase === 'wolves' ? tr('Choose a living non-wolf. Your pack sees your choice. You may change it until the timer ends; a tie means no attack.', '选择一名存活的好人阵营玩家。同伴可以看到你的选择。倒计时结束前可更改，平票则不袭击。') : tr('Inspect one other living player. You will privately learn whether they are a werewolf. Confirm carefully: one check per night.', '查验一名其他存活玩家，秘密得知其是否属于狼人阵营。每晚只能确认一次。')}</p>{targetButtons()}
+      return <section className="panel action-panel"><p className="eyebrow">{tr('YOUR NIGHT ACTION', '你的夜间行动')}</p><h2>{view.phase === 'wolves' ? tr('Choose your prey', '选择狩猎目标') : tr('Who hides behind the mask?', '谁藏在面具之后？')}</h2><p>{view.phase === 'wolves' ? tr('Choose a living non-wolf. Your pack sees your choice. You may change it until the timer ends; a tie means no attack.', '选择一名存活的好人阵营玩家。同伴可以看到你的选择。倒计时结束前可更改，平票则不袭击。') : tr('Inspect one other living player. You will privately learn whether they are a werewolf. Confirm carefully: one check per night.', '查验一名其他存活玩家，秘密得知其是否属于狼人阵营。每晚只能确认一次。')}</p>{targetButtons()}{view.phase==='wolves'&&<PackAttackSummary view={view} selected={target} tr={tr}/>}
         <button className="button primary" disabled={disabled || !target} onClick={() => void request('action', { kind: view.phase === 'wolves' ? 'attack' : 'inspect', target })}>{view.phase === 'wolves' ? tr('Confirm target', '确认目标') : tr('Reveal the truth', '查验身份')}<ArrowRight size={16} /></button>
         {view.acted && <p className="saved"><Check size={14} />{tr('Saved: ', '已保存：')}{view.players.find(p => p.id === view.selection)?.name}</p>}
       </section>;

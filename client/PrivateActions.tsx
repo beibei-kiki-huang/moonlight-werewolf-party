@@ -1,0 +1,11 @@
+import{Eye,ShieldCheck,Moon,LockKeyhole}from'lucide-react';import type{GameView,Investigation}from'../shared/types';import type{Translate}from'./presentation';
+export function InvestigationResult({clue,tr}:{clue:Investigation;tr:Translate}){return <div className={`investigation-result ${clue.isWolf?'result-wolf':'result-good'}`}><p className="eyebrow"><LockKeyhole size={15}/>{tr('PRIVATE INVESTIGATION','私人查验结果')}</p><strong className="investigated-name">{clue.name}</strong><h3>{clue.isWolf?<Moon size={29}/>:<ShieldCheck size={29}/>} {clue.isWolf?tr('Werewolf Team','狼人阵营'):tr('Good Team','好人阵营')}</h3><small>{tr(`Night ${clue.day} · only you can see this clue`,`第${clue.day}夜 · 仅你可见`)}</small></div>}
+export function SeerNightResult({view,tr}:{view:GameView;tr:Translate}){
+ if(view.role!=='seer'||view.phase!=='seer'||!view.acted||!view.players.find(p=>p.id===view.youId)?.alive)return null;
+ const clue=view.investigations?.find(i=>i.day===view.day);if(!clue)return null;
+ return <section className="panel private-action-result" aria-label={tr('Your private investigation result','你的私人查验结果')}><InvestigationResult clue={clue} tr={tr}/><p>{tr('Your investigation is confirmed. The night continues on its fixed schedule.','查验已确认，夜晚按固定流程继续。')}</p></section>
+}
+export function PackAttackSummary({view,selected,tr}:{view:GameView;selected:string;tr:Translate}){
+ if(view.role!=='werewolf'||view.phase!=='wolves'||!view.players.find(p=>p.id===view.youId)?.alive)return null;
+ const name=(id:string)=>view.players.find(p=>p.id===id)?.name??'';return <div className="pack-attack-summary"><p className="eyebrow"><Eye size={15}/>{tr('PRIVATE PACK PLAN','狼队私人计划')}</p>{selected&&selected!==view.selection&&<p>{tr('Draft · not saved: ','草稿 · 尚未保存：')}<strong>{name(selected)}</strong></p>}<p>{tr('Your saved target: ','你已保存的目标：')}<strong>{view.selection?name(view.selection):tr('Not selected','尚未选择')}</strong></p><ul>{Object.entries(view.wolfSelections??{}).filter(([id])=>id!==view.youId).map(([id,target])=><li key={id}>{name(id)} → <strong>{name(target)}</strong></li>)}</ul><p>{tr('Only your living pack sees these choices. The server resolves the attack at the deadline.','仅存活狼队同伴可见这些选择，服务器将在倒计时结束时结算袭击。')}</p></div>
+}
