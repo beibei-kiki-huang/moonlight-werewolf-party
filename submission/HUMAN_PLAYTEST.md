@@ -15,3 +15,6 @@ Use five or six independent people: English- and Chinese-preferring speakers, a 
 - [ ] Debrief: What confused you? Did presets help participation? Would you play again?
 
 For each issue record device/browser/language/network, action, expected/actual result, and whether coaching was required. No secret leaks, contradictory outcomes, stuck matches or blocked controls may remain. Socket QA and demo fixtures do not substitute for this session.
+
+
+Pack Chat follow-up: use seven or eight independent players so two Werewolves are present. Check one English and one Chinese wolf, private text/presets, refresh within the active phase, attack selection, automatic closure, and no private content or activity indicators on other phones. Five/six players can validate core Classic but cannot exercise a two-wolf channel. These human checks remain pending; automated network clients are not human validation.

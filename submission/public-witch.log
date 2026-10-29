@@ -2,7 +2,7 @@ Public Witch check: lobby remaining ms null
 Public Witch check: reveal remaining ms 30000
 Public Witch check: nightfall remaining ms 5000
 Public Witch check: wolves remaining ms 25000
-Public Witch check: seer remaining ms 14999
+Public Witch check: seer remaining ms 15000
 Public Witch check: witch remaining ms 20000
 Public Witch check: ended remaining ms null
 PASS public terminal dawn: five independent clients, fixed Witch deadline, one-use locked inventory, private potion/victim filtering, identical published eliminations and village victory.

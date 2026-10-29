@@ -8,9 +8,10 @@ Cover: `cover.jpg` — 1200×800 JPEG (3:2), captured from the final deployed ho
 
 Description: copy `description.txt` (460 characters, excluding the trailing newline).
 
-Pre-refinement stable baseline: 67d05b7. Rollback checkpoint: pre-demo-witch-refinement-20261028. The public baseline was confirmed available before changes.
+Rollback checkpoint: pre-role-examples-20261029 at frozen baseline 1ca1b85. Stage 1 was independently verified and checkpointed as stage1-role-examples-20261029 before Pack Chat work.
 
-Release verification: see `VERIFICATION.md`. All 102 tests, build checks and public Classic/Duel acceptance passed. Application commit: `224583fd10fcb4e821838efda6f28a3098e05164`. The code is frozen for submission except critical fixes. The isolated tour is at https://moonlight-werewolf-party.onrender.com/demo.html?lang=en .
+Release verification: see VERIFICATION.md. All 133 tests, production build and public Classic/Duel, seven-player Pack Chat and terminal-dawn acceptance checks passed. Application commit: 89f40ed898ac68f4aaf79c415d393e958710160b. The release is frozen except critical fixes. The clearly scripted tour, with optional separate fictional Seer/Werewolf/Witch examples, is at https://moonlight-werewolf-party.onrender.com/demo.html?lang=en .
+
 
 ## Manual entry
 
