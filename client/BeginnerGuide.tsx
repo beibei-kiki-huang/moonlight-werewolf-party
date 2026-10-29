@@ -5,7 +5,7 @@ export function BeginnerGuide({ tr }: { tr: Translate }) {
     [tr('Gather your friends', '邀请好友'), tr('Create a private room or join with its code. Classic needs 5–8; Duel needs 2. Everyone selects Ready.', '创建私人房间，或输入房间号加入。经典模式5–8人，对决2人。所有人点击准备。')],
     [tr('Keep your role secret', '守好秘密身份'), tr('Open your private card, read your goal and ability, then hide it. Even the host cannot see your secret.', '查看自己的身份、目标与能力，再隐藏身份牌。房主也看不到你的秘密。')],
     [tr('Follow the moon', '跟随阶段引导'), tr('Phases advance automatically. Use your private controls when offered; otherwise wait for the next phase.', '昼夜阶段自动推进。出现私人操作时按提示行动，其余时间静候下一阶段。')],
-    [tr('Talk across languages', '跨越语言交流'), tr('Classic speaks in seat order by default; the host may choose Open Discussion. Use bilingual Quick Chat or type your theory on your turn. Presets display in each recipient’s language.', '经典默认按座位轮流发言，房主也可选择自由讨论。轮到你时用双语快捷短语或文字分享推理；短语按每位接收者的语言显示。')],
+    [tr('Talk across languages', '跨越语言交流'), tr('Classic speaks in seat order by default; the host may choose Open Discussion. Use bilingual Quick Chat or type your theory on your turn. Presets display in each recipient’s chosen chat language: English, Chinese, Korean, Japanese or Spanish. Typed chat stays original.', '经典默认按座位轮流发言，房主也可选择自由讨论。轮到你时用双语快捷短语或文字分享推理；短语按接收者选择的中、英、韩、日或西班牙语显示，手动输入保持原文。')],
     [tr('Choose, then confirm', '选择后确认投票'), tr('Selecting is only a draft. Confirm your vote before the deadline; results are automatic. The host can start a rematch.', '选中仅是草稿。倒计时结束前确认投票，胜负自动结算，房主可开启下一局。')],
   ];
   return <section className="beginner-guide" aria-label={tr('Five-step beginner guide', '五步新手指南')}>

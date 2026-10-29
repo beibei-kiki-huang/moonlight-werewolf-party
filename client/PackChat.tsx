@@ -1,11 +1,11 @@
 import {useEffect,useRef,useState} from 'react';
 import {Shield,Send,Languages} from 'lucide-react';
 import type {ErrorCode,GameView,PackSubmission} from '../shared/types';
-import {QUICK_PHRASES,QUICK_PHRASE_IDS,type QuickPhraseId} from '../shared/quickChat';
-import type {Language} from '../shared/publicPhase';
+import {QUICK_PHRASES,QUICK_PHRASE_IDS,type QuickPhraseId,type ChatLanguage} from '../shared/quickChat';
+import {ChatLanguagePicker} from './ChatLanguagePicker';
 import {ParticipantAvatar,participantStyle} from './Participant';
 import {ChatMessageContent,type Translate} from './presentation';
-export function PackChat({view,connected,language,tr,send}:{view:GameView;connected:boolean;language:Language;tr:Translate;send:(input:PackSubmission)=>Promise<ErrorCode|'connection'|null>}) {
+export function PackChat({view,connected,language,onLanguageChange,tr,send}:{view:GameView;connected:boolean;language:ChatLanguage;onLanguageChange?:(language:ChatLanguage)=>void;tr:Translate;send:(input:PackSubmission)=>Promise<ErrorCode|'connection'|null>}) {
   const [text,setText]=useState(''),[pending,setPending]=useState(false),[error,setError]=useState<ErrorCode|'connection'|null>(null);
   const busy=useRef(false),retry=useRef<PackSubmission|null>(null),list=useRef<HTMLDivElement>(null),picker=useRef<HTMLDetailsElement>(null);
   const pack=view.packChat;
@@ -24,7 +24,7 @@ export function PackChat({view,connected,language,tr,send}:{view:GameView;connec
   return <section className="panel pack-chat" aria-label={tr('Wolf Pack private chat','狼队私聊')}>
     <p className="eyebrow"><Shield size={15}/>{tr('PRIVATE · LIVING WOLVES ONLY','私人频道 · 仅存活狼人可见')}</p><h3>{tr('Wolf Pack','狼队私聊')}</h3>
     <p>{tr('Only this Werewolf phase. Messages disappear when it closes. Your attack choice stays separate.','仅在本次狼人行动阶段开放，结束后消息消失。聊天不会改变你的袭击选择。')}</p>
-    <div className="conversation" role="log" aria-label={tr('Private pack messages','狼队私人消息')} aria-live="polite" ref={list}>
+    <ChatLanguagePicker privateChannel language={language} onChange={onLanguageChange} tr={tr}/><div className="conversation" role="log" aria-label={tr('Private pack messages','狼队私人消息')} aria-live="polite" ref={list}>
       {!pack.messages.length&&<p>{tr('Coordinate with your pack.','与狼队同伴商量行动。')}</p>}
       {pack.messages.map(m=><div className="pack-message" key={m.id} style={participantStyle(view.players.find(p=>p.id===m.playerId))}><ParticipantAvatar player={view.players.find(p=>p.id===m.playerId)??{id:m.playerId,name:m.name}}/><strong>{m.name}</strong><ChatMessageContent message={m} language={language} tr={tr}/></div>)}
     </div>

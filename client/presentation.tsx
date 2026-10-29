@@ -3,7 +3,8 @@ import { ArrowRight, Check, ChevronDown, Eye, EyeOff, FlaskConical, Hourglass, L
 import type { ChatMessage, GameView, PublicPlayer, Role } from '../shared/types';
 import {ParticipantAvatar,participantStyle} from './Participant';
 import { phaseScript, type Language, type PublicPhase } from '../shared/publicPhase';
-import { isQuickPhraseId, QUICK_PHRASES, QUICK_PHRASE_IDS, type QuickPhraseId } from '../shared/quickChat';
+import {ChatLanguagePicker} from './ChatLanguagePicker';
+import {CHAT_LANGUAGES,CHAT_LANGUAGE_NAMES,type ChatLanguage, phraseText, isQuickPhraseId, QUICK_PHRASES, QUICK_PHRASE_IDS, type QuickPhraseId } from '../shared/quickChat';
 
 export type Translate = (en: string, zh: string) => string;
 export function NightSequence({ phase, language, tr }: { phase: PublicPhase; language: Language; tr: Translate }) {
@@ -87,7 +88,7 @@ export function VotingPanel({ view, eligible, selected, onSelect, onConfirm, dis
     : [...eligible.map(p => ({ id: p.id, name: p.name, note: tr('At the table', '牌桌上的玩家') })), { id: 'skip', name: tr('Abstain', '弃票'), note: tr('Cast no accusation', '不指认任何玩家') }];
   return <section className="panel voting-panel">
     <div className="section-heading"><span className="section-icon"><Vote size={23} /></span><div><p className="eyebrow">{tr('THE MOMENT OF TRUTH', '真相时刻')}</p><h2>{quick ? tr('Where is the wolf?', '狼人在哪里？') : runoff?tr('Runoff · tied candidates','加赛 · 平票候选人'):tr('Who do you believe?', '你会相信谁？')}</h2></div></div>
-    <p className="voting-intro">{quick ? tr('A face across the table, or a card in the dark. Make your accusation.', '是对面的那个人，还是暗藏的中央牌？作出你的指认。') : tr('Choose a suspect, or give the village another night. Your ballot stays secret until the reveal.', '选择嫌疑人，或让村庄再等一夜。揭晓前，你的选票始终保密。')}</p>
+    <p className="voting-intro">{quick ? tr('A face across the table, or a card in the dark. Make your accusation.', '是对面的那个人，还是暗藏的中央牌？作出你的指认。') : tr('Choose a suspect or Abstain. A unique positive leader is eliminated, even with one vote. Your ballot stays private until the reveal.', '选择嫌疑人或弃票。唯一最高票者即使只有一票也会出局。揭晓前，你的选票始终保密。')}</p>
     {runoff&&<p>{tr('Only other living players vote. One runoff only; another tie or all abstain means no elimination.','仅平票候选人以外的存活玩家投票。只加赛一次，再次平票或全部弃票则无人出局。')}</p>}<div className="vote-progress" aria-label={tr('Your ballot progress', '你的投票进度')}><span className="complete"><i>1</i>{tr('Choose', '选择')}</span><span className={view.acted ? 'complete' : draft ? 'active' : ''}><i>2</i>{tr('Confirm', '确认')}</span><span className={saved ? 'active' : ''}><i>3</i>{tr('Await reveal', '等待揭晓')}</span></div>
     <div className={`vote-options ${quick ? 'duel-options' : ''}`}>{choices.map(choice => {
       const confirmed = view.acted && view.selection === choice.id;
@@ -128,16 +129,14 @@ export function Outcome({ view, host, disabled, onRematch, tr, roleName, ballots
   </section>;
 }
 
-export function ChatMessageContent({ message, language, tr }: { message: ChatMessage; language: Language; tr: Translate }) {
+export function ChatMessageContent({ message, language, tr }: { message: ChatMessage; language: ChatLanguage; tr: Translate }) {
   if (!isQuickPhraseId(message.phraseId)) return <p>{message.text}</p>;
-  const phrase = QUICK_PHRASES[message.phraseId];
-  const other = language === 'en' ? 'zh' : 'en';
-  return <><p lang={language === 'zh' ? 'zh-CN' : 'en'}>{phrase[language]}</p><div className="preset-tools"><span>{tr('Quick Chat', '快捷短语')}</span>
-    <details className="phrase-learning"><summary aria-label={tr('See this phrase in Chinese', '查看这句话的英文')} title={tr('See this phrase in Chinese', '查看这句话的英文')}><Languages size={14} /><span>{other === 'zh' ? '中' : 'EN'}</span></summary><p className="phrase-equivalent" lang={other === 'zh' ? 'zh-CN' : 'en'}>{phrase[other]}</p></details>
-  </div></>;
+  const phrase=QUICK_PHRASES[message.phraseId];
+  const label=language==='en'?tr('See this phrase in Chinese','查看这句话的中文'):language==='zh'?tr('See this phrase in English','查看这句话的英文'):tr('Other translations','其他语言');
+  return <><p lang={language==='zh'?'zh-CN':language}>{phraseText(message.phraseId,language)}</p><div className="preset-tools"><span>{tr('Quick Chat','快捷短语')}</span><details className="phrase-learning"><summary aria-label={label} title={label}><Languages size={14}/><span>{language==='en'?'中':language==='zh'?'EN':tr('Languages','其他语言')}</span></summary>{CHAT_LANGUAGES.filter(code=>code!==language).map(code=><p key={code} className="phrase-equivalent" lang={code==='zh'?'zh-CN':code}><small>{CHAT_LANGUAGE_NAMES[code]} · </small>{phrase[code]}</p>)}</details></div></>;
 }
 
-export function DiscussionChat({ view, canChat, connected, pending, send, sendQuick, language, tr }: { view: GameView; canChat: boolean; connected: boolean; pending: boolean; send: (text: string) => Promise<boolean>; sendQuick: (phraseId: QuickPhraseId) => Promise<boolean>; language: Language; tr: Translate }) {
+export function DiscussionChat({ view, canChat, connected, pending, send, sendQuick, language, onLanguageChange, tr }: { view: GameView; canChat: boolean; connected: boolean; pending: boolean; send: (text: string) => Promise<boolean>; sendQuick: (phraseId: QuickPhraseId) => Promise<boolean>; language: ChatLanguage; onLanguageChange?:(language:ChatLanguage)=>void; tr: Translate }) {
   const [text, setText] = useState('');
   const [unread, setUnread] = useState(0);
   const list = useRef<HTMLDivElement>(null);
@@ -169,7 +168,7 @@ export function DiscussionChat({ view, canChat, connected, pending, send, sendQu
   }
   return <section className={`panel discussion-chat ${discussion ? 'discussion-open' : ''}`} id="table-chat">
     <div className="chat-heading"><span className="chat-heading-icon"><MessageCircle size={23} /></span><div><p className="eyebrow">{discussion ? tr('EVERY VOICE LEAVES A CLUE', '每句话，都藏着线索') : tr('AROUND THE TABLE', '围坐月下')}</p><h3>{view.phase==='last_words'?tr('Last words','公开遗言'):tr('Table talk', '月下交谈')}</h3></div><span className="chat-live"><i />{tr('LIVE', '实时')}</span></div>
-    {discussion && <p className="chat-invitation">{canChat ? tr('Share a theory. Question an alibi. Who do you trust?', '分享推测，质疑证词。你会相信谁？') : waitingTurn?tr(`${currentSpeaker?.name??'Another player'} is speaking. Listen, then share your theory on your turn.`,`${currentSpeaker?.name??'其他玩家'}正在发言。请先倾听，轮到你时分享推理。`):tr('You are watching quietly. Your team’s story continues.', '请安静观战，你的阵营仍在继续故事。')}</p>}
+    <ChatLanguagePicker language={language} onChange={onLanguageChange} tr={tr}/>{discussion && <p className="chat-invitation">{canChat ? tr('Share a theory. Question an alibi. Who do you trust?', '分享推测，质疑证词。你会相信谁？') : waitingTurn?tr(`${currentSpeaker?.name??'Another player'} is speaking. Listen, then share your theory on your turn.`,`${currentSpeaker?.name??'其他玩家'}正在发言。请先倾听，轮到你时分享推理。`):tr('You are watching quietly. Your team’s story continues.', '请安静观战，你的阵营仍在继续故事。')}</p>}
     <div className="conversation" ref={list} role="log" aria-label={tr('Table conversation', '牌桌对话')} aria-live="polite" aria-relevant="additions" onScroll={() => { const el = list.current!; nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 65; if (nearBottom.current) setUnread(0); }}>
       {!view.chat.length && <div className="conversation-empty"><MessageCircle size={30} strokeWidth={1} /><strong>{tr('Break the silence.', '打破沉默。')}</strong><p>{tr('A simple “Who do you suspect?” is a good place to start.', '不妨先问一句：“你在怀疑谁？”')}</p></div>}
       {view.chat.map(m => <div className={`conversation-message ${m.playerId === view.youId ? 'mine' : ''}`} key={m.id} style={participantStyle(view.players.find(p=>p.id===m.playerId))}><ParticipantAvatar player={view.players.find(p=>p.id===m.playerId)??{id:m.playerId,name:m.name}}/><div><strong>{m.name}<small>{m.playerId === view.youId ? tr('you', '你') : ''}</small></strong><ChatMessageContent message={m} language={language} tr={tr} /></div></div>)}
@@ -177,6 +176,6 @@ export function DiscussionChat({ view, canChat, connected, pending, send, sendQu
     {unread > 0 && <button className="new-messages" onClick={() => { nearBottom.current = true; setUnread(0); if (list.current) list.current.scrollTop = list.current.scrollHeight; }}>{tr(`${unread} new message${unread > 1 ? 's' : ''}`, `${unread}条新消息`)}<ChevronDown size={14} /></button>}
     {canChat && <details className="quick-picker" ref={picker}><summary><Languages size={16} /><span>{tr('Quick Chat', '快捷短语')}</span><ChevronDown size={14} /></summary><p className="quick-hint">{tr('Tap to send in everyone’s language. Typed messages stay as written.', '轻触发送，每人看到自己的语言。手动输入的消息保持原文。')}</p><div className="quick-choices">{QUICK_PHRASE_IDS.map(id => <button type="button" key={id} disabled={!connected || pending} onClick={() => void choosePhrase(id)}>{QUICK_PHRASES[id][language]}</button>)}</div></details>}
     <form className="conversation-compose" onSubmit={submit}><label className="sr-only" htmlFor="table-message">{tr('Message to the table', '发送消息')}</label><textarea id="table-message" rows={2} value={text} onChange={e => setText(e.target.value)} maxLength={300} placeholder={canChat ? tr('What’s your theory?', '说说你的推理…') : waitingTurn?tr('Wait for your turn…','等待轮到你发言…'):tr('Listen for now…', '请安静观战…')} disabled={!canChat || !connected} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void submit(e); } }} /><button className="button primary send-message" aria-label={tr('Send message', '发送消息')} disabled={!canChat || !connected || pending || !text.trim()}><Send size={17} /><span>{tr('Send', '发送')}</span></button></form>
-    <p className="chat-compose-hint">{!connected ? tr('Reconnecting to the table…', '正在重新连接牌桌…') : canChat ? tr('Enter to send · Shift + Enter for a new line', '回车发送 · Shift + 回车换行') : tr('Follow the current speaking permissions.', '请按当前阶段的发言权限参与。')}</p>
+    <p className="chat-compose-hint">{!connected ? tr('Reconnecting to the table…', '正在重新连接牌桌…') : canChat ? tr('Enter to send · Shift + Enter for a new line', '回车发送 · Shift + 回车换行') : view.phase==='last_words'?tr(`${currentSpeaker?.name??'The eliminated player'} has the last words. Please listen.`,`${currentSpeaker?.name??'出局玩家'}正在发表遗言，请倾听。`):waitingTurn?tr('Your composer opens on your speaking turn.','轮到你发言时可输入消息。'):tr('Chat is paused during this phase.','本阶段暂停公开聊天。')}</p>
   </section>;
 }

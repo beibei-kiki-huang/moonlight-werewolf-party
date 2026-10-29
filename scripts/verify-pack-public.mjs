@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {io} from 'socket.io-client';
 // Explicit real-network QA using ordinary player credentials and unchanged production clocks.
-const url=process.argv[2];if(!url||!/^https?:\/\//.test(url))throw Error('Pass the public game URL.');
+const url=(process.argv[2]??'').replace(/\/+$/,'');if(!url||!/^https?:\/\//.test(url))throw Error('Pass the public game URL.');
 const peers=[],sockets=[];const delay=ms=>new Promise(r=>setTimeout(r,ms));
 const send=(p,event,data)=>new Promise((resolve,reject)=>p.socket.timeout(10000).emit(event,data,(e,r)=>e?reject(e):resolve(r)));
 const ok=async(p,e,d)=>{const r=await send(p,e,d);assert(r.ok,`${e}: ${r.error}`);return r.data};

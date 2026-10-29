@@ -32,3 +32,7 @@
  .modal-backdrop{padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}.modal{max-height:calc(var(--visual-height,100dvh) - 24px);overflow:auto;overscroll-behavior:contain}.confirm-modal .confirm-actions{position:sticky;bottom:0;background:#171b29;padding-top:12px}.confirm-actions .button{min-height:44px}
  .phase-tie_discussion{--phase-accent:#d8c1eb;--phase-scene-glow:#8d578030}.phase-runoff{--phase-accent:#edbdd1;--phase-scene-glow:#9b466330}
 }
+
+@media(max-width:680px){.mobile-phase-strip{border-left:3px solid var(--participant-color,#c7b5df)}.mobile-phase-strip small{color:var(--participant-color,#c5bad4)}}
+
+@media(max-width:680px){.modal-close{min-width:44px;min-height:44px}.chat-language-picker{margin:8px 0;padding:4px 0;gap:4px 8px}}

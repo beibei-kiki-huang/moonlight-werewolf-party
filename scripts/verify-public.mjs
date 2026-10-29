@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 
 // An explicit, real-network acceptance test. Never imported by the deployed app.
 // Uses ordinary player credentials and normal production timers; no debug endpoints.
-const url = process.argv[2];
+const url = (process.argv[2]??'').replace(/\/+$/,'');
 if (!url || !/^https?:\/\//.test(url)) throw new Error('Usage: node scripts/verify-public.mjs https://YOUR_GAME_URL');
 const sockets = [];
 function emit(socket, event, data) {
