@@ -1,3 +1,5 @@
+> Historical planning review. For the frozen release status, completed fixes, current rules and acceptance evidence, see VERIFICATION.md and README.md. Findings below describe the earlier review, not unresolved release defects.
+
 # Moonlight — Play Beyond Borders: competition-readiness review
 
 Reviewed October 28, 2026 (Pacific). Assessment only: no application, gameplay, dependency, hosting or deployment changes. Baseline commit: `745847e30fc571216eaad74c4b546ee32d66e3be`.

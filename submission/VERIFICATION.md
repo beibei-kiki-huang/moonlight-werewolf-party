@@ -1,32 +1,47 @@
-# Frozen staged release verification — October 29, 2026 (Pacific)
+# Final release verification — October 29, 2026
 
-Application release: `89f40ed898ac68f4aaf79c415d393e958710160b`
-Render deploy: `dep-dbhg1qou01pc73a8ma7g` (Live)
-Baseline rollback: `pre-role-examples-20261029` → `1ca1b85`
-Independent Stage 1: `stage1-role-examples-20261029` → `0b4c419`
-Main bundle: `/assets/main-T1sUPyEm.js`
-Demo bundle: `/assets/demo-C3Ddbqh2.js`
+Application commit: 0fd60b56f5d90a1028720dda44823dadc39472aa
+Render Free Live deployment: dep-dbhqchnb9u1s73aajekg
+Public URL: https://moonlight-werewolf-party.onrender.com/
+Rollback: pre-classic-reliability-20261029 (prior frozen source/package at 0b6d591).
+Final application checkpoint: stage7-conversation-release-20261029.
 
-## Completed
+## Passed release gates
 
-- Stage 1 independently passed 114 tests, TypeScript/build/demo isolation and bilingual desktop/mobile browser checks before Stage 2 implementation. Stage 1 left the Classic engine/protocol unchanged.
-- Stage 2 passed 133 total tests including 19 dedicated security tests. Repeated complete regression, production build and compiled-demo isolation checks passed before deployment.
-- Pack security: server-bound identity and living-role/phase/deadline authorization, strict schemas, forged/unbound clients and tokens, non-wolves/dead wolves, concurrent duplicate retries, conflicting nonce content, bounded history/receipts, private rate limits, preset validation, escaped text, current-phase reconnect, dead-seat reconnect, phase boundary, stale night/rematch IDs and unchanged public-chat permissions.
-- Packet-level local tests assert no extra message-data packets or private fields/canary text to non-wolves and a dead-wolf fixture during legitimate sends. Private sends use pack_chat / pack_state rather than public broadcast. Only current authorized recipients receive history; every phase transition clears it.
-- Two independent browser teammates plus six socket guests exercised an eight-player local Classic fixture. English/Chinese text and localized presets arrived correctly, ordinary text stayed unchanged, refresh recovered only current-night private history, attack selection remained usable, and closing the phase removed chat/history even after refresh. The fixture extends review time; production remains 25 seconds.
-- Public normal-clock five-player Classic and Duel completed with private projections/ballots, synchronized stages, immediate final confirmation and identical victory. See public-acceptance.log.
-- Public seven-player Classic verified two-wolf private delivery with zero outsider packets, validated presets/duplicates, current-stage refresh, phase closure rejection, unchanged attack ties, private Seer results, actual dawn elimination, public chat separation and full village victory. See public-pack.log.
-- An additional five public clients verified correct one-use Witch inventory, fixed deadline, private filtering, simultaneous night eliminations and victory at dawn. See public-witch.log.
-- Bilingual role demos: Good/Werewolf Seer results, one confirmed investigation per fictional night, hide/reopen, retry, teammate recognition, valid targets, agreement/tie outcomes, preserved Previous/Next review, explicit Abstain confirmation, Witch return/retry and Replay reset. Main voting does not auto-open the Seer clue. Fictional participant disclosure remains visible.
-- Chinese 390px and English 320px layouts have no horizontal overflow. Desktop checks and browser warning/error checks passed. These are viewport checks, not physical-phone or human-group certification.
-- Attack-resolution rules, role distribution, win conditions, fixed public night timing/narration, public chat permissions, original artwork, bilingual support, existing licensed audio, dependencies and hosting remain unchanged. Hunter remains roadmap-only.
-- Complete license/attribution notices are shipped and linked; all 32 narration files and licensed piano asset serve publicly. No new paid service or dependency.
-- All four submission items validated: title, public URL, original 1200×800 JPEG cover and 460-character description. ZIP integrity checked. No form submitted.
+- 165 automated tests across 19 files, including independent real sockets, 19 Pack security cases, potion consumption, simultaneous/peaceful/terminal dawn, dead/absent roles, fixed night timing, refresh, vote privacy, early resolution, role examples, localization and audio.
+- Production type/build checks and isolated demo bundle audit passed. Original notices ship publicly; no additional runtime dependency, paid service or backend architecture change.
+- Public full Structured Classic matches with 5, 6 and 8 independent authenticated clients. Default/host settings, random fallback attack, private Seer result, healing/poison, authoritative dawn, living seat-order speakers, stale/out-of-turn denial, reconnect/color stability, early ballots, automatic full 30-second last words and shared victory passed.
+- Public full Open Classic matches with 5 and 7 clients; simultaneous living chat, private ballots and immediate final-confirmation victory passed. The seven-player scenario verified agreed/private selections, random tied-leading attack, authorized pack refresh/closure, simultaneous attack/poison dawn, and zero additional packets to outsiders during private sends.
+- Public two-client Duel completed with unchanged accusation rules and shared results. Public terminal-dawn five-client match passed: correct deaths and victory, no public cause/potion disclosure.
+- All 34 bilingual AAC announcements, approved licensed piano excerpt, attribution and exact locally tested homepage/demo bundles are publicly available.
 
-## Remaining manual work
+## Browser UI evidence
 
-1. Mixed-language human Classic/Duel testing with a beginner and physical phones; seven/eight people additionally exercise Pack Chat. Use HUMAN_PLAYTEST.md. Automated clients do not substitute for this.
-2. Observe an actually idle cold start. No public shutdown was forced. Render Free wake-up and in-memory room loss on restart/redeploy remain documented; refresh recovery is limited to surviving rooms.
-3. Review eligibility/terms, cover/description and Showcase setting. Submit manually and retain confirmation before October 30, 2026, 11:59 PM Pacific (target 8 PM).
+The earlier public browser reproduction showed a new invite tab silently replacing an active saved host seat. The fix uses per-tab automatic recovery and requires explicit takeover. Actual browser UI starts were verified at 5/6/7/8 seats after the fix; a five-browser match completed before proceeding to later stages. The lobby names missing Ready/offline seats, count and host restrictions.
 
-Release freeze: no more product features; only critical defects or required submission/compliance corrections. Authorized recipients can retain their own copies of previously received messages; the game supplies no closed-phase history.
+Final local browser Classic completed through healing → peaceful dawn → structured speakers → synchronized typed bilingual chat → confirmed ballots → last words → victory. Host mode/time selection, explicit mobile recovery and English/Chinese locked inventory were checked. Real Seer inspection displayed a prominent private Werewolf finding, recovered after refresh, and switched to Chinese; an outsider had no result region. The test fixture extended action windows only for manual inspection; deployed timers remain normal.
+
+390px and 320px browser layouts, typing/Enter, Chinese text, scrollable conversation and reduced 320×400 keyboard-sized viewport were verified with no horizontal overflow. The private drawer does not overlay chat. Public English/Chinese browser Duel separately verified role reveal, recipient-language presets, original free text and mobile layout. These are controlled QA clients, not independent human participants or physical phone testing.
+
+## Release bundles
+
+- Homepage: assets/main-BhQ8t9AM.js
+- Guided Demo: assets/demo-0xgLvCIy.js
+
+## Checkpoints
+
+- stage1-classic-reliable-20261029
+- stage2-discussion-20261029
+- stage3-private-results-20261029
+- stage4-compact-identity-20261029
+- stage5-participant-colors-20261029
+- stage6-attack-resolution-20261029
+- stage7-conversation-release-20261029
+
+## Remaining human steps and honest limits
+
+Complete HUMAN_PLAYTEST.md with 5–6 independent English/Chinese players, a beginner and physical phones (including actual keyboards/IME). Use 7–8 people for human Pack Chat validation. Prior real two-person playtests were reported by the creator; automated clients are not a substitute for group usability validation.
+
+An idle cold start was not timed. Render Free can take about a minute to wake; restart/redeploy loses in-memory rooms. Same-browser refresh recovers only an existing server room. No host migration, persistent accounts/messages or voice chat.
+
+The release is feature-frozen. Review the four entry items and contest terms, submit manually, and save the receipt. No submission has been made by the agent.

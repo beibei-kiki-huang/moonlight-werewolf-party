@@ -7,6 +7,9 @@ Use five or six independent people: English- and Chinese-preferring speakers, a 
 - [ ] Reveal/hide private roles; follow automated night phases and private action controls.
 - [ ] Exchange presets in both languages; expand the equivalent; typed chat remains original. Check phone keyboards and Chinese IME.
 - [ ] Refresh one seat and briefly disconnect another; correct same-browser recovery, concealed card and continued play elsewhere.
+- [ ] Host selects Structured/Open before Ready. Structured default 45 seconds: only current living speaker can send text/presets; early finish and timeout advance; refresh preserves turn/countdown/color. Open allows simultaneous living chat.
+- [ ] After a Structured daytime elimination, only that player gets 30-second public last words; night deaths get none.
+- [ ] Full illustrated initial reveal, then collapsed private identity/history; Seer name/faction result stays owner-only, including refresh.
 - [ ] Draft/confirm voting; everyone-confirmed resolution and an unconfirmed deadline fallback.
 - [ ] Complete Classic and agree on results; rematch. Test Duel in pairs and explain opponent-versus-center.
 - [ ] Witch: both potions visible, once per match, one action per night; confirmation and refresh retain the locked inventory. Dawn shows actual eliminated players or 平安夜, including a terminal-night result, with no cause of death.

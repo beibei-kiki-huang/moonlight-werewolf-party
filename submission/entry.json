@@ -4,21 +4,40 @@
   "cover": "cover.jpg",
   "description": "Moonlight — Play Beyond Borders is a bilingual, moderator-free Werewolf game for friends. Try the 60-second scripted Guided Demo solo. Join a private room on your phone or computer—no accounts. Secret roles, synchronized phases and confirmed voting run automatically. Ten Quick Chat phrases appear in each player’s English or Chinese interface. Built with OpenAI; I learned to protect private roles while keeping devices in sync. Classic: 5–8 players. Duel: 2.",
   "descriptionCharacters": 460,
-  "stableBaseline": "1ca1b85fb1003e22feccba85de2b889b67e55440",
-  "rollback": "pre-role-examples-20261029",
+  "stableBaseline": "89f40ed898ac68f4aaf79c415d393e958710160b",
+  "rollback": "pre-classic-reliability-20261029",
   "submitted": false,
-  "releaseCodeCommit": "89f40ed898ac68f4aaf79c415d393e958710160b",
+  "releaseCodeCommit": "0fd60b56f5d90a1028720dda44823dadc39472aa",
   "demoUrl": "https://moonlight-werewolf-party.onrender.com/demo.html?lang=en",
-  "renderDeploy": "dep-dbhg1qou01pc73a8ma7g",
-  "automatedTestsPassed": 133,
+  "renderDeploy": "dep-dbhqchnb9u1s73aajekg",
+  "automatedTestsPassed": 165,
   "publicClassicPassed": true,
   "publicDuelPassed": true,
   "humanGroupValidation": "pending",
   "coldStartObservation": "not measured after idle; documented free-host limitation",
-  "coverSource": "Actual deployed homepage screenshot; alternative live Duel discussion screenshot also included.",
+  "coverSource": "Actual final deployed homepage screenshot; public QA Duel conversation screenshots also included. Not a human group validation.",
   "publicTerminalDawnPassed": true,
-  "stage1Checkpoint": "stage1-role-examples-20261029",
-  "stage1TestsPassed": 114,
+  "stage1Checkpoint": "stage1-classic-reliable-20261029",
+  "stage1TestsPassed": 140,
   "packSecurityTestsPassed": 19,
-  "publicPackChatPassed": true
+  "publicPackChatPassed": true,
+  "stageCheckpoints": [
+    "stage1-classic-reliable-20261029",
+    "stage2-discussion-20261029",
+    "stage3-private-results-20261029",
+    "stage4-compact-identity-20261029",
+    "stage5-participant-colors-20261029",
+    "stage6-attack-resolution-20261029",
+    "stage7-conversation-release-20261029"
+  ],
+  "publicStructuredClassicCounts": [
+    5,
+    6,
+    8
+  ],
+  "publicOpenClassicCounts": [
+    5,
+    7
+  ],
+  "verificationUpdatedAt": "2026-10-29T20:09:49.282149+00:00"
 }

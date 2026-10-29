@@ -16,6 +16,14 @@ Choose Moonlight Duel for two people, or Classic for five to eight. Create a pri
 
 The server keeps roles/actions private, guides phases and determines results. Quick Chat uses ten fixed bilingual phrases; each recipient sees their selected language. Optional equivalents can be expanded. Ordinary typed chat is not translated. The host starts/rematches, but nobody needs to sit out as moderator.
 
+## Classic discussion and private actions
+
+Classic defaults to Structured Discussion: each living player speaks in seat order for 45 seconds. The host can choose 30/45/60 seconds or Open Discussion before starting. Only the current speaker can type/send presets; Finish speaking advances early. The clock advances automatically if they disconnect or time out. Structured daytime elimination grants that player 30 seconds of public last words before the outcome; night deaths have none. Open Discussion lets all living players chat simultaneously. Duel remains unchanged.
+
+Initial identity reveal uses the original illustrated card. Later private identity/history stays collapsed; reopen only on your own screen. Seer results name the investigated player and Good Team / Werewolf Team privately. Witch gold/silver potions show availability and lock after confirmation. Stable seat colors identify messages and turns. Wolf targets use a leading vote, random tied leader, or random eligible fallback when no valid votes arrive; Witch healing can still produce a peaceful night.
+
+New invitation tabs have independent seats. Refresh recovers that tab; explicit Resume can replace an old connection. The lobby explains exact count, readiness and connection blockers.
+
 ## Wolf Pack Chat in real Classic
 
 Seven/eight-player Classic starts with two wolves. While at least two remain alive, their private chat opens only during the fixed 25-second Werewolf action phase. It appears below attack controls. Typed messages stay as written; presets appear in each recipient's selected language. Messages vanish at phase closure and are never part of public room history. Five/six-player Classic and Duel do not have a teammate chat. The solo demo uses fictional participants, not a real room.
