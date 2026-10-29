@@ -26,6 +26,6 @@ describe('Classic lobby reliability',()=>{
   expect((await send(peers[0],'start',{})).ok).toBe(true);await expect.poll(()=>views.every(v=>v.phase==='witch')).toBe(true);
   const witchIndex=views.findIndex(v=>v.role==='witch'),wolfIds=views.filter(v=>v.role==='werewolf').map(v=>v.youId);await send(peers[witchIndex],'action',{kind:'poison',target:wolfIds[0]});
   if(wolfIds.length===2){await expect.poll(()=>views[0]?.phase).toBe('voting');for(let i=0;i<count;i++){const me=views[i].players.find(p=>p.id===views[i].youId)!;if(me.alive)await send(peers[i],'vote',{target:me.id===wolfIds[1]?'skip':wolfIds[1]})}}
-  await expect.poll(()=>views.every(v=>v.phase==='ended'&&v.winner==='village')).toBe(true);expect(game).toBeDefined();
+  if(wolfIds.length===2){await expect.poll(()=>views.every(v=>v.phase==='last_words')).toBe(true);const i=views.findIndex(v=>v.youId===wolfIds[1]);await send(peers[i],'finish_speaking',{turnId:views[i].turnId})}await expect.poll(()=>views.every(v=>v.phase==='ended'&&v.winner==='village')).toBe(true);expect(game).toBeDefined();
  });
 });

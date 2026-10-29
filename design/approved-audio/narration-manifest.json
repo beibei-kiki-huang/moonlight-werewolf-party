@@ -84,6 +84,16 @@
       "text": "Final words. Listen to the player leaving the village.",
       "duration": 3.729,
       "bytes": 40340
+    },
+    "tie_discussion": {
+      "text": "A tied vote. Listen to each tied candidate in seat order.",
+      "duration": 3.916,
+      "bytes": 42430
+    },
+    "runoff": {
+      "text": "Runoff vote. Other living players, choose a tied candidate or abstain.",
+      "duration": 4.998,
+      "bytes": 53756
     }
   },
   "zh": {
@@ -171,6 +181,16 @@
       "text": "遗言时间，请听出局玩家最后发言。",
       "duration": 3.193,
       "bytes": 37611
+    },
+    "tie_discussion": {
+      "text": "投票平票，请按座位顺序听取平票候选人的发言。",
+      "duration": 4.342,
+      "bytes": 48037
+    },
+    "runoff": {
+      "text": "开始加赛投票。平票候选人以外的存活玩家，请选择一名平票候选人或弃票。",
+      "duration": 6.325,
+      "bytes": 69113
     }
   }
 }

@@ -42,8 +42,8 @@ describe('confirmed ballots and fixed night ritual', () => {
     game.vote(room, room.players[2].id, wolf.id, now); game.vote(room, wolf.id, 'skip', now);
     expect(room.phase).toBe('voting'); expect(room.ballots).toBeUndefined();
     expect(() => game.vote(room, room.players[4].id, 'skip', now)).toThrow(new GameError('unauthorized'));
-    game.tick(room, room.deadline!); // offline ballot counts as Skip; 2-v-2 tie
-    expect(room.phase).toBe('verdict'); expect(wolf.alive).toBe(true);
+    game.tick(room, room.deadline!); // Missing/offline ballot abstains; it cannot outweigh positive candidate votes
+    expect(room.phase).toBe('last_words'); expect(wolf.alive).toBe(false);
     expect(room.ballots).toEqual({ [wolf.id]: 'skip', [first.id]: wolf.id, [room.players[2].id]: wolf.id, [room.players[3].id]: 'skip' });
   });
   it('rejects invalid/late confirmations without falsely completing the ballot set', () => {
@@ -72,7 +72,7 @@ describe('confirmed ballots and fixed night ritual', () => {
           // The automatic fallback still resolves if no wolf submits a vote.
         }
         game.tick(room, deadline);
-        const nextDuration = phase === 'nightfall' ? 25000 : phase === 'wolves' ? 15000 : phase === 'seer' ? 20000 : 8000;
+        const nextDuration = phase === 'witch' ? 8000 : 60000;
         if(room.phase==='ended'){expect(phase).toBe('witch');expect(room.deadline).toBeNull();return;}
         expect(room.deadline).toBe(deadline + nextDuration);
       }

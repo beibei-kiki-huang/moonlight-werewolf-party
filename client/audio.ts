@@ -51,7 +51,7 @@ export class PublicNarrator {
   constructor(private speech: SpeechPort | null, private changed: (status: VoiceStatus) => void, private duck: (value: boolean) => void = () => {}, private recording: RecordingPort | null = null) {}
   update(scene: PublicScene | null, language: Language, active: boolean, retryMissing = false, volume = .8) {
     this.volume = clamp(volume); this.playback?.setVolume(this.volume); this.speech?.setVolume?.(this.volume);
-    const key = scene && active && this.volume > 0 ? `${scene.code}/${scene.day}/${scene.phase}/${scene.phase==='discussion'?'discussion':scene.deadline}/${scene.winner ?? ''}/${scene.dawn?.id ?? ''}/${scene.dawn?.peaceful ?? ''}/${language}` : '';
+    const key = scene && active && this.volume > 0 ? `${scene.code}/${scene.day}/${scene.phase}/${['discussion','tie_discussion'].includes(scene.phase)?scene.phase:scene.deadline}/${scene.winner ?? ''}/${scene.dawn?.id ?? ''}/${scene.dawn?.peaceful ?? ''}/${language}` : '';
     if (key === this.key && !(retryMissing && this.status === 'no-voice')) return;
     this.stop(); this.key = key;
     if (!key || !scene) return;

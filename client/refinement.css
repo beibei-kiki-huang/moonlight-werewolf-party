@@ -73,3 +73,15 @@
  .phase-discussion .room-code-block>button:not(.icon-button),.phase-last_words .room-code-block>button:not(.icon-button){font-size:13px}
 }
 @media(max-width:760px){.players-panel,.side-column>.discussion-chat{width:100%}.room-code-block{flex-shrink:0}.room-code-block>button:not(.icon-button){white-space:nowrap;flex-shrink:0}}
+/* Potion copy must span the text track, never the legacy 20px icon track. */
+.witch-inventory .potion-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}
+.witch-inventory .potion-cards .potion-row{display:flex;flex-direction:column;align-items:stretch;gap:12px;min-width:0;margin:0}
+.witch-inventory .potion-row>div{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;min-width:0;width:100%}
+.witch-inventory .potion-row>div>svg{grid-column:1;grid-row:1;align-self:center}
+.witch-inventory .potion-row strong{grid-column:2;min-width:0;font-size:15px}
+.witch-inventory .potion-row span{grid-column:1/-1;min-width:0;white-space:normal;word-break:normal;overflow-wrap:anywhere;font-size:13px;line-height:1.7}
+.witch-inventory .potion-row .button{min-height:44px;width:100%;font-size:13px;flex-shrink:0}
+.witch-inventory .potion-selected{outline:2px solid #d9e5f5;outline-offset:2px}
+.witch-inventory .poison-draft{font-size:14px;color:#d8dfed}
+.tie-candidates{grid-column:1/-1;font-size:14px!important;margin:0!important}
+@media(max-width:900px){.witch-inventory .potion-cards{grid-template-columns:1fr}}

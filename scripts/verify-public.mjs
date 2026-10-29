@@ -79,8 +79,9 @@ async function classic() {
   const deadline = peers[0].view.deadline;
   const last = living.at(-1);
   await emit(last.socket, 'vote', { target: last === wolf ? 'skip' : wolf.view.youId });
+  await waitFor(peers,'last_words',5000);assert(Date.now()<deadline);
+  await emit(wolf.socket,'finish_speaking',{turnId:wolf.view.turnId});
   await waitFor(peers, 'ended', 5_000);
-  assert(Date.now() < deadline);
   assert(peers.every(p => p.view.winner === 'village' && p.view.players.every(other => !!other.role)));
   console.log('PASS classic: secret votes, elimination, and identical village victory across five public clients.');
 }
@@ -116,7 +117,7 @@ async function audioAssets() {
   assert.equal(Buffer.from(await music.arrayBuffer()).toString('ascii', 4, 8), 'ftyp');
   const credits = await fetch(`${url}/audio/CREDITS.txt`);
   assert.equal(credits.status, 200); assert.match(await credits.text(), /Kevin MacLeod[\s\S]*creativecommons.org\/licenses\/by\/4.0/);
-  console.log('PASS audio assets: approved piano, all 34 bilingual recordings and attribution served publicly.');
+  console.log('PASS audio assets: approved piano, all 38 bilingual recordings and attribution served publicly.');
 }
 async function releaseAssets() {
   const manifest = JSON.parse(await readFile(new URL('../dist/client/.vite/manifest.json', import.meta.url), 'utf8'));

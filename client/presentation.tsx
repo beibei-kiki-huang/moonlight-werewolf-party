@@ -82,16 +82,17 @@ export function VotingPanel({ view, eligible, selected, onSelect, onConfirm, dis
   const changed = !!draft && draft !== view.selection;
   const saved = view.acted && !changed;
   const quick = view.mode === 'quick';
+  const runoff=view.phase==='runoff';
   const choices = quick ? [{ id: 'other', name: tr('The other player', '另一名玩家'), note: view.players.find(p => p.id !== view.youId)?.name }, { id: 'center', name: tr('The center card', '中央身份牌'), note: tr('An untouched secret', '无人触碰的秘密') }]
     : [...eligible.map(p => ({ id: p.id, name: p.name, note: tr('At the table', '牌桌上的玩家') })), { id: 'skip', name: tr('Abstain', '弃票'), note: tr('Cast no accusation', '不指认任何玩家') }];
   return <section className="panel voting-panel">
-    <div className="section-heading"><span className="section-icon"><Vote size={23} /></span><div><p className="eyebrow">{tr('THE MOMENT OF TRUTH', '真相时刻')}</p><h2>{quick ? tr('Where is the wolf?', '狼人在哪里？') : tr('Who do you believe?', '你会相信谁？')}</h2></div></div>
+    <div className="section-heading"><span className="section-icon"><Vote size={23} /></span><div><p className="eyebrow">{tr('THE MOMENT OF TRUTH', '真相时刻')}</p><h2>{quick ? tr('Where is the wolf?', '狼人在哪里？') : runoff?tr('Runoff · tied candidates','加赛 · 平票候选人'):tr('Who do you believe?', '你会相信谁？')}</h2></div></div>
     <p className="voting-intro">{quick ? tr('A face across the table, or a card in the dark. Make your accusation.', '是对面的那个人，还是暗藏的中央牌？作出你的指认。') : tr('Choose a suspect, or give the village another night. Your ballot stays secret until the reveal.', '选择嫌疑人，或让村庄再等一夜。揭晓前，你的选票始终保密。')}</p>
-    <div className="vote-progress" aria-label={tr('Your ballot progress', '你的投票进度')}><span className="complete"><i>1</i>{tr('Choose', '选择')}</span><span className={view.acted ? 'complete' : draft ? 'active' : ''}><i>2</i>{tr('Confirm', '确认')}</span><span className={saved ? 'active' : ''}><i>3</i>{tr('Await reveal', '等待揭晓')}</span></div>
+    {runoff&&<p>{tr('Only other living players vote. One runoff only; another tie or all abstain means no elimination.','仅平票候选人以外的存活玩家投票。只加赛一次，再次平票或全部弃票则无人出局。')}</p>}<div className="vote-progress" aria-label={tr('Your ballot progress', '你的投票进度')}><span className="complete"><i>1</i>{tr('Choose', '选择')}</span><span className={view.acted ? 'complete' : draft ? 'active' : ''}><i>2</i>{tr('Confirm', '确认')}</span><span className={saved ? 'active' : ''}><i>3</i>{tr('Await reveal', '等待揭晓')}</span></div>
     <div className={`vote-options ${quick ? 'duel-options' : ''}`}>{choices.map(choice => {
       const confirmed = view.acted && view.selection === choice.id;
       const chosen = draft === choice.id;
-      return <button type="button" key={choice.id} className={`vote-choice ${choice.id === 'skip' ? 'skip-choice' : ''} ${chosen ? 'is-selected' : ''} ${confirmed ? 'is-confirmed' : ''}`} aria-pressed={chosen} disabled={disabled} onClick={() => onSelect(choice.id)}>
+      return <button type="button" key={choice.id} className={`vote-choice ${choice.id === 'skip' ? 'skip-choice' : ''} ${chosen ? 'is-selected' : ''} ${confirmed ? 'is-confirmed' : ''}`} aria-pressed={chosen} style={participantStyle(view.players.find(p=>p.id===choice.id))} disabled={disabled} onClick={() => onSelect(choice.id)}>
         <span className={`vote-avatar ${choice.id === 'center' ? 'center-avatar' : ''}`}>{choice.id === 'center' ? <Moon size={35} strokeWidth={1} /> : choice.id === 'skip' ? <Shield size={22} /> : quick ? <Users size={30} strokeWidth={1.2} /> : choice.name.slice(0, 1).toUpperCase()}</span>
         <span className="vote-person"><strong>{choice.name}</strong><small>{choice.note}</small></span>
         <span className="vote-check">{chosen || confirmed ? <Check size={17} /> : <span />}</span>
@@ -103,7 +104,7 @@ export function VotingPanel({ view, eligible, selected, onSelect, onConfirm, dis
         : <><span className="receipt-icon"><Vote size={21} /></span><div><strong>{draft ? tr('Ready to seal your choice?', '准备确认你的选择？') : tr('Your ballot is still empty', '你还没有投票')}</strong><p>{draft ? `${choiceName(draft, view, tr)} · ${tr('Not confirmed yet', '尚未确认')}` : tr('Select an option above, then confirm below.', '先在上方选择，再点击下方确认。')}</p></div></>}
     </div>
     <button className={`button primary confirm-vote ${saved ? 'confirmed-button' : ''}`} disabled={disabled || !draft || saved} onClick={() => onConfirm(draft)}>{pending ? <Hourglass size={18} /> : saved ? <Check size={18} /> : <Vote size={18} />}{pending ? tr('Saving your ballot…', '正在保存选票…') : saved ? tr('Vote confirmed', '投票已确认') : view.acted ? tr('Confirm new vote', '确认更改投票') : tr('Confirm my vote', '确认投票')}{!saved && !pending && <ArrowRight size={17} />}</button>
-    <p className="ballot-footnote"><Shield size={13} />{tr('Your ballot stays private until resolution. All living players confirmed? Voting ends immediately. Otherwise it ends at the deadline. Reconfirm changes while voting is open.', '结算前选票保密。所有存活玩家确认后立即结算，否则在倒计时结束时结算。投票开放期间，更改需再次确认。')}</p>
+    <p className="ballot-footnote"><Shield size={13} />{tr('Your ballot stays private until resolution. All eligible players confirmed? Voting ends immediately. Otherwise it ends at the deadline. Reconfirm changes while voting is open.', '结算前选票保密。所有合格投票者确认后立即结算，否则在倒计时结束时结算。投票开放期间，更改需再次确认。')}</p>
     {view.acted && changed && <p className="previous-vote">{tr('Your saved vote is still: ', '当前已保存的投票仍为：')}{choiceName(view.selection, view, tr)}</p>}
   </section>;
 }
@@ -144,9 +145,9 @@ export function DiscussionChat({ view, canChat, connected, pending, send, sendQu
   const previous = useRef(view.chat.length);
   const picker = useRef<HTMLDetailsElement>(null);
   const sendingQuick = useRef(false);
-  const discussion = view.phase === 'discussion' || view.phase === 'last_words';
+  const discussion = view.phase === 'discussion' || view.phase === 'tie_discussion' || view.phase === 'last_words';
   const currentSpeaker=view.players.find(p=>p.id===(view.phase==='last_words'?view.lastWordsPlayerId:view.speakerId));
-  const waitingTurn=!!view.players.find(p=>p.id===view.youId)?.alive&&view.phase==='discussion'&&view.discussionMode==='structured'&&!canChat;
+  const waitingTurn=!!view.players.find(p=>p.id===view.youId)?.alive&&(view.phase==='tie_discussion'||view.phase==='discussion'&&view.discussionMode==='structured')&&!canChat;
   const lastId = view.chat.at(-1)?.id;
   useEffect(() => {
     const count = Math.max(0, view.chat.length - previous.current); previous.current = view.chat.length;

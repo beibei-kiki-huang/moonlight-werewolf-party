@@ -106,17 +106,17 @@ describe('Classic game', () => {
     const voter=villagers.find(p=>p.alive)!;game.vote(room, voter.id, wolves[0].id, room.deadline! - 1);
     expect(game.view(room, wolves[0].id, 0).ballots).toBeUndefined();
     expect(game.view(room, wolves[0].id, 0).selection).toBeUndefined(); step(game, room);
-    expect(room.players.filter(p=>!p.alive)).toHaveLength(1); // missing day ballots still abstain
+    expect(room.players.filter(p=>!p.alive)).toHaveLength(2); // One positive ballot defeats the missing abstentions
     expect(room.ballots?.[voter.id]).toBe(wolves[0].id);
   });
-  it('tied daytime leaders do not eliminate; a unique leader can win without an absolute majority', () => {
+  it('tied daytime leaders enter candidate discussion; a unique leader eliminates without a majority', () => {
     const { game, room } = setup(); room.phase='voting';room.deadline=100000;room.votes={};room.ballots=undefined;
     const p = room.players;
     [p[2].id, p[2].id, p[0].id, p[0].id, 'skip'].forEach((target, i) => game.vote(room, p[i].id, target, room.deadline! - 1));
-    step(game, room); expect(p.every(p => p.alive)).toBe(true);
+    expect(room.phase).toBe('tie_discussion'); expect(p.every(p => p.alive)).toBe(true);
     room.phase='voting';room.deadline=100000;room.votes={};room.ballots=undefined;
     [p[2].id, p[0].id, p[0].id, p[1].id, 'skip'].forEach((target, i) => game.vote(room, p[i].id, target, room.deadline! - 1));
-    step(game, room); expect(p[0].alive).toBe(false); expect(room.winner).toBe('village');
+    expect(room.phase).toBe('last_words');step(game, room); expect(p[0].alive).toBe(false); expect(room.winner).toBe('village');
   });
   it('does not stall with no actions; automatic attacks eventually finish the match', () => {
     const { game, room } = setup();
