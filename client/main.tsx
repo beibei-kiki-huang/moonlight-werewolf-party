@@ -10,7 +10,7 @@ import './quick-chat.css';
 import './atmosphere.css';
 import './submission.css';
 import { BeginnerGuide } from './BeginnerGuide';
-import {tabSeat,savedSeat as readSavedSeat,storeSeat,clearSeat} from './seatStorage';
+import { automaticResumeTakeover,pageWasReloaded,clearTabSeat,tabSeat,savedSeat as readSavedSeat,storeSeat,clearSeat} from './seatStorage';
 import {ParticipantAvatar} from './Participant';
 import {readChatPreference,saveChatPreference} from './chatPreference';
 import {type ChatLanguage} from '../shared/quickChat';
@@ -89,7 +89,7 @@ function App() {
   const [now, setNow] = useState(Date.now());
   const offset = useRef(0);
   const currentRole = useRef<string>('');
-  const takeover=useRef(false);
+  const takeover=useRef(false),reloaded=useRef(pageWasReloaded()),hasBoundSeat=useRef(false);
   useEffect(()=>{if(!view||view.phase==='lobby')setIdentityOpen(false)},[view?.code,view?.phase==='lobby']);
   useEffect(()=>{
     const viewport=window.visualViewport;
@@ -115,15 +115,17 @@ function App() {
     s.on('connect', () => {
       setConnected(true); setConnecting(false);
       const seat = seatRef.current;
-      if (seat) s.timeout(10_000).emit('resume', {...seat,takeover:takeover.current}, (err: Error | null, result: Reply) => {
+      const allowTakeover=takeover.current||automaticResumeTakeover(reloaded.current,hasBoundSeat.current);
+      if (seat) s.timeout(10_000).emit('resume', {...seat,takeover:allowTakeover}, (err: Error | null, result: Reply) => {
         if (err) { setError('connection'); return; }
         if (!result.ok) {
           setError(result.error);
+          if(result.error==='seat_in_use'&&!allowTakeover){clearTabSeat(seat);seatRef.current=null;hasBoundSeat.current=false;}
           if (result.error === 'room_missing' || result.error === 'unauthorized') {
             clearSeat(seatRef.current);seatRef.current = null; setSavedSeat(null); setView(null);
           }
         } else setError(null);
-        takeover.current=false;
+        takeover.current=false;reloaded.current=false;
       });
     });
     s.on('pack_state', (pack: PackChatState) => {
@@ -133,13 +135,14 @@ function App() {
     s.on('disconnect', () => { setConnected(false); setPending(false); });
     s.on('connect_error', () => { setConnecting(false); setError('connection'); });
     s.on('state', (state: GameView) => {
+      hasBoundSeat.current=true;
       offset.current = state.serverNow - Date.now();
       const identity = `${state.code}:${state.role || 'lobby'}`;
       if (currentRole.current !== identity) { currentRole.current = identity; setRoleVisible(false); }
       setView(state); setConnecting(false);
     });
     for (const event of ['replaced', 'removed', 'expired'] as const) s.on(event, () => {
-      s.disconnect(); setError(event === 'expired' ? 'room_missing' : event); setView(null);
+      s.disconnect();hasBoundSeat.current=false; setError(event === 'expired' ? 'room_missing' : event); setView(null);
       if (event !== 'replaced') { clearSeat(seatRef.current);seatRef.current = null; setSavedSeat(null); }
     });
     const requestedRoom = new URLSearchParams(location.search).get('room')?.toUpperCase();
@@ -169,7 +172,7 @@ function App() {
   }
   async function enter(event: React.FormEvent) {
     event.preventDefault(); if (pending || connecting) return;
-    setConnecting(true); setError(null); seatRef.current = null;
+    setConnecting(true); setError(null); seatRef.current = null;hasBoundSeat.current=false;
     const s = socket.current!;
     s.disconnect(); s.connect();
     try {

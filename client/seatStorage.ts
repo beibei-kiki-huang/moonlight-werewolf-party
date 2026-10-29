@@ -7,3 +7,8 @@ export function savedSeat():Seat|null{try{return read(localStorage)}catch{return
 export function storeSeat(seat:Seat,tab:SeatStorage=sessionStorage,saved:SeatStorage=localStorage){const value=JSON.stringify(seat);tab.setItem(key,value);saved.setItem(key,value)}
 export function clearSeat(seat:Seat|null){for(const get of [()=>sessionStorage,()=>localStorage])try{const storage=get();if(!seat||read(storage)?.playerId===seat.playerId)storage.removeItem(key)}catch{}}
 export function readSeatFrom(storage:SeatStorage){return read(storage)}
+
+// A reload/network reconnect keeps the established seat; a newly navigated invitation does not.
+export function automaticResumeTakeover(pageReloaded:boolean,alreadyBound:boolean){return pageReloaded||alreadyBound}
+export function pageWasReloaded(){try{return performance.getEntriesByType('navigation').some(entry=>(entry as PerformanceNavigationTiming).type==='reload')}catch{return false}}
+export function clearTabSeat(seat:Seat,storage:SeatStorage=sessionStorage){try{if(read(storage)?.playerId===seat.playerId)storage.removeItem(key)}catch{}}
