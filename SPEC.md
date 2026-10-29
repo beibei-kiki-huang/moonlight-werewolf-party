@@ -58,3 +58,9 @@ Advanced restart recovery, host migration, 3–4-player Quick, live voice/video 
 Every Classic night includes the same full-length nightfall/wolves/Seer/Witch sequence, even for eliminated roles. Only authorized living players see their own action controls. Other seats get a neutral waiting screen. Public narration, text, and ambience depend only on phase, day, mode, deadline and public winner, never hidden role ownership, completion, actions or victims. Dawn results retain the existing simultaneous resolution and victory rules.
 
 Each device must explicitly Enable Sound. Narration uses its interface language and matching native browser voices, with written guidance if unavailable or blocked. Mute and separate narration/background toggles are available; background volume is quiet and adjustable. Original ambience is synthesized locally with Web Audio. Phase changes, disconnects and hidden tabs cancel stale cues. Refresh requires activation again. No audio may block or advance gameplay.
+
+## Cross-Language Quick Chat (approved bounded addition)
+
+Ten fixed phrases in English/Simplified Chinese, using shared stable IDs and server-authored fallback text. Each recipient sees their selected interface language. A collapsed language control on each preset reveals the equivalent phrase locally. A compact collapsed picker offers all ten phrases equally to all eligible players; it never reads private role or action data. Presets preserve typed drafts and mix with unchanged free-text messages.
+
+Existing chat permissions, room-only lifetime/history cap, sender authentication and shared rate limit apply. No night chat, no eliminated-player discussion messages, no player targeting, auto-translated free text, accounts, permanent messages or translation APIs. No gameplay, artwork, dependency or hosting changes.

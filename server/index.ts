@@ -8,6 +8,7 @@ import { Server, type Socket } from 'socket.io';
 import { z } from 'zod';
 import { Game, GameError, newPlayer, newRoom, type Room } from './game.js';
 import type { ErrorCode, Reply } from '../shared/types.js';
+import { isQuickPhraseId } from '../shared/quickChat.js';
 
 const nameSchema = z.string().trim().min(2).max(20).regex(/^[^\p{Cc}\p{Cf}<>]+$/u);
 const codeSchema = z.string().trim().toUpperCase().regex(/^[A-HJ-NP-Z2-9]{6}$/);
@@ -148,6 +149,9 @@ export function createApp(game = new Game()) {
     });
     command('chat', z.object({ text: z.string().trim().min(1).max(300) }), ({ room, playerId }, { text }) => {
       limit(`chat:${playerId}`, 5, 10_000); game.chat(room, playerId, text, Date.now());
+    });
+    command('quick_chat', z.object({ phraseId: z.string().max(40).refine(isQuickPhraseId) }).strict(), ({ room, playerId }, { phraseId }) => {
+      limit(`chat:${playerId}`, 5, 10_000); game.quickChat(room, playerId, phraseId, Date.now());
     });
     command('rematch', z.object({}), ({ room, playerId }) => game.rematch(room, playerId, Date.now()));
     command('remove', z.object({ playerId: idSchema }), ({ room, playerId }, data) => {

@@ -1,3 +1,4 @@
+import type { QuickPhraseId } from './quickChat';
 export type Role = 'werewolf' | 'villager' | 'seer' | 'witch';
 export type Mode = 'classic' | 'quick';
 export type Phase = 'lobby' | 'reveal' | 'nightfall' | 'wolves' | 'seer' | 'witch' | 'dawn' | 'discussion' | 'voting' | 'verdict' | 'ended';
@@ -5,7 +6,7 @@ export type Winner = 'village' | 'wolves' | 'draw';
 export type ErrorCode = 'invalid' | 'room_missing' | 'room_full' | 'name_taken' | 'started' | 'unauthorized' | 'not_host' | 'not_ready' | 'wrong_phase' | 'invalid_target' | 'already_acted' | 'rate_limit' | 'capacity';
 export interface PublicPlayer { id: string; name: string; connected: boolean; ready: boolean; alive: boolean; role?: Role }
 export interface GameEvent { id: number; kind: 'start' | 'dawn' | 'elimination' | 'no_elimination' | 'result'; day: number; players?: { name: string; role: Role }[]; winner?: Winner }
-export interface ChatMessage { id: string; playerId: string; name: string; text: string }
+export interface ChatMessage { id: string; playerId: string; name: string; text: string; phraseId?: QuickPhraseId }
 export interface Investigation { day: number; targetId: string; name: string; isWolf: boolean }
 export interface GameView {
   code: string; mode: Mode; phase: Phase; day: number; serverNow: number; deadline: number | null;

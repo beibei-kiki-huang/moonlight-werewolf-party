@@ -51,7 +51,7 @@ describe('illustrated interface privacy and feedback', () => {
     const state = { ...view('villager'), phase: 'discussion' as const, acted: true, selection: 'other', chat: [{ id: '1', playerId: 'other', name: 'Sol', text: '<img src=x onerror=alert(1)>' }] };
     const vote = renderToStaticMarkup(<VotingPanel view={state} eligible={state.players.slice(1)} selected="other" onSelect={() => {}} onConfirm={() => {}} disabled={false} pending={false} tr={zh} />);
     expect(vote).toContain('你的投票已确认'); expect(vote).toContain('等待揭晓');
-    const chat = renderToStaticMarkup(<DiscussionChat view={state} canChat connected pending={false} send={async () => true} tr={zh} />);
+    const chat = renderToStaticMarkup(<DiscussionChat view={state} canChat connected pending={false} send={async () => true} sendQuick={async () => true} language="zh" tr={zh} />);
     expect(chat).toContain('discussion-open'); expect(chat).toContain('月下交谈'); expect(chat).toContain('textarea');
     expect(chat).toContain('&lt;img'); expect(chat).not.toContain('<img src=x');
   });

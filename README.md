@@ -9,6 +9,7 @@ A real multiplayer Werewolf game for friends. Each player joins from their own b
 - Classic for 5–8: server-assigned private roles, wolf team targeting, Seer investigations, Witch heal/poison, synchronized night/day timers, discussion, secret votes, elimination, automatic faction victory and draws.
 - Two-player Moonlight Duel: hidden center card, timed discussion, secret accusations, automatic results.
 - Refresh recovery in the same browser, private reconnect snapshots, duplicate-tab takeover, ready lobby, rematches, basic text chat, English / Simplified Chinese, responsive dark interface.
+- Cross-Language Quick Chat: ten fixed English/Chinese phrases appear in each recipient’s interface language. Optional per-message language controls reveal the equivalent phrase; free text stays as written.
 - Role privacy is enforced on the server. Browsers never receive the complete room state. Private actions and votes are sent only to authorized players; the public receives no submission counters.
 - Choose a vote locally, then confirm it. The final living player's confirmation resolves voting immediately in both modes; otherwise the deadline applies. A confirmed vote remains valid until a replacement is confirmed while voting is still open. Offline living seats count; eliminated seats do not.
 - Classic has a shared five-second nightfall, fixed wolf/Seer/Witch slots, neutral waiting screens, and public dawn results. Hidden action completion never shortens a night slot.
@@ -80,3 +81,11 @@ The presentation update adds four original character portraits, a private collec
 Rollback tag: `pre-flow-narrator-20261028` points to the working illustrated edition before this update. Commit `aa56453` separately checkpoints the tested P0 vote/night changes before audio.
 
 `shared/publicPhase.ts` contains the bilingual public script. `client/audio.ts` accepts only public scene metadata; it cannot see roles, investigations, potions, victims or vote confirmations. All night slots and scripts play even if the role is eliminated. Audio is optional and uses browser APIs only, with no uploaded recordings, external assets, service credentials, or paid APIs. Voices and autoplay behavior vary across platforms. Refresh retains sound preferences but requires Enable Sound again. Hidden/disconnected tabs stop current cues; returning uses the current phase rather than replaying a backlog.
+
+## Cross-Language Quick Chat
+
+Rollback checkpoint: `pre-quick-chat-20261028` (working commit `623a8fb`). The ten approved pairs live in `shared/quickChat.ts`. Clients send a phrase ID; the server validates it and supplies a canonical English fallback. Each recipient renders the phrase using their own interface language. Existing message fields remain compatible with older clients.
+
+Quick Chat uses the same temporary room history, sender identity, phase/alive permissions, 80-message cap and shared five-messages-per-ten-seconds quota as free text. It adds no role-based suggestions, target parameters, translation service, accounts or permanent messaging. The learning view expands locally and does not send or modify messages. Sending a preset retains the typed draft. Ordinary chat remains untranslated.
+
+This is the competition proof of concept for **Moonlight — Play Beyond Borders**, a future game-first space for cross-cultural connection. Matchmaking, accounts, friend requests, persistent messages and live voice remain outside this MVP.

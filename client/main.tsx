@@ -6,6 +6,7 @@ import type { Action, ErrorCode, GameEvent, GameView, Mode, Reply, Role, Seat } 
 import './styles.css';
 import './polish.css';
 import './flow.css';
+import './quick-chat.css';
 import { DiscussionChat, NightSequence, Outcome, Portrait, RoleCard, VotingPanel } from './presentation';
 import { SoundControls } from './SoundControls';
 import '@fontsource/dm-sans/latin-400.css';
@@ -192,7 +193,7 @@ function App() {
   const canChat = !!view && ['lobby', 'discussion', 'ended'].includes(view.phase) && (view.phase !== 'discussion' || me?.alive);
   const showChat = !!view && !isNight && view.phase !== 'reveal';
   function discussionChat() {
-    return view ? <DiscussionChat view={view} canChat={!!canChat} connected={connected} pending={pending} tr={tr} send={async text => (await request('chat', { text })) !== null} /> : null;
+    return view ? <DiscussionChat view={view} canChat={!!canChat} connected={connected} pending={pending} language={lang} tr={tr} send={async text => (await request('chat', { text })) !== null} sendQuick={async phraseId => (await request('quick_chat', { phraseId })) !== null} /> : null;
   }
 
   function targetButtons(forPoison = false) {

@@ -1,0 +1,14 @@
+/* A compact, optional bridge between languages inside the existing room chat. */
+.quick-picker{margin:12px 0;border:1px solid #c2a6df3d;border-radius:10px;background:#b69cda08}
+.quick-picker>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 12px;cursor:pointer;list-style:none;color:#ddd2ef;font-size:12px}
+.quick-picker>summary::-webkit-details-marker,.phrase-learning>summary::-webkit-details-marker{display:none}
+.quick-picker>summary>svg:last-child{margin-left:auto}.quick-picker[open]>summary>svg:last-child{transform:rotate(180deg)}
+.quick-picker .quick-hint{font-size:11px!important;line-height:1.75!important;margin:0;padding:0 12px 10px;color:#aaa1bd}
+.quick-choices{display:flex;flex-wrap:wrap;gap:7px;padding:0 10px 12px;max-height:240px;overflow-y:auto;overscroll-behavior:contain}
+.quick-choices>button{font-family:inherit;min-height:44px;max-width:100%;padding:8px 11px;border-radius:9px;border:1px solid #b9a2d13d;background:#202037;color:#e4ddef;font-size:12px;line-height:1.55;text-align:left;overflow-wrap:anywhere}
+.quick-choices>button:hover:not(:disabled){border-color:#ceb1e78a;background:#302843}.quick-choices>button:disabled{opacity:.45;cursor:not-allowed}
+.preset-tools{display:flex;align-items:baseline;gap:8px;margin-top:2px;max-width:100%}.preset-tools>span{font-size:9px;color:#aca0be;white-space:nowrap;padding-top:10px}
+.phrase-learning{min-width:0;flex:1}.phrase-learning>summary{display:flex;align-items:center;justify-content:center;gap:5px;list-style:none;cursor:pointer;width:fit-content;min-width:44px;min-height:44px;color:#d0b9e5;font-size:10px;border-radius:7px;padding:5px 7px}
+.phrase-learning>summary:hover{background:#bba0d71a}.conversation-message .phrase-equivalent,.side-column .conversation-message .phrase-equivalent{background:none;border:0;border-left:1px solid #c4a7db52;border-radius:0;margin:0 0 9px;padding:3px 0 3px 10px;font-size:12px;line-height:1.8;color:#bcb0d1;overflow-wrap:anywhere;box-shadow:none}
+.quick-picker>summary:focus-visible,.phrase-learning>summary:focus-visible,.quick-choices>button:focus-visible{outline:2px solid #d5bbe9;outline-offset:2px}
+@media(max-width:680px){.quick-picker{margin:12px 0}.quick-choices{max-height:230px}.quick-choices>button{font-size:12px;min-height:44px}.quick-picker .quick-hint{font-size:10px!important}.preset-tools>span{font-size:9px}.conversation-message .phrase-equivalent,.side-column .conversation-message .phrase-equivalent{font-size:12px}}

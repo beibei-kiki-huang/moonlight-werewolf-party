@@ -1,5 +1,6 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import type { Action, ChatMessage, ErrorCode, GameEvent, GameView, Investigation, Mode, Phase, Role, Winner } from '../shared/types.js';
+import { isQuickPhraseId, QUICK_PHRASES } from '../shared/quickChat.js';
 
 export class GameError extends Error {
   constructor(public code: ErrorCode) { super(code); }
@@ -140,10 +141,18 @@ export class Game {
     this.touch(room, now); return resolved;
   }
   chat(room: Room, id: string, text: string, now: number) {
+    this.appendChat(room, id, { text }, now);
+  }
+  quickChat(room: Room, id: string, phraseId: string, now: number) {
+    if (!isQuickPhraseId(phraseId)) return fail('invalid');
+    // The server supplies the fallback, never a client's translation or identity.
+    this.appendChat(room, id, { text: QUICK_PHRASES[phraseId].en, phraseId }, now);
+  }
+  private appendChat(room: Room, id: string, message: Pick<ChatMessage, 'text' | 'phraseId'>, now: number) {
     const player = this.player(room, id);
     if (room.phase !== 'lobby' && room.phase !== 'discussion' && room.phase !== 'ended') fail('wrong_phase');
     if (room.phase === 'discussion' && !player.alive) fail('unauthorized');
-    room.chat.push({ id: randomUUID(), playerId: id, name: player.name, text });
+    room.chat.push({ id: randomUUID(), playerId: id, name: player.name, ...message });
     room.chat = room.chat.slice(-80); this.touch(room, now);
   }
   rematch(room: Room, id: string, now: number) {

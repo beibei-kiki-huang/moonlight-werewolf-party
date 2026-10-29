@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, ChevronDown, Eye, EyeOff, FlaskConical, Hourglass, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote } from 'lucide-react';
-import type { GameView, PublicPlayer, Role } from '../shared/types';
+import { ArrowRight, Check, ChevronDown, Eye, EyeOff, FlaskConical, Hourglass, Languages, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote } from 'lucide-react';
+import type { ChatMessage, GameView, PublicPlayer, Role } from '../shared/types';
 import { phaseScript, type Language, type PublicPhase } from '../shared/publicPhase';
+import { isQuickPhraseId, QUICK_PHRASES, QUICK_PHRASE_IDS, type QuickPhraseId } from '../shared/quickChat';
 
 export type Translate = (en: string, zh: string) => string;
 export function NightSequence({ phase, language, tr }: { phase: PublicPhase; language: Language; tr: Translate }) {
@@ -125,12 +126,23 @@ export function Outcome({ view, host, disabled, onRematch, tr, roleName, ballots
   </section>;
 }
 
-export function DiscussionChat({ view, canChat, connected, pending, send, tr }: { view: GameView; canChat: boolean; connected: boolean; pending: boolean; send: (text: string) => Promise<boolean>; tr: Translate }) {
+export function ChatMessageContent({ message, language, tr }: { message: ChatMessage; language: Language; tr: Translate }) {
+  if (!isQuickPhraseId(message.phraseId)) return <p>{message.text}</p>;
+  const phrase = QUICK_PHRASES[message.phraseId];
+  const other = language === 'en' ? 'zh' : 'en';
+  return <><p lang={language === 'zh' ? 'zh-CN' : 'en'}>{phrase[language]}</p><div className="preset-tools"><span>{tr('Quick Chat', '快捷短语')}</span>
+    <details className="phrase-learning"><summary aria-label={tr('See this phrase in Chinese', '查看这句话的英文')} title={tr('See this phrase in Chinese', '查看这句话的英文')}><Languages size={14} /><span>{other === 'zh' ? '中' : 'EN'}</span></summary><p className="phrase-equivalent" lang={other === 'zh' ? 'zh-CN' : 'en'}>{phrase[other]}</p></details>
+  </div></>;
+}
+
+export function DiscussionChat({ view, canChat, connected, pending, send, sendQuick, language, tr }: { view: GameView; canChat: boolean; connected: boolean; pending: boolean; send: (text: string) => Promise<boolean>; sendQuick: (phraseId: QuickPhraseId) => Promise<boolean>; language: Language; tr: Translate }) {
   const [text, setText] = useState('');
   const [unread, setUnread] = useState(0);
   const list = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
   const previous = useRef(view.chat.length);
+  const picker = useRef<HTMLDetailsElement>(null);
+  const sendingQuick = useRef(false);
   const discussion = view.phase === 'discussion';
   const lastId = view.chat.at(-1)?.id;
   useEffect(() => {
@@ -144,14 +156,22 @@ export function DiscussionChat({ view, canChat, connected, pending, send, tr }: 
     event.preventDefault(); const message = text.trim(); if (!message || !canChat || pending) return;
     if (await send(message)) { setText(''); nearBottom.current = true; if (list.current) list.current.scrollTop = list.current.scrollHeight; }
   }
+  async function choosePhrase(phraseId: QuickPhraseId) {
+    if (!canChat || !connected || pending || sendingQuick.current) return;
+    sendingQuick.current = true;
+    try {
+      if (await sendQuick(phraseId)) { if (picker.current) picker.current.open = false; nearBottom.current = true; }
+    } finally { sendingQuick.current = false; }
+  }
   return <section className={`panel discussion-chat ${discussion ? 'discussion-open' : ''}`} id="table-chat">
     <div className="chat-heading"><span className="chat-heading-icon"><MessageCircle size={23} /></span><div><p className="eyebrow">{discussion ? tr('EVERY VOICE LEAVES A CLUE', '每句话，都藏着线索') : tr('AROUND THE TABLE', '围坐月下')}</p><h3>{tr('Table talk', '月下交谈')}</h3></div><span className="chat-live"><i />{tr('LIVE', '实时')}</span></div>
     {discussion && <p className="chat-invitation">{canChat ? tr('Share a theory. Question an alibi. Who do you trust?', '分享推测，质疑证词。你会相信谁？') : tr('You are watching quietly. Your team’s story continues.', '请安静观战，你的阵营仍在继续故事。')}</p>}
     <div className="conversation" ref={list} role="log" aria-label={tr('Table conversation', '牌桌对话')} aria-live="polite" aria-relevant="additions" onScroll={() => { const el = list.current!; nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 65; if (nearBottom.current) setUnread(0); }}>
       {!view.chat.length && <div className="conversation-empty"><MessageCircle size={30} strokeWidth={1} /><strong>{tr('Break the silence.', '打破沉默。')}</strong><p>{tr('A simple “Who do you suspect?” is a good place to start.', '不妨先问一句：“你在怀疑谁？”')}</p></div>}
-      {view.chat.map(m => <div className={`conversation-message ${m.playerId === view.youId ? 'mine' : ''}`} key={m.id}><span className="message-avatar">{m.name.slice(0, 1).toUpperCase()}</span><div><strong>{m.name}<small>{m.playerId === view.youId ? tr('you', '你') : ''}</small></strong><p>{m.text}</p></div></div>)}
+      {view.chat.map(m => <div className={`conversation-message ${m.playerId === view.youId ? 'mine' : ''}`} key={m.id}><span className="message-avatar">{m.name.slice(0, 1).toUpperCase()}</span><div><strong>{m.name}<small>{m.playerId === view.youId ? tr('you', '你') : ''}</small></strong><ChatMessageContent message={m} language={language} tr={tr} /></div></div>)}
     </div>
     {unread > 0 && <button className="new-messages" onClick={() => { nearBottom.current = true; setUnread(0); if (list.current) list.current.scrollTop = list.current.scrollHeight; }}>{tr(`${unread} new message${unread > 1 ? 's' : ''}`, `${unread}条新消息`)}<ChevronDown size={14} /></button>}
+    {canChat && <details className="quick-picker" ref={picker}><summary><Languages size={16} /><span>{tr('Quick Chat', '快捷短语')}</span><ChevronDown size={14} /></summary><p className="quick-hint">{tr('Tap to send in everyone’s language. Typed messages stay as written.', '轻触发送，每人看到自己的语言。手动输入的消息保持原文。')}</p><div className="quick-choices">{QUICK_PHRASE_IDS.map(id => <button type="button" key={id} disabled={!connected || pending} onClick={() => void choosePhrase(id)}>{QUICK_PHRASES[id][language]}</button>)}</div></details>}
     <form className="conversation-compose" onSubmit={submit}><label className="sr-only" htmlFor="table-message">{tr('Message to the table', '发送消息')}</label><textarea id="table-message" rows={2} value={text} onChange={e => setText(e.target.value)} maxLength={300} placeholder={canChat ? tr('What’s your theory?', '说说你的推理…') : tr('Listen for now…', '请安静观战…')} disabled={!canChat || !connected} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void submit(e); } }} /><button className="button primary send-message" aria-label={tr('Send message', '发送消息')} disabled={!canChat || !connected || pending || !text.trim()}><Send size={17} /><span>{tr('Send', '发送')}</span></button></form>
     <p className="chat-compose-hint">{!connected ? tr('Reconnecting to the table…', '正在重新连接牌桌…') : canChat ? tr('Enter to send · Shift + Enter for a new line', '回车发送 · Shift + 回车换行') : tr('Only living players can speak during discussion.', '讨论阶段仅存活玩家可以发言。')}</p>
   </section>;

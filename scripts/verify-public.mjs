@@ -25,10 +25,20 @@ async function waitFor(peers, phase, timeout = 300_000) {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 }
+async function waitChat(peers, predicate) {
+  const until = Date.now() + 10_000;
+  while (!peers.every(p => predicate(p.view?.chat ?? []))) {
+    if (Date.now() > until) throw new Error('Timed out waiting for synchronized chat');
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+}
 async function table(mode, count) {
   const peers = await Promise.all(Array.from({ length: count }, peer));
   const seat = await emit(peers[0].socket, 'create', { name: `QA-${mode}-1`, mode });
   for (let i = 1; i < count; i++) await emit(peers[i].socket, 'join', { code: seat.code, name: `QA-${mode}-${i + 1}` });
+  await emit(peers[0].socket, 'quick_chat', { phraseId: 'hello' });
+  await waitChat(peers, chat => chat.at(-1)?.phraseId === 'hello');
+  assert(peers.every(p => p.view.chat.at(-1)?.phraseId === 'hello' && p.view.chat.at(-1)?.text === 'Hi everyone!'));
   for (const p of peers) await emit(p.socket, 'ready', { ready: true });
   await emit(peers[0].socket, 'start', {}); await waitFor(peers, 'reveal', 10_000);
   assert(peers.every(p => p.view.players.length === count && p.view.players.every(other => !other.role)));
@@ -54,9 +64,13 @@ async function classic() {
   assert.equal(seer.view.investigations[0].isWolf, true);
   await waitFor(peers, 'discussion');
   await emit(peers[0].socket, 'chat', { text: 'Public network acceptance test.' });
-  await new Promise(resolve => setTimeout(resolve, 500));
+  await waitChat(peers, chat => chat.at(-1)?.text === 'Public network acceptance test.');
   assert(peers.every(p => p.view.chat.at(-1).text === 'Public network acceptance test.'));
-  console.log('classic: synchronized night and dawn; private Seer result and public discussion verified.');
+  await emit(peers[1].socket, 'quick_chat', { phraseId: 'explain_again' });
+  await waitChat(peers, chat => chat.at(-1)?.phraseId === 'explain_again');
+  assert(peers.every(p => p.view.chat.at(-1)?.phraseId === 'explain_again' && p.view.chat.at(-1)?.text === 'Could you explain again?'));
+  assert(peers.every(p => p.view.chat.at(-2)?.text === 'Public network acceptance test.' && !p.view.chat.at(-2)?.phraseId));
+  console.log('classic: synchronized night and dawn; private Seer result, free text and Quick Chat verified.');
   await waitFor(peers, 'voting');
   for (const p of peers.slice(0, -1)) await emit(p.socket, 'vote', { target: p === wolf ? 'skip' : wolf.view.youId });
   assert(peers.every(p => p.view.ballots === undefined));
@@ -70,6 +84,11 @@ async function classic() {
 }
 async function quick() {
   const { peers } = await table('quick', 2);
+  await waitFor(peers, 'discussion');
+  await emit(peers[0].socket, 'quick_chat', { phraseId: 'trust_me' });
+  await emit(peers[1].socket, 'chat', { text: '你好 — free text stays original.' });
+  await waitChat(peers, chat => chat.length === 2);
+  assert(peers.every(p => p.view.chat[0]?.phraseId === 'trust_me' && p.view.chat[1]?.text === '你好 — free text stays original.' && !p.view.chat[1]?.phraseId));
   await waitFor(peers, 'voting');
   const wolfPresent = peers.some(p => p.view.role === 'werewolf');
   await emit(peers[0].socket, 'vote', { target: wolfPresent ? 'other' : 'center' });
