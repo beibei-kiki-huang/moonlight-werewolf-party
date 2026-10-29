@@ -36,3 +36,6 @@
 @media(max-width:680px){.mobile-phase-strip{border-left:3px solid var(--participant-color,#c7b5df)}.mobile-phase-strip small{color:var(--participant-color,#c5bad4)}}
 
 @media(max-width:680px){.modal-close{min-width:44px;min-height:44px}.chat-language-picker{margin:8px 0;padding:4px 0;gap:4px 8px}}
+/* At a terminal dawn, the winning faction and next action lead; night facts remain below. */
+@media(max-width:680px){.phase-ended .main-column>.dawn-result{order:2;margin:0}.site-header .language-button{white-space:nowrap;flex-shrink:0}.site-header nav{flex-shrink:0}}
+@media(max-width:360px){.site-header{padding:12px 15px}.site-header nav{gap:4px}.site-header .brand{font-size:20px;gap:8px}.site-header .brand-mark{width:28px;height:33px}.site-header .brand-mark svg{width:19px}.site-header .brand-sub{font-size:5px;letter-spacing:2.2px}.site-header .header-button,.site-header .icon-button{min-width:44px;min-height:44px;padding:6px}.site-header .language-button{min-height:44px;padding:6px;gap:4px}.site-header .language-button svg{width:13px}}
