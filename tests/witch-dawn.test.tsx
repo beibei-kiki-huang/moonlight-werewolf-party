@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup as render } from 'react-dom/server';
-import { Game, GameError, newPlayer, newRoom } from '../server/game';
+import { DURATIONS, Game, GameError, newPlayer, newRoom } from '../server/game';
 import type { GameView, Role, GameEvent, ErrorCode } from '../shared/types';
 import { phaseScript } from '../shared/publicPhase';
 import { WitchPanel } from '../client/WitchPanel';
@@ -10,7 +10,7 @@ import { PublicNarrator, narrationCues, type RecordingPort, type PublicScene } f
 import { RoleCard } from '../client/presentation';
 const en=(a:string,_b:string)=>a, zh=(_a:string,b:string)=>b;
 const name=(role:Role)=>({werewolf:'狼人',villager:'村民',seer:'预言家',witch:'女巫'})[role];
-function setup(){const game=new Game({},cards=>[...cards]);const wolf=newPlayer('Wolf');const room=newRoom('ABC234','classic',wolf,0);for(const n of ['V1','V2','V3','Seer','Witch'])game.join(room,n,0);for(const p of room.players)game.ready(room,p.id,true,0);game.start(room,wolf.id,0);return{game,room,wolf,witch:room.players[5]}}
+function setup(){const game=new Game(DURATIONS,cards=>[...cards]);const wolf=newPlayer('Wolf');const room=newRoom('ABC234','classic',wolf,0);for(const n of ['V1','V2','V3','Seer','Witch'])game.join(room,n,0);for(const p of room.players)game.ready(room,p.id,true,0);game.start(room,wolf.id,0);return{game,room,wolf,witch:room.players[5]}}
 function until(s:ReturnType<typeof setup>,phase:string){for(let i=0;s.room.phase!==phase&&i<30;i++)s.game.tick(s.room,s.room.deadline!);expect(s.room.phase).toBe(phase)}
 function act(s:ReturnType<typeof setup>,id:string,a:Parameters<Game['act']>[2]){s.game.act(s.room,id,a,s.room.deadline!-1)}
 function nextNight(s:ReturnType<typeof setup>){until(s,'voting');for(const p of s.room.players.filter(p=>p.alive))s.game.vote(s.room,p.id,'skip',s.room.deadline!-1);until(s,'wolves')}
@@ -36,7 +36,7 @@ describe('Witch and authoritative dawn regression',()=>{
  });
  it.each(['dead','absent','spent'] as const)('keeps fixed public slots and guidance with %s special roles',condition=>{
   const s=setup();if(condition==='dead'){s.room.players[4].alive=false;s.witch.alive=false}else if(condition==='absent'){s.room.players[4].role=undefined;s.witch.role=undefined}else{s.witch.heal=false;s.witch.poison=false}
-  until(s,'nightfall');for(const [phase,duration] of [['nightfall',5000],['wolves',25000],['seer',15000],['witch',20000]] as const){expect(s.room.phase).toBe(phase);expect(s.game.tick(s.room,s.room.deadline!-1)).toBe(false);expect(s.game.view(s.room,s.wolf.id,s.room.deadline!-duration).deadline).toBe(s.room.deadline);const baseline=phaseScript({mode:'classic',phase},'zh');expect(baseline).toBe(phaseScript({...s.game.view(s.room,s.witch.id,0),phase},'zh'));s.game.tick(s.room,s.room.deadline!)}
+  let stageStarted=s.room.deadline!;until(s,'nightfall');for(const [phase,duration] of [['nightfall',5000],['wolves',25000],['seer',15000],['witch',20000]] as const){expect(s.room.phase).toBe(phase);expect(s.room.deadline!-stageStarted).toBe(duration);expect(s.game.tick(s.room,s.room.deadline!-1)).toBe(false);expect(s.game.view(s.room,s.wolf.id,s.room.deadline!-duration).deadline).toBe(s.room.deadline);const baseline=phaseScript({mode:'classic',phase},'zh');expect(baseline).toBe(phaseScript({...s.game.view(s.room,s.witch.id,0),phase},'zh'));stageStarted=s.room.deadline!;s.game.tick(s.room,stageStarted)}
  });
  it('renders both spent potions and locks every private action after confirmation',()=>{
   const s=setup();until(s,'witch');s.witch.poison=false;act(s,s.witch.id,{kind:'pass'});const view=s.game.view(s.room,s.witch.id,0);

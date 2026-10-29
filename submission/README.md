@@ -8,9 +8,9 @@ Cover: `cover.jpg` — 1200×800 JPEG (3:2), captured from the final deployed ho
 
 Description: copy `description.txt` (460 characters, excluding the trailing newline).
 
-Current stable baseline: 745847e30fc571216eaad74c4b546ee32d66e3be. Rollback checkpoint: pre-submission-final-20261028. The public baseline was confirmed available before changes.
+Pre-refinement stable baseline: 67d05b7. Rollback checkpoint: pre-demo-witch-refinement-20261028. The public baseline was confirmed available before changes.
 
-Release verification: see `VERIFICATION.md`. All 86 tests, build checks and public Classic/Duel acceptance passed. Application commit: `6fecf9bc157b85593abcde5712c1164d66485d39`. The code is frozen for submission except critical fixes. The isolated tour is at https://moonlight-werewolf-party.onrender.com/demo.html?lang=en .
+Release verification: see `VERIFICATION.md`. All 102 tests, build checks and public Classic/Duel acceptance passed. Application commit: `224583fd10fcb4e821838efda6f28a3098e05164`. The code is frozen for submission except critical fixes. The isolated tour is at https://moonlight-werewolf-party.onrender.com/demo.html?lang=en .
 
 ## Manual entry
 

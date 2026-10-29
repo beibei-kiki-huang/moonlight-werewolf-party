@@ -9,6 +9,8 @@ Use five or six independent people: English- and Chinese-preferring speakers, a 
 - [ ] Refresh one seat and briefly disconnect another; correct same-browser recovery, concealed card and continued play elsewhere.
 - [ ] Draft/confirm voting; everyone-confirmed resolution and an unconfirmed deadline fallback.
 - [ ] Complete Classic and agree on results; rematch. Test Duel in pairs and explain opponent-versus-center.
+- [ ] Witch: both potions visible, once per match, one action per night; confirmation and refresh retain the locked inventory. Dawn shows actual eliminated players or 平安夜, including a terminal-night result, with no cause of death.
+- [ ] Demo: Previous/Next pause and preserve state; Replay resets the separate fictional Witch example.
 - [ ] Optional sound, separate controls and normal gameplay with sound off.
 - [ ] Debrief: What confused you? Did presets help participation? Would you play again?
 

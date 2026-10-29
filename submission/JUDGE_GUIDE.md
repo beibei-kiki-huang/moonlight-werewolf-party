@@ -6,7 +6,7 @@ A bilingual Werewolf game, without a moderator.
 
 Open https://moonlight-werewolf-party.onrender.com/demo.html?lang=en
 
-The Guided Demo is a clearly labeled fictional, condensed 60-second tour. No real opponents are present and no room is created. Try role reveal, phase guidance, recipient-language Quick Chat, draft/confirmed voting and results. Next, Pause/Resume, Exit and Replay are available. Sound is not required. Chinese tour: change EN / 中, or open the same URL with lang=zh. The sample tour does not prove multiplayer; the live game is separate.
+The Guided Demo is a clearly labeled fictional, condensed 60-second tour. No real opponents are present and no room is created. Try role reveal, phase guidance, recipient-language Quick Chat, draft/confirmed voting and results. Previous, Next, Pause/Resume, Exit and Replay are available. Previous/Next pause playback and preserve selections. Replay resets everything. The optional Witch choices are a clearly separate fictional one-night example, outside the default 60-second Seer storyline. Sound is not required. Chinese tour: change EN / 中, or open the same URL with lang=zh. The sample tour does not prove multiplayer; the live game is separate.
 
 ## Play for real
 

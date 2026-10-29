@@ -1,27 +1,29 @@
-# Final release verification — October 28, 2026 (Pacific)
+# Final frozen release verification — October 29, 2026 (Pacific)
 
-Application release: `6fecf9bc157b85593abcde5712c1164d66485d39`
-Render deploy: `dep-dbhe6q0u01pc73a6rgf0` (Live)
-Stable rollback: `pre-submission-final-20261028` → `745847e`
-Homepage bundle: `/assets/main-BWUgypso.js`
-Demo bundle: `/assets/demo-vPsWPjas.js`
+Application release: `224583fd10fcb4e821838efda6f28a3098e05164`
+Render deploy: `dep-dbhfashbgsac73b8bajg` (Live)
+Rollback: `pre-demo-witch-refinement-20261028` → `67d05b7`
+Homepage bundle: `/assets/main-CJM7RpmP.js`
+Demo bundle: `/assets/demo-DA3Juj7M.js`
 
 ## Completed
 
-- 86/86 automated tests; TypeScript and production build; compiled-demo graph and all four submission-item checks pass.
-- Normal-clock public acceptance: five independent Classic and two independent Duel Socket.IO clients complete full matches, private projections/ballots, synchronized phases, immediate confirmed-vote resolution and identical results. Public free text, Quick Chat, 28 bilingual audio clips and attribution checks pass. See public-acceptance.log. These are network clients, not seven human testers.
-- Separate demo entry contains only fictional fixtures/public phrases; no game transport, room APIs or credential storage in its compiled dependency graph. In a production-style local server, one real seat remains connected while another tab opens/replays/exits the tour; logs remain at one client and one room, with no additional create/resume/connect.
-- English/Chinese UI, persistent scripted/not-live labels, role reveal, condensed public phases, bilingual recipient views, optional equivalents, draft versus confirmed sample vote, consistent result, Next, Pause/Resume, Exit and full Replay reset verified through browser UI.
-- The automatic Chinese tour reaches exactly 60/60 and finishes without browser warnings/errors. Demo implementation began 2026-10-29 05:55:55 UTC; final public acceptance passed by 06:16:06 UTC, within the four-hour limit.
-- Desktop and 390px/320px mobile viewports reviewed locally and publicly, with no horizontal overflow. Temporary viewport overrides reset. These are viewport checks, not proof of behavior on every physical phone.
-- Complete original-version notices for 93 installed runtime packages, including both fonts, icons/Feather portions, plus music and narration. Main game/demo link the shipped notice file.
-- Server, shared rules/protocol, character illustrations, package dependencies and hosting architecture unchanged. Only the demo-return landing path skips automatic saved-seat resumption; ordinary refresh recovery is preserved.
-- Title, clean public URL, actual 1200×800 (3:2) JPEG cover, and 460-character description validated. No Handshake form submitted.
+- 102/102 automated tests; TypeScript and production build; compiled-demo isolation and all four submission-item checks pass. Socket tests require local networking permission; the restricted repeat timed out, and the permitted full repeat passed.
+- A delayed second Render rollout of the same commit interrupted initial acceptance rooms; fresh-room checks below ran after the final deployment settled.
+- Normal-clock public acceptance: five independent Classic and two independent Duel Socket.IO clients complete full matches with private projections, secret ballots, synchronized phases, immediate all-confirmed voting, identical results, free text and Quick Chat. See public-acceptance.log. These are network clients, not seven human testers.
+- An additional five public clients verify fixed Witch timing, private potion/victim filtering, locked once-per-match inventory, actual simultaneous deaths and terminal-night village victory. See public-witch.log.
+- Production-style local browser match: Chinese Witch heals herself on night one; English independent wolf client sees only neutral Witch guidance. Refresh restores spent healing and locked poison inventory. Peaceful dawn appears in both languages. Both browser voters confirm Skip and resolve immediately. Next night spent healing stays disabled; poison eliminates the wolf alongside the attacked Witch. Both clients show actual dawn eliminations and consistent victory, without cause or potion details. No browser errors.
+- Absent/dead/spent special-role slots, potion reuse, pass, invalid/composite targets, death deduplication and published-only dawn sourcing are covered by regression/privacy tests. Classic engine, role distribution, win conditions, fixed timing and protocol are unchanged.
+- Public Chinese 390px and English 320px demos have no horizontal overflow. Previous/Next pause, preserve state and keep the optional fictional Witch example separate; Heal/Poison/Pass outcomes and full Replay reset verified. The unattended English tour reaches 60/60. Desktop and phone-sized local game layouts checked. These viewport checks do not replace testing physical phones.
+- Narrator clips use neutral fixed public role cues. Published dawn outcome precedes terminal victory narration; cancellation, non-overlap, opt-in, mute, ducking and failure fallback tested. All 32 bilingual recordings and the existing licensed piano excerpt serve publicly.
+- Separate compiled demo has no multiplayer transport, room API or credential storage. No added accounts, dependencies, paid services, architecture changes or character-art changes.
+- Complete notices for 93 installed runtime packages, fonts, icons/Feather portions, music and narration are shipped and linked. Existing attribution and licenses retained.
+- Title, clean public URL, actual 1200×800 (3:2) JPEG cover and 460-character description validated. No Handshake form submitted.
 
 ## Remaining manual work
 
-1. Complete the five-to-six-person mixed-language test with a Werewolf beginner and physical phones (HUMAN_PLAYTEST.md).
-2. Observe a genuinely idle cold start when no active users/connections keep the public server warm. Warm availability was checked; no other players were disconnected or server shutdown forced for this measurement. Free-host approximately one-minute wake-up and restart room loss remain disclosed.
+1. Complete the five-to-six-person mixed-language session with a Werewolf beginner and physical phones (HUMAN_PLAYTEST.md).
+2. Observe a genuinely idle cold start when no active users/connections keep the server warm. No public shutdown was forced. Free-host wake-up and restart room loss remain disclosed.
 3. Review eligibility, contest terms, cover/description and Showcase setting; submit manually and retain confirmation before October 30, 2026, 11:59 PM Pacific (target 8 PM).
 
-Feature freeze: no further product features; allow only critical defects found by validation and required submission/compliance fixes.
+Feature freeze: no further gameplay or UX features; only critical defects and required submission/compliance fixes.
