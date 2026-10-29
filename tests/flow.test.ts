@@ -9,6 +9,7 @@ function table(mode: Mode = 'classic') {
   return { game, room };
 }
 function until(game: Game, room: Room, phase: string) {
+  if(phase==='voting'){room.phase='voting';room.deadline=(room.deadline??0)+30000;room.votes={};room.ballots=undefined;return;} // isolate ballot tests from randomized night deaths
   for (let i = 0; room.phase !== phase && i < 30; i++) game.tick(room, room.deadline!);
   expect(room.phase).toBe(phase);
 }
@@ -66,12 +67,13 @@ describe('confirmed ballots and fixed night ritual', () => {
         expect(room.players.map(p => game.view(room, p.id, deadline - duration).deadline)).toEqual(room.players.map(() => deadline));
         if (phase === 'wolves') {
           const before = game.view(room, room.players[1].id, 100);
-          game.act(room, room.hostId, { kind: 'attack', target: room.players[2].id }, deadline - 1);
+          game.act(room, room.hostId, { kind: 'attack', target: room.players.find(p=>p.alive&&p.role!=='werewolf')!.id }, deadline - 1);
           expect(game.view(room, room.players[1].id, 100)).toEqual(before);
-          room.attacks = {}; // fixture: keep this ritual test free of deaths
+          // The automatic fallback still resolves if no wolf submits a vote.
         }
         game.tick(room, deadline);
         const nextDuration = phase === 'nightfall' ? 25000 : phase === 'wolves' ? 15000 : phase === 'seer' ? 20000 : 8000;
+        if(room.phase==='ended'){expect(phase).toBe('witch');expect(room.deadline).toBeNull();return;}
         expect(room.deadline).toBe(deadline + nextDuration);
       }
       expect(room.phase).toBe('dawn'); until(game, room, 'voting');

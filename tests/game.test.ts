@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DISTRIBUTIONS, Game, GameError, newPlayer, newRoom, type Room } from '../server/game.js';
 
 function setup(count = 5) {
-  const game = new Game(undefined, cards => [...cards]);
+  const game = new Game(undefined, cards => [...cards],()=>0);
   const room = newRoom('ABC234', 'classic', newPlayer('Player 1'), 0);
   for (let i = 1; i < count; i++) game.join(room, `Player ${i + 1}`, 0);
   room.players.forEach(p => game.ready(room, p.id, true, 0));
@@ -98,30 +98,30 @@ describe('Classic game', () => {
     game.act(room, witch.id, { kind: 'poison', target: wolf.id }, room.deadline! - 1); step(game, room);
     expect(room.winner).toBe('draw');
   });
-  it('ties wolf attacks without killing and keeps ballots private until resolution', () => {
+  it('randomly resolves tied wolf attacks and keeps daytime ballots private until resolution', () => {
     const { game, room } = setup(7); until(game, room, 'wolves');
     const wolves = room.players.filter(p => p.role === 'werewolf'); const villagers = room.players.filter(p => p.role === 'villager');
     wolves.forEach((p, i) => game.act(room, p.id, { kind: 'attack', target: villagers[i].id }, room.deadline! - 1));
-    step(game, room); expect(room.victim).toBeNull(); until(game, room, 'voting');
-    game.vote(room, villagers[0].id, wolves[0].id, room.deadline! - 1);
+    step(game, room); expect(villagers.map(p=>p.id)).toContain(room.victim); until(game, room, 'voting');
+    const voter=villagers.find(p=>p.alive)!;game.vote(room, voter.id, wolves[0].id, room.deadline! - 1);
     expect(game.view(room, wolves[0].id, 0).ballots).toBeUndefined();
     expect(game.view(room, wolves[0].id, 0).selection).toBeUndefined(); step(game, room);
-    expect(room.players.every(p => p.alive)).toBe(true); // six absent ballots beat one accusation
-    expect(room.ballots?.[villagers[0].id]).toBe(wolves[0].id);
+    expect(room.players.filter(p=>!p.alive)).toHaveLength(1); // missing day ballots still abstain
+    expect(room.ballots?.[voter.id]).toBe(wolves[0].id);
   });
   it('tied daytime leaders do not eliminate; a unique leader can win without an absolute majority', () => {
-    const { game, room } = setup(); until(game, room, 'voting');
+    const { game, room } = setup(); room.phase='voting';room.deadline=100000;room.votes={};room.ballots=undefined;
     const p = room.players;
     [p[2].id, p[2].id, p[0].id, p[0].id, 'skip'].forEach((target, i) => game.vote(room, p[i].id, target, room.deadline! - 1));
     step(game, room); expect(p.every(p => p.alive)).toBe(true);
-    until(game, room, 'voting');
+    room.phase='voting';room.deadline=100000;room.votes={};room.ballots=undefined;
     [p[2].id, p[0].id, p[0].id, p[1].id, 'skip'].forEach((target, i) => game.vote(room, p[i].id, target, room.deadline! - 1));
     step(game, room); expect(p[0].alive).toBe(false); expect(room.winner).toBe('village');
   });
-  it('does not stall with no actions; draws after three quiet full cycles', () => {
+  it('does not stall with no actions; automatic attacks eventually finish the match', () => {
     const { game, room } = setup();
     for (let i = 0; i < 40 && room.phase !== 'ended'; i++) step(game, room);
-    expect(room.winner).toBe('draw'); expect(room.day).toBe(3);
+    expect(room.winner).toBe('wolves');expect(room.phase).toBe('ended');
   });
   it('dead players cannot act or discuss, and a rematch erases secrets', () => {
     const { game, room, role } = setup(); const villager = role('villager'); villager.alive = false;

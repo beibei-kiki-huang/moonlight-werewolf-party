@@ -19,10 +19,10 @@ try{
  await ok(wolves[0],'action',{kind:'attack',target:villagers[0].view.youId});await ok(wolves[1],'action',{kind:'attack',target:villagers[1].view.youId});
  wolves[1].socket.disconnect();await connect(wolves[1]);await ok(wolves[1],'resume',wolves[1].seat);assert.equal(wolves[1].view.packChat.messages.length,2);
  await wait('seer');assert(peers.every(p=>!p.view.packChat));assert.equal((await send(wolves[1],'pack_chat',message)).ok,false);await ok(seer,'action',{kind:'inspect',target:wolves[0].view.youId});assert.equal(seer.view.investigations.at(-1).isWolf,true);assert(peers.filter(p=>p!==seer).every(p=>!p.view.investigations));
- await wait('witch');assert.equal(witch.view.victim,null);await ok(witch,'action',{kind:'poison',target:wolves[0].view.youId});
- await wait('discussion');const dawn=peers[0].view.events.find(e=>e.kind==='dawn');assert.deepEqual(dawn.players.map(p=>p.name),[wolves[0].view.players.find(p=>p.id===wolves[0].view.youId).name]);
- await ok(villagers[0],'quick_chat',{phraseId:'hello'});await delay(100);assert(peers.every(p=>p.view.chat.length===1&&!JSON.stringify(p.view).includes(message.text)));
- console.log('PASS public pack closure: authorized refresh recovered current-night history; Seer/Witch/day states expose none; split attacks caused no wolf victim; published dawn matches the single poison elimination.');
+ await wait('witch');const attackVictim=witch.view.victim;assert([villagers[0].view.youId,villagers[1].view.youId].includes(attackVictim));await ok(witch,'action',{kind:'poison',target:wolves[0].view.youId});
+ await wait('discussion');const dawn=peers[0].view.events.find(e=>e.kind==='dawn');assert.deepEqual(dawn.players.map(p=>p.name).sort(),[wolves[0].view.youId,attackVictim].map(id=>witch.view.players.find(p=>p.id===id).name).sort());
+ await ok(villagers.at(-1),'quick_chat',{phraseId:'hello'});await delay(100);assert(peers.every(p=>p.view.chat.length===1&&!JSON.stringify(p.view).includes(message.text)));
+ console.log('PASS public pack closure: authorized refresh recovered current-night history; Seer/Witch/day states expose none; tied attacks selected one valid leading target; published dawn matches the attack and poison eliminations.');
  await wait('voting');const living=peers.filter(p=>p.view.players.find(x=>x.id===p.view.youId).alive),end=living[0].view.deadline;
  for(const p of living.slice(0,-1))await ok(p,'vote',{target:p===wolves[1]?'skip':wolves[1].view.youId});assert(peers.every(p=>!p.view.ballots));const last=living.at(-1);await ok(last,'vote',{target:last===wolves[1]?'skip':wolves[1].view.youId});await wait('ended');assert(Date.now()<end);assert(peers.every(p=>p.view.winner==='village'&&!p.view.packChat));
  console.log('ALL SEVEN-PLAYER PACK ACCEPTANCE CHECKS PASSED: full Classic match completed with identical victory, private ballots and immediate final-confirmation resolution.');

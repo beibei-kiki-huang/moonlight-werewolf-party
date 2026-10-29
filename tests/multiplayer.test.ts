@@ -31,9 +31,10 @@ describe('real multiplayer transport', () => {
     for (const p of peers) await send(p, 'ready', { ready: true });
     await send(peers[0], 'start', {});
     await expect.poll(() => views.every(v => v.phase === 'voting'), { timeout: 5000, interval: 10 }).toBe(true);
-    const last = peers.length - 1, before = received[last], deadline = views[0].deadline!;
+    const living = peers.map((_, i) => i).filter(i => views[i].players.find(p => p.id === views[i].youId)?.alive);
+    const last = living.at(-1)!, before = received[last], deadline = views[0].deadline!;
     const target = mode === 'classic' ? 'skip' : 'other';
-    for (const p of peers.slice(0, -1)) expect((await send(p, 'vote', { target })).ok).toBe(true);
+    for (const i of living.slice(0, -1)) expect((await send(peers[i], 'vote', { target })).ok).toBe(true);
     await new Promise(resolve => setTimeout(resolve, 30));
     expect(received[last]).toBe(before); // even packet timing/counts must not disclose private confirmations
     expect(views[last].ballots).toBeUndefined(); expect(views[last].selection).toBeUndefined();
@@ -41,7 +42,7 @@ describe('real multiplayer transport', () => {
     expect(acknowledgements).toEqual([{ ok: true, data: undefined }, { ok: false, error: 'wrong_phase' }]);
     await expect.poll(() => views.every(v => v.phase === (mode === 'classic' ? 'verdict' : 'ended')), { interval: 10 }).toBe(true);
     expect(Date.now()).toBeLessThan(deadline);
-    expect(views.every(v => Object.keys(v.ballots ?? {}).length === peers.length)).toBe(true);
+    expect(views.every(v => Object.keys(v.ballots ?? {}).length === living.length)).toBe(true);
     expect(views.every(v => v.events.filter(e => e.kind === 'no_elimination' || e.kind === 'result').length === 1)).toBe(true);
   });
   it('runs five independent clients through a full game, protecting roles and restoring refreshes', async () => {

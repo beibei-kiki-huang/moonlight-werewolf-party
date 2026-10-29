@@ -36,7 +36,7 @@ describe('current-stage Pack Chat rules and privacy',()=>{
  });
  it('clears history at phase exit, next night and rematch, and rejects stale stage IDs',()=>{
   const{game,room}=setup(),old=input(game,room);game.packMessage(room,room.hostId,old,1);game.tick(room,room.deadline!);expect(game.view(room,room.hostId,0).packChat).toBeUndefined();
-  while(room.phase!=='voting')game.tick(room,room.deadline!);for(const p of room.players)game.vote(room,p.id,'skip',room.deadline!-1);while((room.phase as Phase)!=='wolves')game.tick(room,room.deadline!);
+  while(room.phase!=='voting')game.tick(room,room.deadline!);for(const p of room.players.filter(p=>p.alive))game.vote(room,p.id,'skip',room.deadline!-1);while((room.phase as Phase)!=='wolves')game.tick(room,room.deadline!);
   expect(game.packState(room,room.hostId,0)?.messages).toEqual([]);expect(()=>game.packMessage(room,room.hostId,old,0)).toThrow(new GameError('wrong_phase'));
   room.phase='ended';game.rematch(room,room.hostId,0);room.players.forEach(p=>game.ready(room,p.id,true,0));room.discussionMode='open';game.start(room,room.hostId,0);while((room.phase as Phase)!=='wolves')game.tick(room,room.deadline!);
   expect(game.packState(room,room.hostId,0)?.messages).toEqual([]);expect(()=>game.packMessage(room,room.hostId,old,0)).toThrow(GameError);

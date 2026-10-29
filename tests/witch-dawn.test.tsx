@@ -10,7 +10,7 @@ import { PublicNarrator, narrationCues, type RecordingPort, type PublicScene } f
 import { RoleCard } from '../client/presentation';
 const en=(a:string,_b:string)=>a, zh=(_a:string,b:string)=>b;
 const name=(role:Role)=>({werewolf:'狼人',villager:'村民',seer:'预言家',witch:'女巫'})[role];
-function setup(){const game=new Game(DURATIONS,cards=>[...cards]);const wolf=newPlayer('Wolf');const room=newRoom('ABC234','classic',wolf,0);for(const n of ['V1','V2','V3','Seer','Witch'])game.join(room,n,0);for(const p of room.players)game.ready(room,p.id,true,0);room.discussionMode='open';game.start(room,wolf.id,0);return{game,room,wolf,witch:room.players[5]}}
+function setup(){const game=new Game(DURATIONS,cards=>[...cards],()=>0);const wolf=newPlayer('Wolf');const room=newRoom('ABC234','classic',wolf,0);for(const n of ['V1','V2','V3','Seer','Witch'])game.join(room,n,0);for(const p of room.players)game.ready(room,p.id,true,0);room.discussionMode='open';game.start(room,wolf.id,0);return{game,room,wolf,witch:room.players[5]}}
 function until(s:ReturnType<typeof setup>,phase:string){for(let i=0;s.room.phase!==phase&&i<30;i++)s.game.tick(s.room,s.room.deadline!);expect(s.room.phase).toBe(phase)}
 function act(s:ReturnType<typeof setup>,id:string,a:Parameters<Game['act']>[2]){s.game.act(s.room,id,a,s.room.deadline!-1)}
 function nextNight(s:ReturnType<typeof setup>){until(s,'voting');for(const p of s.room.players.filter(p=>p.alive))s.game.vote(s.room,p.id,'skip',s.room.deadline!-1);until(s,'wolves')}
@@ -23,10 +23,10 @@ describe('Witch and authoritative dawn regression',()=>{
   act(s,s.witch.id,{kind:'heal'});until(s,'dawn');expect(s.witch.alive).toBe(true);nextNight(s);act(s,s.wolf.id,{kind:'attack',target:s.witch.id});until(s,'witch');invalid(()=>act(s,s.witch.id,{kind:'heal'}),'invalid_target');
   const p=setup();until(p,'witch');act(p,p.witch.id,{kind:'pass'});expect([p.witch.heal,p.witch.poison]).toEqual([true,true]);invalid(()=>act(p,p.witch.id,{kind:'poison',target:p.wolf.id}),'already_acted');
  });
- it('publishes identical cause-free peaceful events for no attack and a successful heal',()=>{
-  const a=setup(),b=setup();until(a,'witch');act(a,a.witch.id,{kind:'pass'});until(a,'dawn');
+ it('publishes cause-free peaceful events without inferring a Witch action',()=>{
+  const a=setup(),b=setup();a.wolf.alive=false;until(a,'witch');act(a,a.witch.id,{kind:'pass'});a.game.tick(a.room,a.room.deadline!);
   until(b,'wolves');act(b,b.wolf.id,{kind:'attack',target:b.witch.id});until(b,'witch');act(b,b.witch.id,{kind:'heal'});until(b,'dawn');
-  expect(a.room.events.at(-1)).toEqual(b.room.events.at(-1));expect(a.room.events.at(-1)?.players).toEqual([]);
+  expect(a.room.events.find(e=>e.kind==='dawn')).toEqual(b.room.events.find(e=>e.kind==='dawn'));expect(a.room.events.find(e=>e.kind==='dawn')?.players).toEqual([]);
   for(const p of b.room.players.filter(p=>p!==b.witch)){const v=b.game.view(b.room,p.id,0);expect(v.potions).toBeUndefined();expect(v.victim).toBeUndefined()}
  });
  it('deduplicates overlapping attack and poison deaths and includes terminal night results',()=>{
@@ -45,7 +45,7 @@ describe('Witch and authoritative dawn regression',()=>{
   expect(render(<WitchPanel view={{...view,role:'villager'}} disabled={false} target="" onTarget={()=>{}} onConfirm={()=>{}} onPass={()=>{}} tr={en}/>)).toBe('');
  });
  it('shows no-victim healing unavailability without consuming the available potion',()=>{
-  const s=setup();until(s,'witch');const view=s.game.view(s.room,s.witch.id,0);const html=render(<WitchPanel view={view} disabled={false} target="" onTarget={()=>{}} onConfirm={()=>{}} onPass={()=>{}} tr={zh}/>);
+  const s=setup();s.wolf.alive=false;until(s,'witch');const view=s.game.view(s.room,s.witch.id,0);const html=render(<WitchPanel view={view} disabled={false} target="" onTarget={()=>{}} onConfirm={()=>{}} onPass={()=>{}} tr={zh}/>);
   expect(html).toContain('今晚无可救目标，解药仍保留。');expect(view.potions?.heal).toBe(true);expect(html).not.toContain('>Witch</span>');
  });
  it('never derives a dawn cue from private night data or repeats old dawn on a voting victory',()=>{

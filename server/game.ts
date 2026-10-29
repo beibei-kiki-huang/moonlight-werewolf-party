@@ -50,7 +50,7 @@ export function newRoom(code: string, mode: Mode, host: Player, now: number): Ro
 export class Game {
   // Private, bounded current-stage storage; never part of public Room chat/events/revisions.
   private packStores = new WeakMap<Room, PackChatState & { receipts: Map<string, ChatMessage> }>();
-  constructor(private durations: Durations = DURATIONS, private deal: (cards: Role[]) => Role[] = shuffle) {}
+  constructor(private durations: Durations = DURATIONS, private deal: (cards: Role[]) => Role[] = shuffle, private chooseIndex:(size:number)=>number=randomInt) {}
   player(room: Room, id: string): Player { return room.players.find(p => p.id === id) ?? fail('unauthorized'); }
   touch(room: Room, now: number) { room.revision++; room.lastActivity = now; }
   host(room: Room, id: string) { if (room.hostId !== id) fail('not_host'); }
@@ -256,6 +256,16 @@ export class Game {
     else return false;
     return true;
   }
+  private resolveAttack(room:Room):string|null {
+    const wolves=room.players.filter(p=>p.alive&&p.role==='werewolf');
+    const eligible=room.players.filter(p=>p.alive&&p.role!=='werewolf').map(p=>p.id);
+    if(!wolves.length||!eligible.length)return null;
+    const totals=new Map<string,number>();
+    for(const wolf of wolves){const target=room.attacks[wolf.id];if(eligible.includes(target))totals.set(target,(totals.get(target)??0)+1)}
+    let candidates=eligible;
+    if(totals.size){const highest=Math.max(...totals.values());candidates=[...totals].filter(([,n])=>n===highest).map(([id])=>id)}
+    return candidates.length===1?candidates[0]:candidates[this.chooseIndex(candidates.length)];
+  }
   private plurality(votes: string[]): string | null {
     const totals = new Map<string, number>();
     votes.forEach(v => totals.set(v, (totals.get(v) ?? 0) + 1));
@@ -300,7 +310,7 @@ export class Game {
       }
       case 'nightfall': this.phase(room, 'wolves', now); break;
       case 'wolves': {
-        room.victim = this.plurality(Object.values(room.attacks)); this.phase(room, 'seer', now); break;
+        room.victim = this.resolveAttack(room); this.phase(room, 'seer', now); break;
       }
       case 'seer': this.phase(room, 'witch', now); break;
       case 'witch': {

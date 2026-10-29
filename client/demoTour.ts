@@ -17,7 +17,7 @@ export class GuidedTour {
   wolfTarget: 'kai'|'rui'|'mei'|'sam'|'lin'|null = null; wolfResolved = false;
   get exampleOpen() { return this.witchOpen || this.seerOpen || this.wolfOpen; }
   get seerResult() { return this.seerConfirmed ? this.seerConfirmed === 'alex' ? 'wolves' : 'village' : null; }
-  get wolfVictim() { return this.wolfResolved && this.wolfTarget === 'kai' ? 'kai' : null; }
+  get wolfVictim() { return this.wolfResolved ? this.wolfTarget : null; }
   get finished() { return this.elapsed >= DEMO_DURATION; }
   get step() { return DEMO_BOUNDARIES.filter(t => this.elapsed >= t).length - 1; }
   get revealed() { return this.cardOpen === true; }
