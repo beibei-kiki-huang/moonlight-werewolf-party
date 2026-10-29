@@ -1,5 +1,17 @@
 # Moonlight acceptance tests
 
+## Verified October 28, 2026
+
+- 29 automated rules/privacy/socket tests passed; TypeScript and production build passed.
+- Public beta deployed successfully on Render Free: https://moonlight-werewolf-party.onrender.com/
+- Five independent public WebSocket clients completed Classic with normal timers: private roles, Seer investigation, synchronized phases, discussion chat, secret voting, elimination and identical village victory.
+- Two independent public WebSocket clients completed Quick with normal timers, hidden accusations and matching final result/center-card reveal.
+- Browser creation/join/readiness, same-browser refresh recovery, hidden card after refresh, per-device Chinese, live chat, and timeout outcomes verified locally. Public browser room creation verified.
+- Desktop screenshots reviewed. Public mobile lobby verified at 390px with no horizontal overflow. Actual physical-phone/group usability testing remains recommended.
+- Production dependency audit reported zero known vulnerabilities.
+
+Run the public playtest again with `node scripts/verify-public.mjs https://moonlight-werewolf-party.onrender.com`. It creates its own disposable rooms and uses ordinary player commands, never a role/timer override.
+
 ## Automated verification
 
 Run `npm test` and `npm run build`. Tests use short injected engine timers only; the public game has fixed normal durations. There is no player-accessible timer, role, or win override.

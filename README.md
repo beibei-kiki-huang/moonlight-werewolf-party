@@ -2,6 +2,8 @@
 
 A real multiplayer Werewolf game for friends. Each player joins from their own browser with a nickname and a six-character code. No player accounts, installs, AI services, or payments are needed.
 
+**Public beta:** https://moonlight-werewolf-party.onrender.com/ · Hosted on Render Free.
+
 ## What works
 
 - Classic for 5–8: server-assigned private roles, wolf team targeting, Seer investigations, Witch heal/poison, synchronized night/day timers, discussion, secret votes, elimination, automatic faction victory and draws.
@@ -42,6 +44,12 @@ Free hosting has cold starts (about a minute on Render) and can restart. **Rooms
 ```sh
 npm test
 npm run build
+```
+
+To run the public acceptance playtest with real clients and normal phase timers:
+
+```sh
+node scripts/verify-public.mjs https://moonlight-werewolf-party.onrender.com
 ```
 
 Tests cover 5–8-player deals, permissions, private projections, self-healing, poison, simultaneous deaths, parity, ties, absent votes, draws, rematches, every two-player accusation outcome, and a complete game with five independently connected Socket.IO clients. Network tests need permission to listen on localhost.

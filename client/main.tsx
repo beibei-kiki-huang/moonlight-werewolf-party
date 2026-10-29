@@ -174,6 +174,12 @@ function App() {
   const me = view?.players.find(p => p.id === view.youId);
   const isHost = !!view && view.hostId === view.youId;
   const isNight = !!view && ['wolves', 'seer', 'witch'].includes(view.phase);
+  const stageLabels = view?.mode === 'quick'
+    ? [tr('Secret', '身份'), tr('Discussion', '讨论'), tr('Vote', '投票')]
+    : [tr('Secret', '身份'), tr('Night', '夜晚'), tr('Discussion', '讨论'), tr('Vote', '投票')];
+  const currentStage = !view || view.phase === 'reveal' ? 0 : view.mode === 'quick'
+    ? view.phase === 'discussion' ? 1 : 2
+    : isNight || view.phase === 'dawn' ? 1 : view.phase === 'discussion' ? 2 : 3;
   const seconds = view?.deadline ? Math.max(0, Math.ceil((view.deadline - now - offset.current) / 1000)) : 0;
   const disabled = pending || !connected || seconds === 0;
   const eligible = view?.players.filter(p => p.alive && p.id !== view.youId && !(view.phase === 'wolves' && view.wolfTeam?.includes(p.id))) || [];
@@ -240,7 +246,7 @@ function App() {
   }
   return <>
     <header className="site-header"><button className="brand" onClick={() => { if (!view) home(); }} aria-label="Moonlight"><span className="brand-mark"><Moon size={23} strokeWidth={1.5} /></span><span>moonlight<span className="brand-sub">WEREWOLF PARTY</span></span></button>
-      <nav><button className="header-button" onClick={() => setRules(true)}><Info size={16} /><span>{tr('How to play', '玩法说明')}</span></button><button className="language-button" onClick={() => setLang(lang === 'en' ? 'zh' : 'en')} aria-label={tr('Switch to Chinese', '切换英文')}><Globe2 size={15} />{lang === 'en' ? 'EN / 中' : '中 / EN'}</button>{view && <button className="icon-button" onClick={home} title={tr('Home · your seat is saved', '返回首页 · 座位已保存')}><LogOut size={17} /></button>}</nav>
+      <nav><button className="header-button" aria-label={tr('How to play', '玩法说明')} onClick={() => setRules(true)}><Info size={16} /><span>{tr('How to play', '玩法说明')}</span></button><button className="language-button" onClick={() => setLang(lang === 'en' ? 'zh' : 'en')} aria-label={tr('Switch to Chinese', '切换英文')}><Globe2 size={15} />{lang === 'en' ? 'EN / 中' : '中 / EN'}</button>{view && <button className="icon-button" onClick={home} title={tr('Home · your seat is saved', '返回首页 · 座位已保存')}><LogOut size={17} /></button>}</nav>
     </header>
     {error && <div className="error-banner" role="alert"><span>{error === 'connection' ? tr('Connection interrupted. We’re trying to reconnect. Free hosting may take a minute to wake up.', '连接中断，正在尝试重连。免费服务器唤醒可能需要一分钟。') : error === 'replaced' ? tr('This seat is open in another tab. Use that tab, or resume here to take control.', '此座位已在另一标签页打开。请使用该页面，或在此恢复。') : error === 'removed' ? tr('The host removed your seat from the lobby.', '房主已将你的座位移出大厅。') : errors[error][lang === 'en' ? 0 : 1]}</span><button className="icon-button" onClick={() => setError(null)} aria-label={tr('Dismiss', '关闭')}><X size={16} /></button></div>}
     {!view ? <main className="landing">
@@ -262,7 +268,7 @@ function App() {
     </main> : <main className="game-shell">
       <div className="table-heading"><div><p className="eyebrow">{view.mode === 'classic' ? tr('CLASSIC · 5–8 PLAYERS', '经典模式 · 5–8人') : tr('MOONLIGHT DUEL · 2 PLAYERS', '月光对决 · 2人')}</p><h1>{phaseNames[view.phase]}</h1></div><div className="room-code-block"><span>{tr('ROOM', '房间')}</span><button onClick={() => void copyRoom(false)}>{view.code}<Copy size={14} /></button><button className="icon-button" onClick={() => void copyRoom(true)} title={tr('Copy invitation link', '复制邀请链接')}><Link size={16} /></button></div></div>
       {!connected && <div className="notice reconnect"><WifiOff size={18} />{tr('Reconnecting… your seat and role are saved in this browser. Actions are disabled until connected.', '正在重连…此浏览器已保存你的座位与身份，连接恢复前无法操作。')}</div>}
-      {view.phase !== 'lobby' && view.phase !== 'ended' && <div className="phase-bar"><div className="phase-steps">{[tr('Secret', '身份'), tr('Night', '夜晚'), tr('Discussion', '讨论'), tr('Vote', '投票')].map((label, i) => <span key={label} className={(view.phase === 'reveal' ? 0 : isNight || view.phase === 'dawn' ? 1 : view.phase === 'discussion' ? 2 : 3) === i ? 'current' : ''}><i>{i + 1}</i>{label}</span>)}</div><div className={`timer ${seconds <= 10 ? 'urgent' : ''}`} aria-label={tr('Time remaining', '剩余时间')}>{view.mode === 'classic' && <small>{tr(`DAY ${view.day}`, `第${view.day}天`)}</small>}<span>{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}</span></div></div>}
+      {view.phase !== 'lobby' && view.phase !== 'ended' && <div className="phase-bar"><div className="phase-steps">{stageLabels.map((label, i) => <span key={label} className={currentStage === i ? 'current' : ''}><i>{i + 1}</i>{label}</span>)}</div><div className={`timer ${seconds <= 10 ? 'urgent' : ''}`} aria-label={tr('Time remaining', '剩余时间')}>{view.mode === 'classic' && <small>{tr(`DAY ${view.day}`, `第${view.day}天`)}</small>}<span>{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}</span></div></div>}
       <div className="game-grid"><div className="main-column">
         {view.phase === 'lobby' ? <section className="panel lobby-panel"><div className="lobby-moon"><Moon size={38} strokeWidth={1} /></div><p className="eyebrow">{tr('A FEW FRIENDS. A LITTLE SUSPICION.', '几位好友，一点猜疑。')}</p><h2>{tr('Make room for mystery', '留一个座位给神秘')}</h2><p>{tr('Share your invitation. Everyone chooses Ready, then the host begins the story.', '分享邀请，所有玩家点击准备后，由房主开始游戏。')}</p>
           <button className="button secondary" onClick={() => void copyRoom(true)}><Copy size={16} />{tr('Copy invitation link', '复制邀请链接')}</button>
