@@ -28,6 +28,24 @@ describe('isolated scripted tour', () => {
     tour.replay(); expect(tour).toEqual(new GuidedTour()); expect(tour.revealed).toBe(false); expect(tour.chatVisible).toBe(false);
     tour.tick(5000); expect(tour.elapsed).toBe(0);
   });
+  it('Previous and Next pause review and preserve explicit card/chat/ballot state', () => {
+    const tour = new GuidedTour(); tour.start(); tour.tick(45000); tour.select('mei'); tour.phrase = 'hello'; tour.equivalent = true;
+    tour.previous(); expect(tour.step).toBe(2); expect(tour.paused).toBe(true); tour.tick(99999); expect(tour.step).toBe(2);
+    tour.next(); expect(tour.step).toBe(3); expect(tour.ballot).toBe('mei'); expect(tour.sealed).toBeNull(); expect(tour.phrase).toBe('hello'); expect(tour.equivalent).toBe(true);
+    tour.confirm(); tour.previous(); expect(tour.sealed).toBe('mei'); tour.select('alex'); expect(tour.sealed).toBe('mei');
+    tour.previous(); tour.previous(); tour.previous(); expect(tour.step).toBe(0); expect(tour.revealed).toBe(true);
+  });
+  it.each(['heal','poison','pass'] as const)('keeps optional Witch %s independent and one-action-only', choice => {
+    const tour = new GuidedTour(); tour.next(); tour.openWitch(); expect(tour.witchOpen).toBe(true); expect(tour.paused).toBe(true);
+    tour.togglePause(); tour.tick(60000); expect(tour.elapsed).toBe(10000);
+    tour.chooseWitch(choice); tour.chooseWitch(choice === 'heal' ? 'poison' : 'heal'); expect(tour.witchChoice).toBe(choice);
+    expect(tour.witchDeaths).toEqual(choice === 'heal' ? [] : choice === 'poison' ? ['Kai','Rui'] : ['Kai']);
+    expect(tour.witchPotions).toEqual({heal:choice !== 'heal',poison:choice !== 'poison'});
+    tour.closeWitch(); tour.next(); tour.previous(); tour.openWitch(); expect(tour.witchChoice).toBe(choice);
+    expect(tour.selected).toBeNull(); expect(tour.confirmed).toBeNull();
+    tour.resetWitch(); expect(tour.witchChoice).toBeNull(); expect(tour.witchPotions).toEqual({heal:true,poison:true});
+    tour.chooseWitch(choice); tour.replay(); expect(tour).toEqual(new GuidedTour());
+  });
   it('uses rule-consistent fictional ballots: the only wolf is eliminated regardless of the optional sample choice', () => {
     expect(SAMPLE_PLAYERS.filter(p => p.role === 'werewolf')).toEqual([{id:'alex',name:'Alex',role:'werewolf'}]);
     for (const choice of ['alex','mei','sam','lin','skip']) {

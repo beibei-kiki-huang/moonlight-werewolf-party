@@ -2,7 +2,7 @@
 
 ## Verified October 28, 2026
 
-- Latest suite: 86 automated rules/privacy/socket/presentation/audio/demo tests; TypeScript and production build checks. Earlier counts below are historical checkpoints.
+- Latest suite: 102 automated rules/privacy/socket/presentation/audio/demo tests; TypeScript and production build checks. Earlier counts below are historical checkpoints.
 - Public beta deployed successfully on Render Free: https://moonlight-werewolf-party.onrender.com/
 - Five independent public WebSocket clients completed Classic with normal timers: private roles, Seer investigation, synchronized phases, discussion chat, secret voting, elimination and identical village victory.
 - Two independent public WebSocket clients completed Quick with normal timers, hidden accusations and matching final result/center-card reveal.
@@ -79,3 +79,12 @@ The free server can sleep or restart, which ends rooms. Refresh recovery is same
 - Local production-style browser testing verifies an existing seat stays online while another same-origin tab opens, replays and exits the demo. Server logs show one connected client and one room, with no extra connection/resume/create. The saved seat remains explicitly resumable on the return landing page.
 - English/Chinese homepage and demo, mobile 390px/320px, separate draft/confirmed sample votes, optional equivalent translations, and Next/Pause/Replay are reviewed through the UI. Public acceptance is run after deployment against matching built bundles and full Classic/Duel production clocks.
 - Human validation with 5–6 independent mixed-language people and a Werewolf beginner remains a separate manual task, not substituted by QA sockets or the scripted tour.
+
+
+## Final Witch/dawn/demo regression — October 29
+
+- 102 tests pass: original rules, sockets, refresh recovery, privacy, chat, audio and demo cases, plus explicit potion consumption, spent-potion reuse, one action per night, pass, absent/dead/spent role timing, deduplicated deaths, peaceful/terminal dawn and queued narrator cancellation.
+- Real independent socket reconnection restores the Witch's private locked inventory without exposing it to other players. Server sources and protocol are unchanged.
+- The 32 fixed bilingual recordings match their manifests and published scripts, remain within timing/loading budgets, and preserve existing attribution.
+- Previous/Next preserve selections and pause playback; Replay clears all state; the separate fictional Witch exercise verifies all three actions. Compiled demo remains isolated from multiplayer transport and credential storage.
+- Local production-style UI checks cover private Witch confirmation and refresh, neutral waiting on another English client, peaceful dawn, terminal-night results, mobile layouts and both demo languages. Final normal-clock public Classic/Duel acceptance is recorded after deployment.

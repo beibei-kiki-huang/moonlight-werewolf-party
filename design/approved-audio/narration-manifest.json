@@ -26,9 +26,9 @@
       "bytes": 70434
     },
     "witch": {
-      "text": "Seer, close your eyes. Witch, will you save a life or take one?",
-      "duration": 4.671,
-      "bytes": 50554
+      "text": "Seer, close your eyes. Witch, open your eyes and follow your private instructions.",
+      "duration": 5.744,
+      "bytes": 60827
     },
     "dawn": {
       "text": "The sun rises. The village awakens.",
@@ -69,13 +69,23 @@
       "text": "A draw under the moon. This story awaits another night.",
       "duration": 3.459,
       "bytes": 36861
+    },
+    "dawn-peaceful": {
+      "text": "The sun rises. A peaceful night. No players were eliminated.",
+      "duration": 4.194,
+      "bytes": 46212
+    },
+    "dawn-deaths": {
+      "text": "The sun rises. Players were eliminated. See the night results.",
+      "duration": 4.387,
+      "bytes": 47287
     }
   },
   "zh": {
     "lobby": {
-      "text": "月下集结，你的牌桌已就绪。",
-      "duration": 2.29,
-      "bytes": 27168
+      "text": "月下集结，准备与好友开局。",
+      "duration": 2.368,
+      "bytes": 28640
     },
     "reveal": {
       "text": "秘密身份等待揭晓。查看你的身份牌，然后守好秘密。",
@@ -98,9 +108,9 @@
       "bytes": 43963
     },
     "witch": {
-      "text": "预言家请闭眼。女巫请睁眼，今晚你会救人，还是毒人？",
-      "duration": 4.526,
-      "bytes": 51277
+      "text": "预言家请闭眼。女巫请睁眼，查看你的私人行动提示。",
+      "duration": 4.296,
+      "bytes": 47704
     },
     "dawn": {
       "text": "天亮了，村庄苏醒了。",
@@ -128,19 +138,29 @@
       "bytes": 29373
     },
     "ended-village": {
-      "text": "村庄获胜，真相终于浮现。",
-      "duration": 2.455,
-      "bytes": 29828
+      "text": "好人阵营获胜，真相终于浮现。",
+      "duration": 2.729,
+      "bytes": 32342
     },
     "ended-wolves": {
-      "text": "狼人获胜，今夜属于群狼。",
-      "duration": 2.26,
-      "bytes": 27485
+      "text": "狼人阵营获胜，今夜属于群狼。",
+      "duration": 2.669,
+      "bytes": 31412
     },
     "ended-draw": {
       "text": "月下平局，这个故事等待下一夜继续。",
       "duration": 3.135,
       "bytes": 36049
+    },
+    "dawn-peaceful": {
+      "text": "天亮了。昨夜是平安夜。",
+      "duration": 2.083,
+      "bytes": 25308
+    },
+    "dawn-deaths": {
+      "text": "天亮了。昨夜有人出局，请查看黎明结算。",
+      "duration": 3.584,
+      "bytes": 41316
     }
   }
 }

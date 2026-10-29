@@ -115,7 +115,7 @@ async function audioAssets() {
   assert.equal(Buffer.from(await music.arrayBuffer()).toString('ascii', 4, 8), 'ftyp');
   const credits = await fetch(`${url}/audio/CREDITS.txt`);
   assert.equal(credits.status, 200); assert.match(await credits.text(), /Kevin MacLeod[\s\S]*creativecommons.org\/licenses\/by\/4.0/);
-  console.log('PASS audio assets: approved piano, all 28 bilingual recordings and attribution served publicly.');
+  console.log('PASS audio assets: approved piano, all 32 bilingual recordings and attribution served publicly.');
 }
 async function releaseAssets() {
   const manifest = JSON.parse(await readFile(new URL('../dist/client/.vite/manifest.json', import.meta.url), 'utf8'));

@@ -94,7 +94,7 @@ This is the competition proof of concept for **Moonlight — Play Beyond Borders
 
 Rollback tag: `pre-approved-audio-20261028` at `26d2a69`. The user approved both MeloTTS preview voices and the softer piano direction after rejecting synthesized drones/heartbeat/noise. Those synthesized backgrounds have been removed.
 
-The 28 short AAC narration clips use the unchanged public script in English and Simplified Chinese. They were rendered offline from MIT-licensed MeloTTS models; neither models nor renderer are game dependencies. The approved 26-second excerpt of **Evening Fall (Piano)** by **Kevin MacLeod** is licensed **CC BY 4.0**, with attribution and modification notice in Audio settings and `public/audio/CREDITS.txt`. Model notices, the narration manifest and the offline reproduction recipe are retained.
+The 32 short AAC narration clips use the fixed public phase announcements and published dawn outcomes in English and Simplified Chinese. They were rendered offline from MIT-licensed MeloTTS models; neither models nor renderer are game dependencies. The approved 26-second excerpt of **Evening Fall (Piano)** by **Kevin MacLeod** is licensed **CC BY 4.0**, with attribution and modification notice in Audio settings and `public/audio/CREDITS.txt`. Model notices, the narration manifest and the offline reproduction recipe are retained.
 
 One approved piano recording is reused with quiet phase-based levels, reduced further during discussion and ducked during narration. Results use a brief excerpt and faction-specific spoken cue, rather than introducing unreviewed music. Public phase accents vary subtly from crimson/charcoal through silver-blue and muted gold to warm discussion and burgundy voting. Existing illustrations are unchanged.
 
@@ -104,8 +104,15 @@ Sound remains off until a user gesture on every page load. Music defaults off; s
 
 Rollback checkpoint: `pre-submission-final-20261028` at stable build `745847e`. The homepage explains the bilingual value and includes a five-step beginner guide. The original game rules, role artwork, server and protocol remain unchanged.
 
-`/demo.html` is a clearly labeled, 60-second fictional tour with Next, Pause/Resume, Exit and Replay. It is a separate Vite entry, never mounts the real App, and never opens a multiplayer connection or accesses seat storage. The small shared module contains only public Quick Chat phrases and static styles/font loading. The returning `/?welcome=1` landing route deliberately avoids automatic saved-seat takeover; normal refresh/resume behavior is unchanged. A demo is not evidence of live multiplayer; the actual game remains independently tested.
+`/demo.html` is a clearly labeled, 60-second fictional tour with Previous, Next, Pause/Resume, Exit and Replay. It is a separate Vite entry, never mounts the real App, and never opens a multiplayer connection or accesses seat storage. The small shared module contains only public Quick Chat phrases and static styles/font loading. The returning `/?welcome=1` landing route deliberately avoids automatic saved-seat takeover; normal refresh/resume behavior is unchanged. A demo is not evidence of live multiplayer; the actual game remains independently tested.
 
 No new dependency or paid service was added. Complete installed-version notices are shipped at `/THIRD_PARTY_NOTICES.txt` and linked in both entries. Reproduce notices with `node scripts/collect-notices.mjs`. After `npm test` and `npm run build`, run `node scripts/verify-demo-build.mjs` to check the separate dependency graph, notices and submission items.
 
 The manual entry package is in `submission/`. It contains the title, public URL, 3:2 cover, 460-character description, judge instructions and human test checklist. No form is submitted automatically. Free-host cold starts, room loss on server restart and uncompleted human group validation remain disclosed.
+
+
+## Final Witch, dawn and demo refinement
+
+Rollback: `pre-demo-witch-refinement-20261028` at `67d05b7`. Classic engine, role balance, deadlines, protocol, artwork and dependencies remain unchanged. Both private potion statuses stay visible after confirmation and refresh, with all further actions locked for that night. Prominent dawn summaries use only published server events, including on terminal-night victory screens. Fixed public Witch guidance never announces potion availability. Dawn narration queues the outcome before victory without controlling gameplay.
+
+Previous and Next pause the isolated demo for review and preserve choices. Replay resets the tour and the optional, clearly separate fictional one-night Witch example. Heal, Poison and Pass have consistent example outcomes; resetting explicitly starts a fresh example. Public phase colors are stronger, and Simplified Chinese faction/role terminology is standardized.

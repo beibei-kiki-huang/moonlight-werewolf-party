@@ -1,6 +1,7 @@
-import { phaseScript, type Language, type PublicPhase } from '../shared/publicPhase';
+import { dawnScript, phaseScript, type Language, type PublicPhase } from '../shared/publicPhase';
 
-export interface PublicScene extends PublicPhase { code: string; day: number; deadline: number | null }
+import type { DawnCue } from './publicDawn';
+export interface PublicScene extends PublicPhase { code: string; day: number; deadline: number | null; dawn?: DawnCue }
 export type VoiceStatus = 'off' | 'recorded' | 'ready' | 'no-voice' | 'unsupported' | 'error';
 export interface SpeechPort {
   voices(): SpeechSynthesisVoice[]; cancel(): void; setVolume?(value: number): void;
@@ -13,6 +14,12 @@ export function narrationKey(scene: PublicPhase): string {
   return scene.phase === 'ended' ? `ended-${scene.winner ?? 'draw'}` : scene.phase === 'discussion' ? `discussion-${scene.mode}` : scene.phase;
 }
 export function narrationUrl(scene: PublicPhase, language: Language) { return `/audio/narration/${language}/${narrationKey(scene)}.m4a`; }
+export function narrationCues(scene: PublicScene, language: Language): {url:string;text:string}[] {
+  const normal = {url:narrationUrl(scene,language),text:phaseScript(scene,language)};
+  if (!scene.dawn || scene.mode !== 'classic' || !['dawn','ended'].includes(scene.phase)) return [normal];
+  const outcome = {url:`/audio/narration/${language}/dawn-${scene.dawn.peaceful ? 'peaceful' : 'deaths'}.m4a`,text:dawnScript(scene.dawn.peaceful,language)};
+  return scene.phase === 'ended' ? [outcome,normal] : [outcome];
+}
 export function selectVoice(voices: SpeechSynthesisVoice[], language: Language) {
   const locale = (voice: SpeechSynthesisVoice) => voice.lang.replaceAll('_', '-').toLowerCase();
   const matching = voices.filter(v => language === 'en' ? /^en(?:-|$)/.test(locale(v)) : /^(?:zh(?:-hans)?(?:-cn|-sg)?|cmn(?:-hans)?(?:-cn)?)$/.test(locale(v)));
@@ -44,30 +51,39 @@ export class PublicNarrator {
   constructor(private speech: SpeechPort | null, private changed: (status: VoiceStatus) => void, private duck: (value: boolean) => void = () => {}, private recording: RecordingPort | null = null) {}
   update(scene: PublicScene | null, language: Language, active: boolean, retryMissing = false, volume = .8) {
     this.volume = clamp(volume); this.playback?.setVolume(this.volume); this.speech?.setVolume?.(this.volume);
-    const key = scene && active && this.volume > 0 ? `${scene.code}/${scene.day}/${scene.phase}/${scene.deadline}/${scene.winner ?? ''}/${language}` : '';
+    const key = scene && active && this.volume > 0 ? `${scene.code}/${scene.day}/${scene.phase}/${scene.deadline}/${scene.winner ?? ''}/${scene.dawn?.id ?? ''}/${scene.dawn?.peaceful ?? ''}/${language}` : '';
     if (key === this.key && !(retryMissing && this.status === 'no-voice')) return;
     this.stop(); this.key = key;
     if (!key || !scene) return;
     const generation = this.generation;
-    const done = () => { if (generation === this.generation) this.duck(false); };
-    let fellBack = false;
-    const fallback = () => {
-      if (generation !== this.generation || fellBack) return;
-      fellBack = true;
-      let voice: SpeechSynthesisVoice | undefined;
-      try { voice = this.speech ? selectVoice(this.speech.voices(), language) : undefined; } catch { this.duck(false); return this.report('error'); }
-      if (!voice || !this.speech) { this.duck(false); return this.report(this.speech ? 'no-voice' : 'unsupported'); }
-      this.report('ready'); this.duck(true);
-      try { this.speech.speak(phaseScript(scene, language), language === 'zh' ? 'zh-CN' : 'en', voice, done, () => { if (generation === this.generation) { this.duck(false); this.report('error'); } }, this.volume); }
-      catch { this.duck(false); this.report('error'); }
+    const cues = narrationCues(scene,language);
+    const play = (index: number) => {
+      if (generation !== this.generation) return;
+      const cue = cues[index];
+      if (!cue) { this.playback = null; this.duck(false); return; }
+      let completed = false, fellBack = false;
+      const next = () => { if (completed || generation !== this.generation) return; completed = true; this.playback = null; play(index + 1); };
+      const fallback = () => {
+        if (generation !== this.generation || completed || fellBack) return;
+        fellBack = true;
+        let voice: SpeechSynthesisVoice | undefined;
+        try { voice = this.speech ? selectVoice(this.speech.voices(), language) : undefined; }
+        catch { this.report('error'); next(); return; }
+        if (!voice || !this.speech) { this.report(this.speech ? 'no-voice' : 'unsupported'); next(); return; }
+        this.report('ready');
+        try { this.speech.speak(cue.text, language === 'zh' ? 'zh-CN' : 'en', voice, next, () => { if (generation === this.generation) { this.report('error'); next(); } }, this.volume); }
+        catch { this.report('error'); next(); }
+      };
+      this.duck(true);
+      if (this.recording) {
+        this.report('recorded');
+        try { const handle = this.recording.play(cue.url, this.volume, next, fallback); if (!completed && generation === this.generation) this.playback = handle; else handle.stop(); }
+        catch { fallback(); }
+      } else fallback();
     };
-    this.duck(true);
-    if (this.recording) {
-      this.report('recorded');
-      try { this.playback = this.recording.play(narrationUrl(scene, language), this.volume, done, fallback); }
-      catch { fallback(); }
-    } else fallback();
+    play(0);
   }
+
   stop() {
     this.generation++; this.key = ''; this.playback?.stop(); this.playback = null;
     try { this.speech?.cancel(); } catch { /* Text guidance remains available. */ }

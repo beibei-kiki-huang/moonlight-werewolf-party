@@ -27,7 +27,7 @@ const lore: Record<Role, [string, string]> = {
 const descriptions: Record<Role, [string, string]> = {
   werewolf: ['Hide in plain sight. Hunt with your pack at night, and turn suspicion away by day.', '隐藏你的身份。夜晚与同伴狩猎，白天转移怀疑。'],
   villager: ['Your power is your instinct. Listen closely, find the wolves, and make your vote count.', '你的力量是直觉。仔细倾听、找出狼人、投出关键一票。'],
-  seer: ['Look beyond appearances. Each night, learn whether one other player is a werewolf.', '看透表象。每晚查验一名其他玩家是否为狼人。'],
+  seer: ['Look beyond appearances. Each night, learn whether one other player is a werewolf.', '你属于好人阵营。每晚可以查验一名其他存活玩家，得知对方是否属于狼人阵营。利用你掌握的信息，帮助好人找出所有狼人。'],
   witch: ['Two potions. Two chances to change fate. Save a life or take one—choose carefully.', '两瓶药水，两次改变命运的机会。救人或毒杀，请谨慎选择。'],
 };
 export function Portrait({ role, className = '', decorative = false, name, small = false }: { role: Role; className?: string; decorative?: boolean; name?: string; small?: boolean }) {
@@ -63,7 +63,7 @@ export function RoleCard({ view, visible, onToggle, tr, roleName }: { view: Game
       {visible ? <button className="button secondary hide-role" onClick={onToggle}><EyeOff size={16} />{tr('Hide my role', '隐藏身份')}</button>
         : <p className="card-privacy-hint"><Shield size={14} />{tr('Your card is private. Even the host cannot see it.', '你的身份保密，房主也无法查看。')}</p>}
       {visible && role === 'werewolf' && view.mode === 'classic' && <div className="private-note"><Moon size={14} />{tr('Your pack: ', '你的狼队：')}{view.players.filter(p => view.wolfTeam?.includes(p.id) && p.id !== view.youId).map(p => p.name).join(', ') || tr('You hunt alone.', '你是独狼。')}</div>}
-      {visible && role === 'seer' && !!view.investigations?.length && <div className="private-note">{view.investigations.map(i => <p key={i.day}>{tr(`Night ${i.day}`, `第${i.day}夜`)} · {i.name}: <strong>{i.isWolf ? tr('Werewolf', '狼人') : tr('Not Werewolf', '非狼人')}</strong></p>)}</div>}
+      {visible && role === 'seer' && !!view.investigations?.length && <div className="private-note">{view.investigations.map(i => <p key={i.day}>{tr(`Night ${i.day}`, `第${i.day}夜`)} · {i.name}: <strong>{i.isWolf ? tr('Werewolf', '狼人阵营') : tr('Not Werewolf', '好人阵营')}</strong></p>)}</div>}
     </div>
   </section>;
 }
@@ -114,7 +114,7 @@ export function Outcome({ view, host, disabled, onRematch, tr, roleName, ballots
   const title = draw ? tr('A story unfinished.', '故事，未完待续。') : view.winner === 'village' ? tr('The light prevails.', '曙光，终将到来。') : tr('The wolves reign.', '今夜，群狼加冕。');
   return <section className={`outcome-scene outcome-${view.winner}`}>
     <div className="outcome-hero"><Portrait role={art} decorative className="outcome-art" /><div className="outcome-veil" /><div className="outcome-copy">
-      <p className="eyebrow">✦ &nbsp;{draw ? tr('A DRAW UNDER THE MOON', '月下平局') : view.winner === 'village' ? tr('VILLAGE VICTORY', '村庄胜利') : tr('WEREWOLF VICTORY', '狼人胜利')}</p>
+      <p className="eyebrow">✦ &nbsp;{draw ? tr('A DRAW UNDER THE MOON', '月下平局') : view.winner === 'village' ? tr('VILLAGE VICTORY', '好人阵营获胜') : tr('WEREWOLF VICTORY', '狼人阵营获胜')}</p>
       <h2>{title}</h2><p className="outcome-poem">{draw ? tr('Neither shadow nor silver claimed this moon. Some mysteries ask for another night.', '银光与暗影，今夜未分高下。有些谜题，值得再等一个夜晚。') : view.winner === 'village' ? tr('Through whispers and doubt, the village found its way back to the light.', '穿过低语与猜疑，村庄终于寻回了光明。') : tr('Behind familiar faces, the wolves kept their secret. The village belongs to the moon.', '熟悉的面孔下，群狼守住了秘密。今夜的村庄，属于月亮。')}</p>
       <div className={`personal-outcome ${won ? 'you-won' : ''}`}><span>{draw ? <Moon size={19} /> : won ? <Sparkles size={19} /> : <Shield size={19} />}</span><div><strong>{draw ? tr('A shared draw', '双方平局') : won ? tr('You won with your faction', '你与阵营一同获胜') : tr('Your faction fell this night', '你的阵营今夜落败')}</strong><small>{draw ? tr('Another gathering. Another chance.', '再度相聚，再续悬念。') : won ? tr('Well played. Your secret became your strength.', '精彩的一局，你的秘密成为了力量。') : tr('Every good mystery deserves a rematch.', '每一场精彩的推理，都值得再来一局。')}</small></div></div>
       {host ? <button className="button primary rematch-button" disabled={disabled} onClick={onRematch}>{tr('Play another night', '再赴月下之约')}<ArrowRight size={18} /></button> : <div className="host-waiting"><Hourglass size={16} />{tr('Waiting for the host to gather everyone again.', '等待房主召集大家开启下一局。')}</div>}

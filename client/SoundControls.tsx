@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { SlidersHorizontal, Volume2, VolumeX } from 'lucide-react';
-import { phaseScript, type Language } from '../shared/publicPhase';
-import { browserSpeech, MoonAmbience, PublicNarrator, type PublicScene, type VoiceStatus } from './audio';
+import { type Language } from '../shared/publicPhase';
+import { browserSpeech, MoonAmbience, PublicNarrator, narrationCues, type PublicScene, type VoiceStatus } from './audio';
 import type { Translate } from './presentation';
 
 interface Preferences { narration: boolean; background: boolean; volume: number; narrationVolume: number }
@@ -36,7 +36,7 @@ export function SoundControls({ scene, language, connected, tr, clockOffset = 0 
     const active = enabled && !muted && connected && visible && (scene.deadline === null || scene.deadline > Date.now() + clockOffset);
     narrator.current?.update(scene, language, active && prefs.narration, false, prefs.narrationVolume);
     ambience.current?.update(scene, active && prefs.background && audioReady === true, prefs.volume);
-  }, [scene.code, scene.day, scene.phase, scene.deadline, scene.winner, scene.mode, language, connected, enabled, muted, visible, prefs, audioReady, clockOffset]);
+  }, [scene.code, scene.day, scene.phase, scene.deadline, scene.winner, scene.mode, scene.dawn?.id, scene.dawn?.peaceful, language, connected, enabled, muted, visible, prefs, audioReady, clockOffset]);
   function enable() {
     setEnabled(true); setMuted(false);
     // Speak/resume from the explicit gesture for mobile autoplay policies.
@@ -60,7 +60,7 @@ export function SoundControls({ scene, language, connected, tr, clockOffset = 0 
         <p className="audio-credit">{tr('Music: ', '音乐：')}<a href="https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100235" target="_blank" rel="noreferrer">Evening Fall (Piano) — Kevin MacLeod</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>. {tr('Excerpt, level adjustment and fades.', '节选、音量调整及淡入淡出。')}</p>
       </div></details>
     </div>
-    <p className="narrator-caption"><span>{tr('VILLAGE NARRATOR', '村庄旁白')}</span>{phaseScript(scene, language)}</p>
+    <p className="narrator-caption"><span>{tr('VILLAGE NARRATOR', '村庄旁白')}</span>{narrationCues(scene, language).map(cue => cue.text).join(' ')}</p>
     {enabled && !muted && voiceStatus === 'ready' && <p className="audio-fallback" role="status">{tr('Using browser backup narration.', '正在使用浏览器备用旁白。')}</p>}
     {enabled && !muted && fallback && <p className="audio-fallback" role="status">{tr('A voice for this language is unavailable or could not start. Follow the written guidance; gameplay continues normally.', '当前语言语音不可用或未能启动。请跟随文字引导，游戏照常进行。')}</p>}
   </section>;

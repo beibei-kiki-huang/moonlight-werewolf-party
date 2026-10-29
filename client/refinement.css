@@ -1,0 +1,17 @@
+/* Phase atmosphere depends only on the public schedule, including inactive role slots. */
+.game-shell{position:relative;isolation:isolate;--phase-scene-glow:#70628a24;--phase-accent:#cdb8e1;--phase-wash:#24213d}
+.game-shell::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 10%,var(--phase-scene-glow),transparent 72%);transition:background .2s ease}
+.phase-nightfall{--phase-scene-glow:#7a88bd45;--phase-accent:#c4cced;--phase-wash:#18253a;--phase-edge:#b2c3ee59}
+.phase-wolves{--phase-scene-glow:#943f5350;--phase-accent:#e2acb9;--phase-wash:#361c2d;--phase-edge:#d29bab68}
+.phase-seer{--phase-scene-glow:#76b8d947;--phase-accent:#d5edfa;--phase-wash:#193749;--phase-edge:#b2e1ee68}
+.phase-witch{--phase-scene-glow:#ba9e6340;--phase-accent:#ead7ab;--phase-wash:#353038;--phase-edge:#dcc69d68}
+.phase-dawn{--phase-scene-glow:#deb3744c;--phase-accent:#f1d9b4;--phase-wash:#3c3034;--phase-edge:#e2c29268}
+.phase-voting,.phase-verdict{--phase-scene-glow:#a64b7449;--phase-accent:#e2adc9;--phase-wash:#3c2137;--phase-edge:#d7a1bd68}
+.game-shell .night-sequence{background:radial-gradient(ellipse at 50% 0,var(--phase-scene-glow),transparent 75%),linear-gradient(140deg,var(--phase-wash),#101727);border-color:var(--phase-edge)}
+.game-shell .night-sequence::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 20% 95%,#d9e5ff13,transparent 55%),radial-gradient(ellipse at 80% 100%,#d9e5ff13,transparent 55%)}
+.game-shell .night-sequence>*{position:relative}.game-shell .night-moon{color:var(--phase-accent);box-shadow:0 0 40px var(--phase-scene-glow)}
+.witch-inventory .potion-row{margin:18px 0;border-radius:11px;padding:16px;border:1px solid #d3c2e63b;background:#14192b}
+.witch-inventory .potion-row>div{flex:1}.witch-inventory .potion-row span{display:block;margin-top:6px;font-size:11px;line-height:1.8}.potion-heal svg{color:#e3c47d}.potion-poison svg{color:#d3deec}.potion-used{opacity:.72}.witch-lock{display:flex;align-items:center;gap:9px;padding:12px;border:1px solid #c9afdf4a;border-radius:9px;background:#b99bd914;color:#dfcbed!important;font-size:12px!important;line-height:1.8!important}.witch-inventory>.danger{margin-top:12px}
+.dawn-result{border-color:#e1c09258;background:linear-gradient(120deg,#352c33,#1c2233);margin-bottom:20px;padding:25px 28px}.dawn-result .eyebrow{display:flex;align-items:center;gap:9px;color:#ecd3a6}.dawn-result h2{font-size:34px;color:#f0dfc1;margin:10px 0 15px}.dawn-result ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:12px}.dawn-result li{border:1px solid #dfc7a53d;border-radius:9px;padding:11px 15px;background:#141a29}.dawn-result li strong{font-size:16px;color:#f4eadb;overflow-wrap:anywhere}.dawn-result li span{display:block;color:#c5b2cb;font-size:11px;margin-top:6px}
+@media(max-width:680px){.witch-inventory .potion-row{align-items:flex-start;gap:12px;flex-wrap:wrap}.witch-inventory .potion-row .button{width:100%;justify-content:center}.dawn-result{padding:22px}.dawn-result h2{font-size:29px}.dawn-result li{flex:1;min-width:100px}.witch-inventory .potion-row span{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.game-shell::before{transition:none}}

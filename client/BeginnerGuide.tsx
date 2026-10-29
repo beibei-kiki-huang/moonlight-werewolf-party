@@ -13,7 +13,7 @@ export function BeginnerGuide({ tr }: { tr: Translate }) {
     <h2>{tr('Everyone gets to play.', '每个人，都能参与。')}</h2>
     <p className="guide-intro">{tr('No one sits out to moderate. The host starts the game; Moonlight guides the rounds.', '无需有人退出游戏担任主持。房主开始游戏，Moonlight 引导每一轮。')}</p>
     <ol>{steps.map(([title, body], i) => <li key={i}><span className="guide-number" aria-hidden="true">{i + 1}</span><div><h3>{title}</h3><p>{body}</p></div></li>)}</ol>
-    <p className="guide-goals"><strong>{tr('Classic goals: ', '经典胜负：')}</strong>{tr('The village eliminates all wolves. Wolves win when they equal or outnumber the other living players.', '村庄消灭所有狼人则获胜；存活狼人数量达到或超过其他存活玩家则狼人获胜。')}</p>
+    <p className="guide-goals"><strong>{tr('Classic goals: ', '经典胜负：')}</strong>{tr('The village eliminates all wolves. Wolves win when they equal or outnumber the other living players.', '好人阵营消灭所有狼人则获胜；存活狼人数量达到或超过其他存活玩家则狼人阵营获胜。')}</p>
     <p className="guide-goals"><strong>{tr('Duel goal: ', '对决目标：')}</strong>{tr('Find the wolf: your opponent or the center card. If both players are villagers, both must choose center.', '判断狼人在对方还是中央牌。若两人都是村民，两人都需选择中央牌。')}</p>
   </section>;
 }
