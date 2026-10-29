@@ -4,7 +4,7 @@ import type { Role } from '../shared/types.js';
 
 function setup(cards: Role[]) {
   const game = new Game(undefined, () => [...cards]); const room = newRoom('ABC234', 'quick', newPlayer('Luna'), 0);
-  game.join(room, 'Sol', 0); room.players.forEach(p => game.ready(room, p.id, true, 0)); game.start(room, room.hostId, 0);
+  game.join(room, 'Sol', 0); room.players.forEach(p => game.ready(room, p.id, true, 0)); room.discussionMode='open';game.start(room, room.hostId, 0);
   return { game, room };
 }
 const step = (game: Game, room: Room) => game.tick(room, room.deadline!);

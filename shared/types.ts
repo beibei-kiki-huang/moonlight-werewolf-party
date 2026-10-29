@@ -1,7 +1,8 @@
 import type { QuickPhraseId } from './quickChat';
 export type Role = 'werewolf' | 'villager' | 'seer' | 'witch';
+export type DiscussionMode = 'structured' | 'open';
 export type Mode = 'classic' | 'quick';
-export type Phase = 'lobby' | 'reveal' | 'nightfall' | 'wolves' | 'seer' | 'witch' | 'dawn' | 'discussion' | 'voting' | 'verdict' | 'ended';
+export type Phase = 'lobby' | 'reveal' | 'nightfall' | 'wolves' | 'seer' | 'witch' | 'dawn' | 'discussion' | 'voting' | 'verdict' | 'last_words' | 'ended';
 export type Winner = 'village' | 'wolves' | 'draw';
 export type ErrorCode = 'seat_in_use' | 'invalid' | 'room_missing' | 'room_full' | 'name_taken' | 'started' | 'unauthorized' | 'not_host' | 'not_ready' | 'wrong_phase' | 'invalid_target' | 'already_acted' | 'rate_limit' | 'capacity';
 export interface PublicPlayer { id: string; name: string; connected: boolean; ready: boolean; alive: boolean; role?: Role }
@@ -17,6 +18,7 @@ export interface GameView {
   potions?: { heal: boolean; poison: boolean }; victim?: string | null; acted: boolean; selection?: string;
   ballots?: Record<string, string>; winner?: Winner; centerRole?: Role;
   packChat?: PackChatState;
+  discussionMode?:DiscussionMode;turnSeconds?:30|45|60;speakerId?:string;nextSpeakerId?:string;turnId?:string;lastWordsPlayerId?:string;
 }
 export interface Seat { code: string; playerId: string; token: string }
 export type Reply<T = undefined> = { ok: true; data: T } | { ok: false; error: ErrorCode };

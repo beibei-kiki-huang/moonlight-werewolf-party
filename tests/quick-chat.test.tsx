@@ -9,7 +9,7 @@ import type { ChatMessage, GameView, Phase, Reply, Seat } from '../shared/types'
 
 const en = (en: string, _zh: string) => en, zh = (_en: string, zh: string) => zh;
 const message: ChatMessage = { id: 'm1', playerId: 'p1', name: 'Moon', text: QUICK_PHRASES.explain_again.en, phraseId: 'explain_again' };
-function fixture() { const game = new Game(); const player = newPlayer('Moon'); return { game, player, room: newRoom('ABC234', 'classic', player, 0) }; }
+function fixture() { const game = new Game(); const player = newPlayer('Moon'); const room=newRoom('ABC234','classic',player,0);room.discussionMode='open';room.deadline=10000;return {game,player,room}; }
 describe('Quick Chat catalogue, permissions and presentation', () => {
   it('contains exactly the ten approved English/Chinese pairs and rejects inherited/unknown IDs', () => {
     expect(Object.values(QUICK_PHRASES).map(p => [p.en, p.zh])).toEqual([
@@ -85,7 +85,7 @@ describe('Quick Chat through independent multiplayer clients', () => {
     const url = `http://127.0.0.1:${address.port}`, a = await connected(url), b = await connected(url);
     let av: GameView | undefined, bv: GameView | undefined;
     a.on('state', v => av = v); b.on('state', v => bv = v);
-    const made = await send<Seat>(a, 'create', { name: 'Moon', mode }); if (!made.ok) throw Error('create');
+    const made = await send<Seat>(a, 'create', { name: 'Moon', mode,discussionMode:'open' }); if (!made.ok) throw Error('create');
     const joined = await send<Seat>(b, 'join', { code: made.data.code, name: '星星' }); if (!joined.ok) throw Error('join');
     expect((await send(a, 'quick_chat', { phraseId: 'explain_again' })).ok).toBe(true);
     expect((await send(b, 'chat', { text: '自由发言, no translation.' })).ok).toBe(true);

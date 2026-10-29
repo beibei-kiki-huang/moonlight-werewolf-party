@@ -5,7 +5,7 @@ function table(mode: Mode = 'classic') {
   const game = new Game(undefined, cards => [...cards]);
   const room = newRoom('ABC234', mode, newPlayer('Host'), 0);
   for (let i = 1; i < (mode === 'classic' ? 5 : 2); i++) game.join(room, `Guest ${i}`, 0);
-  room.players.forEach(p => game.ready(room, p.id, true, 0)); game.start(room, room.hostId, 0);
+  room.players.forEach(p => game.ready(room, p.id, true, 0)); room.discussionMode='open';game.start(room, room.hostId, 0);
   return { game, room };
 }
 function until(game: Game, room: Room, phase: string) {

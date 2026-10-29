@@ -6,7 +6,7 @@ import {Game,GameError,newRoom,newPlayer,type Room} from '../server/game';
 import {createApp} from '../server/index';
 import {PackChat} from '../client/PackChat';
 import type {GameView,PackChatState,PackSubmission,Phase,Seat} from '../shared/types';
-function setup(count=7){const game=new Game(undefined,cards=>[...cards]),room=newRoom('ABC234','classic',newPlayer('Host'),0);for(let i=1;i<count;i++)game.join(room,'Peer '+i,0);room.players.forEach(p=>game.ready(room,p.id,true,0));game.start(room,room.hostId,0);while((room.phase as Phase)!=='wolves')game.tick(room,room.deadline!);return{game,room}}
+function setup(count=7){const game=new Game(undefined,cards=>[...cards]),room=newRoom('ABC234','classic',newPlayer('Host'),0);for(let i=1;i<count;i++)game.join(room,'Peer '+i,0);room.players.forEach(p=>game.ready(room,p.id,true,0));room.discussionMode='open';game.start(room,room.hostId,0);while((room.phase as Phase)!=='wolves')game.tick(room,room.deadline!);return{game,room}}
 function input(game:Game,room:Room,id=room.hostId,text='private canary'):{stageId:string;clientMessageId:string;text:string}{return{stageId:game.packState(room,id,0)!.stageId,clientMessageId:randomUUID(),text}}
 const en=(a:string,_b:string)=>a,zh=(_a:string,b:string)=>b;
 describe('current-stage Pack Chat rules and privacy',()=>{
@@ -38,7 +38,7 @@ describe('current-stage Pack Chat rules and privacy',()=>{
   const{game,room}=setup(),old=input(game,room);game.packMessage(room,room.hostId,old,1);game.tick(room,room.deadline!);expect(game.view(room,room.hostId,0).packChat).toBeUndefined();
   while(room.phase!=='voting')game.tick(room,room.deadline!);for(const p of room.players)game.vote(room,p.id,'skip',room.deadline!-1);while((room.phase as Phase)!=='wolves')game.tick(room,room.deadline!);
   expect(game.packState(room,room.hostId,0)?.messages).toEqual([]);expect(()=>game.packMessage(room,room.hostId,old,0)).toThrow(new GameError('wrong_phase'));
-  room.phase='ended';game.rematch(room,room.hostId,0);room.players.forEach(p=>game.ready(room,p.id,true,0));game.start(room,room.hostId,0);while((room.phase as Phase)!=='wolves')game.tick(room,room.deadline!);
+  room.phase='ended';game.rematch(room,room.hostId,0);room.players.forEach(p=>game.ready(room,p.id,true,0));room.discussionMode='open';game.start(room,room.hostId,0);while((room.phase as Phase)!=='wolves')game.tick(room,room.deadline!);
   expect(game.packState(room,room.hostId,0)?.messages).toEqual([]);expect(()=>game.packMessage(room,room.hostId,old,0)).toThrow(GameError);
  });
  it('renders presets per recipient language, escapes free text, and never renders for other roles/phases',()=>{
@@ -56,7 +56,7 @@ async function network(count=8,deadWolf=false){
  const game=new Game({reveal:100,nightfall:100,wolves:20000,seer:10000,witch:100,dawn:100,discussion:100,voting:1000,verdict:100},cards=>[...cards]);server=createApp(game);await new Promise<void>(r=>server!.http.listen(0,'127.0.0.1',r));const address=server.http.address() as any,url='http://127.0.0.1:'+address.port;
  const peers=await Promise.all(Array.from({length:count},()=>connected(url))),views:GameView[]=[],packets:string[][]=peers.map(()=>[]),packs:PackChatState[][]=peers.map(()=>[]),seats:Seat[]=[];
  peers.forEach((s,i)=>{s.on('state',v=>views[i]=v);s.on('pack_state',v=>packs[i].push(v));s.io.engine.on('packet',packet=>{if(packet.type==='message')packets[i].push(String(packet.data))})});
- seats[0]=(await send(peers[0],'create',{name:'Host',mode:'classic'})).data;
+ seats[0]=(await send(peers[0],'create',{name:'Host',mode:'classic',discussionMode:'open'})).data;
  for(let i=1;i<count;i++)seats[i]=(await send(peers[i],'join',{code:seats[0].code,name:'Peer '+i})).data;
  for(const s of peers)await send(s,'ready',{ready:true});await send(peers[0],'start',{});const room=server.rooms.get(seats[0].code)!;
  if(deadWolf){room.players[2].role='werewolf';room.players[2].alive=false} // extra dead-pack fixture, not a production distribution

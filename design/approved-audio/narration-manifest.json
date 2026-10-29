@@ -79,6 +79,11 @@
       "text": "The sun rises. Players were eliminated. See the night results.",
       "duration": 4.387,
       "bytes": 47287
+    },
+    "last_words": {
+      "text": "Final words. Listen to the player leaving the village.",
+      "duration": 3.729,
+      "bytes": 40340
     }
   },
   "zh": {
@@ -161,6 +166,11 @@
       "text": "天亮了。昨夜有人出局，请查看黎明结算。",
       "duration": 3.584,
       "bytes": 41316
+    },
+    "last_words": {
+      "text": "遗言时间，请听出局玩家最后发言。",
+      "duration": 3.193,
+      "bytes": 37611
     }
   }
 }

@@ -6,7 +6,7 @@ function setup(count = 5) {
   const room = newRoom('ABC234', 'classic', newPlayer('Player 1'), 0);
   for (let i = 1; i < count; i++) game.join(room, `Player ${i + 1}`, 0);
   room.players.forEach(p => game.ready(room, p.id, true, 0));
-  game.start(room, room.hostId, 0);
+  room.discussionMode='open';game.start(room, room.hostId, 0);
   return { game, room, role: (name: string) => room.players.find(p => p.role === name)! };
 }
 function step(game: Game, room: Room) { game.tick(room, room.deadline!); }

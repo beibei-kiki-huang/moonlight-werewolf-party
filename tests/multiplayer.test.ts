@@ -26,7 +26,7 @@ describe('real multiplayer transport', () => {
     const peers = await Promise.all(Array.from({ length: mode === 'classic' ? 5 : 2 }, () => client(url)));
     const views: GameView[] = [], received: number[] = peers.map(() => 0);
     peers.forEach((p, i) => p.on('state', v => { views[i] = v; received[i]++; }));
-    const made = await send<Seat>(peers[0], 'create', { mode, name: 'Host' }); if (!made.ok) throw new Error('create');
+    const made = await send<Seat>(peers[0], 'create', { mode, discussionMode:'open', name: 'Host' }); if (!made.ok) throw new Error('create');
     for (let i = 1; i < peers.length; i++) await send(peers[i], 'join', { code: made.data.code, name: `Peer ${i}` });
     for (const p of peers) await send(p, 'ready', { ready: true });
     await send(peers[0], 'start', {});
@@ -48,7 +48,7 @@ describe('real multiplayer transport', () => {
     const url = await running(); const peers = await Promise.all(Array.from({ length: 5 }, () => client(url)));
     const views: (GameView | undefined)[] = [];
     peers.forEach((s, i) => s.on('state', v => { views[i] = v; }));
-    const created = await send<Seat>(peers[0], 'create', { name: 'Host', mode: 'classic' });
+    const created = await send<Seat>(peers[0], 'create', { name: 'Host', mode: 'classic', discussionMode:'open' });
     expect(created.ok).toBe(true); if (!created.ok) return;
     const seat = created.data;
     for (let i = 1; i < 5; i++) expect((await send(peers[i], 'join', { code: seat.code, name: `Friend ${i}` })).ok).toBe(true);
@@ -73,7 +73,7 @@ describe('real multiplayer transport', () => {
   });
   it('rejects forged seat tokens, late joins, hostile origins, and secret requests', async () => {
     const url = await running(); const host = await client(url);
-    const created = await send<Seat>(host, 'create', { name: 'Host', mode: 'classic' }); if (!created.ok) throw new Error('create');
+    const created = await send<Seat>(host, 'create', { name: 'Host', mode: 'classic', discussionMode:'open' }); if (!created.ok) throw new Error('create');
     const attacker = await client(url);
     expect(await send(attacker, 'resume', { ...created.data, token: '0'.repeat(64) })).toEqual({ ok: false, error: 'unauthorized' });
     expect(await send(attacker, 'start', {})).toEqual({ ok: false, error: 'room_missing' });
@@ -88,7 +88,7 @@ describe('real multiplayer transport', () => {
   it('only permits the latest tab to control a seat', async () => {
     const url = await running(); const old = await client(url); let replaced = false;
     old.on('replaced', () => { replaced = true; });
-    const created = await send<Seat>(old, 'create', { name: 'Host', mode: 'classic' }); if (!created.ok) throw new Error('create');
+    const created = await send<Seat>(old, 'create', { name: 'Host', mode: 'classic', discussionMode:'open' }); if (!created.ok) throw new Error('create');
     const next = await client(url); expect((await send(next, 'resume', created.data)).ok).toBe(true);
     await expect.poll(() => replaced).toBe(true); expect(old.connected).toBe(false);
     expect((await send(next, 'ready', { ready: true })).ok).toBe(true);

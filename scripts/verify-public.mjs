@@ -35,7 +35,7 @@ async function waitChat(peers, predicate) {
 }
 async function table(mode, count) {
   const peers = await Promise.all(Array.from({ length: count }, peer));
-  const seat = await emit(peers[0].socket, 'create', { name: `QA-${mode}-1`, mode });
+  const seat = await emit(peers[0].socket, 'create', { name: `QA-${mode}-1`, mode,discussionMode:'open' });
   for (let i = 1; i < count; i++) await emit(peers[i].socket, 'join', { code: seat.code, name: `QA-${mode}-${i + 1}` });
   await emit(peers[0].socket, 'quick_chat', { phraseId: 'hello' });
   await waitChat(peers, chat => chat.at(-1)?.phraseId === 'hello');
@@ -115,7 +115,7 @@ async function audioAssets() {
   assert.equal(Buffer.from(await music.arrayBuffer()).toString('ascii', 4, 8), 'ftyp');
   const credits = await fetch(`${url}/audio/CREDITS.txt`);
   assert.equal(credits.status, 200); assert.match(await credits.text(), /Kevin MacLeod[\s\S]*creativecommons.org\/licenses\/by\/4.0/);
-  console.log('PASS audio assets: approved piano, all 32 bilingual recordings and attribution served publicly.');
+  console.log('PASS audio assets: approved piano, all 34 bilingual recordings and attribution served publicly.');
 }
 async function releaseAssets() {
   const manifest = JSON.parse(await readFile(new URL('../dist/client/.vite/manifest.json', import.meta.url), 'utf8'));

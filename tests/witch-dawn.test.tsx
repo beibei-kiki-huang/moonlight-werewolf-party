@@ -10,7 +10,7 @@ import { PublicNarrator, narrationCues, type RecordingPort, type PublicScene } f
 import { RoleCard } from '../client/presentation';
 const en=(a:string,_b:string)=>a, zh=(_a:string,b:string)=>b;
 const name=(role:Role)=>({werewolf:'狼人',villager:'村民',seer:'预言家',witch:'女巫'})[role];
-function setup(){const game=new Game(DURATIONS,cards=>[...cards]);const wolf=newPlayer('Wolf');const room=newRoom('ABC234','classic',wolf,0);for(const n of ['V1','V2','V3','Seer','Witch'])game.join(room,n,0);for(const p of room.players)game.ready(room,p.id,true,0);game.start(room,wolf.id,0);return{game,room,wolf,witch:room.players[5]}}
+function setup(){const game=new Game(DURATIONS,cards=>[...cards]);const wolf=newPlayer('Wolf');const room=newRoom('ABC234','classic',wolf,0);for(const n of ['V1','V2','V3','Seer','Witch'])game.join(room,n,0);for(const p of room.players)game.ready(room,p.id,true,0);room.discussionMode='open';game.start(room,wolf.id,0);return{game,room,wolf,witch:room.players[5]}}
 function until(s:ReturnType<typeof setup>,phase:string){for(let i=0;s.room.phase!==phase&&i<30;i++)s.game.tick(s.room,s.room.deadline!);expect(s.room.phase).toBe(phase)}
 function act(s:ReturnType<typeof setup>,id:string,a:Parameters<Game['act']>[2]){s.game.act(s.room,id,a,s.room.deadline!-1)}
 function nextNight(s:ReturnType<typeof setup>){until(s,'voting');for(const p of s.room.players.filter(p=>p.alive))s.game.vote(s.room,p.id,'skip',s.room.deadline!-1);until(s,'wolves')}

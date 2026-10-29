@@ -10,7 +10,7 @@ async function connect(p={}){p.socket=io(url,{forceNew:true,transports:['websock
 async function wait(phase){const until=Date.now()+300000;while(!peers.every(p=>p.view?.phase===phase)){if(Date.now()>until)throw Error('Timeout '+phase);await delay(50)}}
 const heartbeat=setInterval(()=>console.log('Seven-player acceptance is following normal phase timers…'),30000);
 try{
- for(let i=0;i<7;i++){const p=await connect();peers.push(p);p.seat=await ok(p,i?'join':'create',i?{code:peers[0].seat.code,name:'Pack-QA-'+(i+1)}:{name:'Pack-QA-1',mode:'classic'});await ok(p,'ready',{ready:true})}
+ for(let i=0;i<7;i++){const p=await connect();peers.push(p);p.seat=await ok(p,i?'join':'create',i?{code:peers[0].seat.code,name:'Pack-QA-'+(i+1)}:{name:'Pack-QA-1',mode:'classic',discussionMode:'open'});await ok(p,'ready',{ready:true})}
  await ok(peers[0],'start',{});await wait('reveal');const wolves=peers.filter(p=>p.view.role==='werewolf'),seer=peers.find(p=>p.view.role==='seer'),witch=peers.find(p=>p.view.role==='witch'),villagers=peers.filter(p=>p.view.role==='villager');assert.equal(wolves.length,2);
  await wait('wolves');await delay(100);const stageId=wolves[0].view.packChat.stageId,deadline=wolves[0].view.deadline,outsiders=peers.filter(p=>!wolves.includes(p)),counts=outsiders.map(p=>p.packets.length);
  const message={stageId,clientMessageId:randomUUID(),text:'Private pack acceptance canary.'};const first=await ok(wolves[0],'pack_chat',message);await ok(wolves[1],'pack_chat',{stageId,clientMessageId:randomUUID(),phraseId:'why'});const duplicate=await ok(wolves[0],'pack_chat',message);assert.equal(duplicate.messageId,first.messageId);assert(duplicate.duplicate);await delay(100);

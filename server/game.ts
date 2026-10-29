@@ -1,5 +1,5 @@
 import { randomInt, randomUUID } from 'node:crypto';
-import type { Action, ChatMessage, ErrorCode, GameEvent, GameView, Investigation, Mode, Phase, Role, Winner, PackChatState, PackSubmission } from '../shared/types.js';
+import type { Action, ChatMessage, ErrorCode, GameEvent, GameView, Investigation, Mode, Phase, Role, Winner, DiscussionMode, PackChatState, PackSubmission } from '../shared/types.js';
 import { isQuickPhraseId, QUICK_PHRASES } from '../shared/quickChat.js';
 
 export class GameError extends Error {
@@ -14,12 +14,13 @@ export interface Room {
   revision: number; deadline: number | null; createdAt: number; lastActivity: number; allOfflineSince: number | null;
   attacks: Record<string, string>; inspected: Set<string>; witchAction?: Action; victim: string | null;
   votes: Record<string, string>; ballots?: Record<string, string>; winner?: Winner; centerRole?: Role;
+  discussionMode:DiscussionMode;turnSeconds:30|45|60;speakingOrder:string[];speakerIndex:number;turnId?:string;lastWordsId?:string;
   events: GameEvent[]; chat: ChatMessage[]; deathThisCycle: boolean; quietCycles: number;
 }
 export type Durations = Partial<Record<Phase, number>> & { quickDiscussion?: number };
 export const DURATIONS: Durations = {
   reveal: 30_000, nightfall: 5_000, wolves: 25_000, seer: 15_000, witch: 20_000, dawn: 8_000,
-  discussion: 120_000, quickDiscussion: 90_000, voting: 30_000, verdict: 8_000,
+  discussion: 120_000, last_words:30_000, quickDiscussion: 90_000, voting: 30_000, verdict: 8_000,
 };
 export const DISTRIBUTIONS: Record<number, Role[]> = {
   5: ['werewolf', 'villager', 'villager', 'seer', 'witch'],
@@ -42,6 +43,7 @@ export function newRoom(code: string, mode: Mode, host: Player, now: number): Ro
   return {
     code, mode, hostId: host.id, players: [host], phase: 'lobby', day: 0, revision: 0,
     deadline: null, createdAt: now, lastActivity: now, allOfflineSince: null,
+    discussionMode:'structured',turnSeconds:45,speakingOrder:[],speakerIndex:0,
     attacks: {}, inspected: new Set(), victim: null, votes: {}, events: [], chat: [], deathThisCycle: false, quietCycles: 0,
   };
 }
@@ -75,6 +77,39 @@ export class Game {
     if(room.mode===mode)return;
     room.mode = mode; room.players.forEach(p => p.ready = false); this.touch(room, now);
   }
+  configureDiscussion(room:Room,id:string,discussionMode:DiscussionMode,turnSeconds:30|45|60,now:number){
+    this.host(room,id);if(room.phase!=='lobby')fail('wrong_phase');if(room.mode!=='classic')fail('unauthorized');
+    if(!['structured','open'].includes(discussionMode)||![30,45,60].includes(turnSeconds))fail('invalid');
+    if(room.discussionMode===discussionMode&&room.turnSeconds===turnSeconds)return;
+    room.discussionMode=discussionMode;room.turnSeconds=turnSeconds;room.players.forEach(p=>p.ready=false);this.touch(room,now);
+  }
+  canPublicChat(room:Room,id:string,now:number){
+    const p=room.players.find(p=>p.id===id);if(!p)return false;
+    if(room.phase==='lobby'||room.phase==='ended')return true;
+    if(room.deadline===null||now>=room.deadline)return false;
+    if(room.phase==='last_words')return id===room.lastWordsId;
+    return room.phase==='discussion' && p.alive && (room.mode==='quick'||room.discussionMode==='open'||room.speakingOrder[room.speakerIndex]===id);
+  }
+  private beginDiscussion(room:Room,now:number){
+    this.phase(room,'discussion',now);
+    if(room.discussionMode==='structured'){
+      room.speakingOrder=room.players.filter(p=>p.alive).map(p=>p.id);room.speakerIndex=0;
+      room.deadline=now+room.turnSeconds*1000;room.turnId=randomUUID();
+    }
+  }
+  private advanceSpeaker(room:Room,now:number){
+    do{room.speakerIndex++}while(room.speakerIndex<room.speakingOrder.length&&!room.players.find(p=>p.id===room.speakingOrder[room.speakerIndex])?.alive);
+    if(room.speakerIndex>=room.speakingOrder.length){room.votes={};this.phase(room,'voting',now)}
+    else{room.deadline=now+room.turnSeconds*1000;room.turnId=randomUUID()}
+  }
+  finishSpeaking(room:Room,id:string,turnId:string,now:number){
+    if(room.mode!=='classic'||!['discussion','last_words'].includes(room.phase)||room.discussionMode!=='structured'||room.deadline===null||now>=room.deadline||turnId!==room.turnId)fail('wrong_phase');
+    if(!this.canPublicChat(room,id,now))fail('unauthorized');
+    if(room.phase==='last_words')this.completeVerdict(room,now);else this.advanceSpeaker(room,now);this.touch(room,now);
+  }
+  private completeVerdict(room:Room,now:number){
+    if(!this.victory(room,now)){if(room.quietCycles>=3)this.finish(room,'draw',now);else this.phase(room,'verdict',now)}
+  }
   start(room: Room, id: string, now: number) {
     this.host(room, id);
     if (room.phase !== 'lobby') fail('wrong_phase');
@@ -91,6 +126,8 @@ export class Game {
   private event(room: Room, event: Omit<GameEvent, 'id'>) { room.events.push({ ...event, id: room.events.length + 1 }); }
   private phase(room: Room, phase: Phase, now: number) {
     this.packStores.delete(room);
+    if(phase!=='discussion'&&phase!=='last_words')room.turnId=undefined;
+    if(phase!=='last_words')room.lastWordsId=undefined;
     room.phase = phase;
     room.deadline = phase === 'lobby' || phase === 'ended' ? null : now +
       (room.mode === 'quick' && phase === 'discussion' ? this.durations.quickDiscussion ?? 90_000 : this.durations[phase] ?? 1000);
@@ -144,8 +181,8 @@ export class Game {
       && this.resolveVoting(room, now);
     this.touch(room, now); return resolved;
   }
-  chat(room: Room, id: string, text: string, now: number) {
-    this.appendChat(room, id, { text }, now);
+  chat(room: Room, id: string, text: string, now: number, turnId?:string) {
+    this.appendChat(room, id, { text }, now,turnId);
   }
   canPackChat(room: Room, id: string, now: number) {
     const player=room.players.find(p=>p.id===id);
@@ -186,15 +223,16 @@ export class Game {
     store.receipts.set(key,message);store.messages.push(message);store.messages=store.messages.slice(-30);
     return {messageId:message.id,duplicate:false};
   }
-  quickChat(room: Room, id: string, phraseId: string, now: number) {
+  quickChat(room: Room, id: string, phraseId: string, now: number,turnId?:string) {
     if (!isQuickPhraseId(phraseId)) return fail('invalid');
     // The server supplies the fallback, never a client's translation or identity.
-    this.appendChat(room, id, { text: QUICK_PHRASES[phraseId].en, phraseId }, now);
+    this.appendChat(room, id, { text: QUICK_PHRASES[phraseId].en, phraseId }, now,turnId);
   }
-  private appendChat(room: Room, id: string, message: Pick<ChatMessage, 'text' | 'phraseId'>, now: number) {
+  private appendChat(room: Room, id: string, message: Pick<ChatMessage, 'text' | 'phraseId'>, now: number,turnId?:string) {
     const player = this.player(room, id);
-    if (room.phase !== 'lobby' && room.phase !== 'discussion' && room.phase !== 'ended') fail('wrong_phase');
-    if (room.phase === 'discussion' && !player.alive) fail('unauthorized');
+    if(!['lobby','discussion','last_words','ended'].includes(room.phase))fail('wrong_phase');
+    if(!this.canPublicChat(room,id,now))fail('unauthorized');
+    if(room.mode==='classic'&&room.discussionMode==='structured'&&['discussion','last_words'].includes(room.phase)&&turnId!==room.turnId)fail('wrong_phase');
     room.chat.push({ id: randomUUID(), playerId: id, name: player.name, ...message });
     room.chat = room.chat.slice(-80); this.touch(room, now);
   }
@@ -238,10 +276,9 @@ export class Game {
         this.event(room, { kind: 'elimination', day: room.day, players: [{ name: player.name, role: player.role! }] });
       } else this.event(room, { kind: 'no_elimination', day: room.day });
       room.quietCycles = room.deathThisCycle ? 0 : room.quietCycles + 1;
-      if (!this.victory(room, now)) {
-        if (room.quietCycles >= 3) this.finish(room, 'draw', now);
-        else this.phase(room, 'verdict', now);
-      }
+      if(target&&target!=='skip'&&room.discussionMode==='structured'){
+        this.phase(room,'last_words',now);room.lastWordsId=target;room.turnId=randomUUID();
+      }else this.completeVerdict(room,now);
     }
     return true;
   }
@@ -276,8 +313,9 @@ export class Game {
         if (!this.victory(room, now)) this.phase(room, 'dawn', now);
         break;
       }
-      case 'dawn': this.phase(room, 'discussion', now); break;
-      case 'discussion': room.votes = {}; room.ballots = undefined; this.phase(room, 'voting', now); break;
+      case 'dawn': this.beginDiscussion(room,now); break;
+      case 'discussion': if(room.discussionMode==='structured')this.advanceSpeaker(room,now);else{room.votes={};room.ballots=undefined;this.phase(room,'voting',now)}break;
+      case 'last_words': this.completeVerdict(room,now);break;
       case 'voting': this.resolveVoting(room, now); break;
     }
     this.touch(room, now); return true;
@@ -293,6 +331,13 @@ export class Game {
       events: room.events.map(e => ({ ...e, players: e.players?.map(p => ({ ...p })) })),
       chat: room.chat.map(m => ({ ...m })), acted: false,
     };
+    if(room.mode==='classic'){
+      view.discussionMode=room.discussionMode;view.turnSeconds=room.turnSeconds;
+      if(room.phase==='discussion'&&room.discussionMode==='structured'){
+        view.speakerId=room.speakingOrder[room.speakerIndex];view.nextSpeakerId=room.speakingOrder.slice(room.speakerIndex+1).find(id=>room.players.find(p=>p.id===id)?.alive);view.turnId=room.turnId;
+      }
+      if(room.phase==='last_words'){view.lastWordsPlayerId=room.lastWordsId;view.turnId=room.turnId}
+    }
     if (you.role) view.role = you.role;
     if (you.role === 'werewolf') {
       view.wolfTeam = room.players.filter(p => p.role === 'werewolf').map(p => p.id);

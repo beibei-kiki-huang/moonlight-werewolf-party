@@ -9,7 +9,7 @@ describe('shipped approved audio assets', () => {
   it('covers every public cue in both languages, matches written guidance and fits fixed night clocks', () => {
     let total = statSync('public/audio/evening-fall-piano.m4a').size;
     for (const language of ['en', 'zh'] as const) {
-      expect(Object.keys(manifest[language])).toHaveLength(16);
+      expect(Object.keys(manifest[language])).toHaveLength(17);
       for (const [key, entry] of Object.entries(manifest[language])) {
         const scene = { mode: (key === 'discussion-quick' ? 'quick' : 'classic') as Mode, phase: (key.startsWith('discussion') ? 'discussion' : key.startsWith('ended') ? 'ended' : key) as Phase, winner: key.startsWith('ended') ? key.slice(6) as Winner : undefined };
         expect(entry.text).toBe(key.startsWith('dawn-') ? dawnScript(key === 'dawn-peaceful', language) : phaseScript(scene, language));

@@ -112,3 +112,10 @@ The free server can sleep or restart, which ends rooms. Refresh recovery is same
 - Fixed with per-tab session credentials, explicit saved-seat recovery, server protection against passive takeovers, exact public readiness blockers and no-op mode selection preserving Ready. Stale seats remain removable by the host; all living connected/ready requirements stay server enforced.
 - 140 tests pass, including full independent-socket Classic victories at 5/6/7/8, unready/offline/nonhost denial, passive/explicit takeover and storage isolation.
 - Actual same-origin browser UI starts at 5/6/7/8 all enabled correctly. Five-browser game completed with village victory, and refresh preserved an independent participant. Test-only action windows are longer than production for manual browser review.
+
+## Stage 2 selectable discussion modes
+
+- Default Structured Discussion: server-authoritative seat-order turns, 30/45/60 seconds, living-speaker-only text/presets, early completion, deadline advancement, public current/next indicators and immutable pre-game settings. Public turn IDs reject late/replayed sends and finish packets.
+- Structured daytime eliminations receive 30-second last words for only the eliminated player, then unchanged victory conditions resolve. Open Discussion retains simultaneous living-player chat and legacy verdict behavior; Duel is unchanged. Night deaths have no last words.
+- 148 tests and production/demo-isolation builds pass. Legacy Open mode is selected explicitly in old regression fixtures; eight new structured-mode cases cover settings, order, permission, timing, stale tokens, last words, victory and reconnect.
+- Added one fixed original EN/Chinese last-words cue with the existing approved offline MIT-licensed voices; no models or new dependencies shipped. Discussion narration does not repeat on every speaker change.

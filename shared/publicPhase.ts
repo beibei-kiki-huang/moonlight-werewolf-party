@@ -14,6 +14,7 @@ export function phaseScript({ mode, phase, winner }: PublicPhase, language: Lang
     dawn: ['The sun rises. The village awakens.', '天亮了，村庄苏醒了。'],
     discussion: mode === 'quick' ? ['The table is yours. Discuss where the wolf is hiding.', '开始讨论，找出狼人藏在哪里。'] : ['Everyone, open your eyes. Discuss what the night has left behind.', '所有人请睁眼，讨论昨夜留下的线索。'],
     voting: ["It's time to vote. Choose, then confirm your suspicion.", '投票时间到了。作出选择，然后确认你的指认。'],
+    last_words: ['Final words. Listen to the player leaving the village.', '遗言时间，请听出局玩家最后发言。'],
     verdict: ['The village has spoken. Another night approaches.', '村庄已作出选择，新一轮黑夜即将降临。'],
     ended: winner === 'draw' ? ['A draw under the moon. This story awaits another night.', '月下平局，这个故事等待下一夜继续。'] : winner === 'wolves' ? ['The werewolves win. The night belongs to them.', '狼人阵营获胜，今夜属于群狼。'] : ['The village wins. The truth came to light.', '好人阵营获胜，真相终于浮现。'],
   };

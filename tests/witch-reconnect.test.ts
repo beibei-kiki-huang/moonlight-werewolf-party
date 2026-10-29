@@ -11,7 +11,7 @@ describe('Witch private transport recovery',()=>{
   const peers:{s:Socket;view?:GameView;packets:number}[]=[];const seats:Seat[]=[];
   const peer=async()=>{const p={s:io(url,{forceNew:true,transports:['websocket']}),packets:0} as typeof peers[number];peers.push(p);p.s.on('state',(v:GameView)=>{p.view=v;p.packets++});await new Promise<void>((resolve,reject)=>{p.s.once('connect',resolve);p.s.once('connect_error',reject)});return p};
   try{
-   const host=await peer();const create=await send<Seat>(host.s,'create',{name:'Wolf',mode:'classic'});if(!create.ok)throw Error(create.error);seats.push(create.data);
+   const host=await peer();const create=await send<Seat>(host.s,'create',{name:'Wolf',mode:'classic',discussionMode:'open'});if(!create.ok)throw Error(create.error);seats.push(create.data);
    for(const name of ['V1','V2','V3','Seer','Witch']){const p=await peer();const join=await send<Seat>(p.s,'join',{code:create.data.code,name});if(!join.ok)throw Error(join.error);seats.push(join.data)}
    for(const p of peers)await send(p.s,'ready',{ready:true});await send(host.s,'start',{});await expect.poll(()=>peers[5].view?.phase).toBe('witch');
    const before=peers.slice(0,5).map(p=>p.packets);expect((await send(peers[5].s,'action',{kind:'poison',target:seats[1].playerId})).ok).toBe(true);

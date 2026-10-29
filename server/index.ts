@@ -110,12 +110,13 @@ export function createApp(game = new Game()) {
         }
       });
     }
-    handle('create', z.object({ name: nameSchema, mode: modeSchema }), ({ name, mode }) => {
+    handle('create', z.object({ name: nameSchema, mode: modeSchema,discussionMode:z.enum(['structured','open']).optional(),turnSeconds:z.union([z.literal(30),z.literal(45),z.literal(60)]).optional() }), ({ name, mode,discussionMode,turnSeconds }) => {
       unbound(socket); limit(`create:${ip}`, 12, 600_000);
       if (rooms.size >= 300) throw new GameError('capacity');
       let code: string;
       do { code = Array.from({ length: 6 }, () => alphabet[randomInt(alphabet.length)]).join(''); } while (rooms.has(code));
       const player = newPlayer(name); const room = newRoom(code, mode, player, Date.now());
+      if(mode==='classic'&&(discussionMode||turnSeconds))game.configureDiscussion(room,player.id,discussionMode??'structured',turnSeconds??45,Date.now());
       const token = randomBytes(32).toString('hex'); credentials.set(player.id, token);
       rooms.set(code, room); bind(socket, room, player.id);
       return { code, playerId: player.id, token };
@@ -164,11 +165,13 @@ export function createApp(game = new Game()) {
       }
       return reply;
     });
-    command('chat', z.object({ text: z.string().trim().min(1).max(300) }), ({ room, playerId }, { text }) => {
-      limit(`chat:${playerId}`, 5, 10_000); game.chat(room, playerId, text, Date.now());
+    command('discussion_settings',z.object({discussionMode:z.enum(['structured','open']),turnSeconds:z.union([z.literal(30),z.literal(45),z.literal(60)])}).strict(),({room,playerId},d)=>game.configureDiscussion(room,playerId,d.discussionMode,d.turnSeconds,Date.now()));
+    command('finish_speaking',z.object({turnId:idSchema}).strict(),({room,playerId},d)=>game.finishSpeaking(room,playerId,d.turnId,Date.now()));
+    command('chat', z.object({ text: z.string().trim().min(1).max(300),turnId:idSchema.optional() }), ({ room, playerId }, { text,turnId }) => {
+      limit(`chat:${playerId}`, 5, 10_000); game.chat(room, playerId, text, Date.now(),turnId);
     });
-    command('quick_chat', z.object({ phraseId: z.string().max(40).refine(isQuickPhraseId) }).strict(), ({ room, playerId }, { phraseId }) => {
-      limit(`chat:${playerId}`, 5, 10_000); game.quickChat(room, playerId, phraseId, Date.now());
+    command('quick_chat', z.object({ phraseId: z.string().max(40).refine(isQuickPhraseId),turnId:idSchema.optional() }).strict(), ({ room, playerId }, { phraseId,turnId }) => {
+      limit(`chat:${playerId}`, 5, 10_000); game.quickChat(room, playerId, phraseId, Date.now(),turnId);
     });
     command('rematch', z.object({}), ({ room, playerId }) => game.rematch(room, playerId, Date.now()));
     command('remove', z.object({ playerId: idSchema }), ({ room, playerId }, data) => {

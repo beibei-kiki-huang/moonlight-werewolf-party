@@ -8,7 +8,7 @@ const en = (english: string) => english;
 const zh = (_english: string, chinese: string) => chinese;
 const names = (role: Role) => ({ werewolf: 'Werewolf', villager: 'Villager', seer: 'Seer', witch: 'Witch' })[role];
 function view(role: Role = 'werewolf'): GameView {
-  return { code: 'ABC234', mode: 'classic', phase: 'reveal', day: 1, serverNow: 0, deadline: 30_000,
+  return { code: 'ABC234', mode: 'classic', discussionMode:'open', phase: 'reveal', day: 1, serverNow: 0, deadline: 30_000,
     hostId: 'self', youId: 'self', role, players: [
       { id: 'self', name: 'Luna', connected: true, ready: true, alive: true },
       { id: 'other', name: 'Sol', connected: true, ready: true, alive: true },
