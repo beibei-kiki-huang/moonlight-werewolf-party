@@ -28,7 +28,7 @@ Each player should use a separate browser profile/device. A second tab in the sa
 1. Put this source in a GitHub repository. No secrets are required or included.
 2. Sign into https://dashboard.render.com/ and choose **New → Web Service**.
 3. Select the repository (or supply its public Git repository URL).
-4. Runtime **Node**, build command **`npm ci && npm run build`**, start command **`npm start`**.
+4. Runtime **Node**, build command **`npm ci --include=dev && npm run build`**, start command **`npm start`**. Build tools must be included even with `NODE_ENV=production`.
 5. Choose **Free**, one instance. Do not select a paid plan or persistent disk.
 6. Add `NODE_ENV=production` and `NODE_VERSION=24.13.0`. Render sets `PORT` automatically.
 7. Health check: `/api/health`. Deploy and open the HTTPS URL Render provides.
