@@ -58,7 +58,7 @@ export function RoleCard({ view, visible, onToggle, tr, roleName }: { view: Game
     <div className="card-story">
       <p className="eyebrow"><span className="tiny-star">✦</span>{tr('FOR YOUR EYES ONLY', '仅你可见')}</p>
       <h2>{visible ? roleName(role) : tr('A secret awaits', '秘密静候揭晓')}</h2>
-      <p className="character-lore">{visible ? tr(...lore[role]) : tr('The moon has chosen your part in the story.', '月亮已为你选定故事中的身份。')}</p>
+      {visible&&<p className="role-faction">{role==='werewolf'?tr('Werewolf Team','狼人阵营'):tr('Good Team','好人阵营')}</p>}<p className="character-lore">{visible ? tr(...lore[role]) : tr('The moon has chosen your part in the story.', '月亮已为你选定故事中的身份。')}</p>
       <div className="silver-divider" aria-hidden="true"><span />✧<span /></div>
       <p className="character-ability">{visible ? description : tr('Make sure only you can see your screen. Your role stays hidden until you open this card.', '请确保只有你能看到屏幕。轻触身份牌后，秘密才会揭晓。')}</p>
       {visible ? <button className="button secondary hide-role" onClick={onToggle}><EyeOff size={16} />{tr('Hide my role', '隐藏身份')}</button>
@@ -121,10 +121,10 @@ export function Outcome({ view, host, disabled, onRematch, tr, roleName, ballots
       <div className={`personal-outcome ${won ? 'you-won' : ''}`}><span>{draw ? <Moon size={19} /> : won ? <Sparkles size={19} /> : <Shield size={19} />}</span><div><strong>{draw ? tr('A shared draw', '双方平局') : won ? tr('You won with your faction', '你与阵营一同获胜') : tr('Your faction fell this night', '你的阵营今夜落败')}</strong><small>{draw ? tr('Another gathering. Another chance.', '再度相聚，再续悬念。') : won ? tr('Well played. Your secret became your strength.', '精彩的一局，你的秘密成为了力量。') : tr('Every good mystery deserves a rematch.', '每一场精彩的推理，都值得再来一局。')}</small></div></div>
       {host ? <button className="button primary rematch-button" disabled={disabled} onClick={onRematch}>{tr('Play another night', '再赴月下之约')}<ArrowRight size={18} /></button> : <div className="host-waiting"><Hourglass size={16} />{tr('Waiting for the host to gather everyone again.', '等待房主召集大家开启下一局。')}</div>}
     </div></div>
-    <div className="outcome-cast"><div className="cast-heading"><p className="eyebrow">{tr('BEHIND EVERY MASK', '面具之后')}</p><h3>{tr('The secrets we kept', '我们守过的秘密')}</h3></div><div className="reveal-grid">{view.players.map(p => <div key={p.id} className={`reveal-person role-${p.role} ${p.id === view.youId ? 'your-result' : ''}`}><Portrait role={p.role!} small decorative /><div><strong>{p.name}{p.id === view.youId && <small>{tr(' · you', ' · 你')}</small>}</strong><span>{roleName(p.role!)}</span></div></div>)}</div>
+    <details className="outcome-cast" open={typeof window==='undefined'||!window.matchMedia('(max-width:680px)').matches}><summary>{tr('Roles, center card & ballots','身份、中央牌与投票记录')}</summary><div className="cast-heading"><p className="eyebrow">{tr('BEHIND EVERY MASK', '面具之后')}</p><h3>{tr('The secrets we kept', '我们守过的秘密')}</h3></div><div className="reveal-grid">{view.players.map(p => <div key={p.id} className={`reveal-person role-${p.role} ${p.id === view.youId ? 'your-result' : ''}`}><Portrait role={p.role!} small decorative /><div><strong>{p.name}{p.id === view.youId && <small>{tr(' · you', ' · 你')}</small>}</strong><span>{roleName(p.role!)}</span></div></div>)}</div>
       {view.centerRole && <div className="center-reveal"><Portrait role={view.centerRole} small decorative /><div><span>{tr('THE HIDDEN CENTER CARD', '隐藏的中央身份牌')}</span><strong>{roleName(view.centerRole)}</strong></div></div>}
-      {view.ballots && <details className="result-ballots"><summary>{tr('See the final ballots', '查看最终投票')}<ChevronDown size={15} /></summary>{ballots}</details>}
-    </div>
+      {(view.ballots||!!view.voteHistory?.length) && <details className="result-ballots"><summary>{tr('See the final ballots', '查看最终投票')}<ChevronDown size={15} /></summary>{ballots}</details>}
+    </details>
   </section>;
 }
 

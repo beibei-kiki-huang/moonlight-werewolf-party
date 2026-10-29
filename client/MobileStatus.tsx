@@ -1,0 +1,10 @@
+import {EyeOff,SlidersHorizontal} from 'lucide-react';
+import type {GameView,Phase} from '../shared/types';
+import type {Translate} from './presentation';
+export function MobileStatus({view,seconds,tr,identityOpen,onIdentity,utilitiesOpen,onUtilities}:{view:GameView;seconds:number;tr:Translate;identityOpen:boolean;onIdentity:()=>void;utilitiesOpen:boolean;onUtilities:()=>void}){
+ if(view.phase==='lobby')return null;
+ const names:Record<Phase,[string,string]>={lobby:['Lobby','大厅'],reveal:['Role reveal','身份揭晓'],nightfall:['Nightfall','入夜'],wolves:['Werewolf phase','狼人阶段'],seer:['Seer phase','预言家阶段'],witch:['Witch phase','女巫阶段'],dawn:['Dawn','黎明'],discussion:['Discussion','讨论'],voting:['Voting','投票'],tie_discussion:['Tie-break speaking','平票发言'],runoff:['Runoff vote','加赛投票'],last_words:['Last words','遗言'],verdict:['Verdict','投票结算'],ended:['Results','结果']};
+ const speaker=view.players.find(p=>p.id===(view.phase==='last_words'?view.lastWordsPlayerId:view.speakerId));
+ const night=['nightfall','wolves','seer','witch'].includes(view.phase);
+ return <section className="mobile-phase-strip" aria-label={tr('Current phase and time','当前阶段与时间')}><div><strong>{tr(...names[view.phase])}</strong><small>{view.mode==='classic'?night?tr(`Night ${view.day}`,`第${view.day}夜`):tr(`Day ${view.day}`,`第${view.day}天`):tr('Duel','对决')}{speaker&&` · ${speaker.name}`}</small></div>{view.deadline!==null&&<span className={`mobile-clock ${seconds<=10?'urgent':''}`} role="timer" aria-label={tr('Time remaining','剩余时间')}>{Math.floor(seconds/60)}:{String(seconds%60).padStart(2,'0')}</span>}{view.mode==='classic'&&!['reveal','ended'].includes(view.phase)&&<button className="mobile-identity-button" aria-label={tr('Your private identity','你的私人身份')} aria-expanded={identityOpen} onClick={onIdentity}><EyeOff size={18}/><span>{tr('Identity','身份')}</span></button>}<button className="mobile-more-button" aria-label={tr('Room and sound settings','房间与声音设置')} aria-expanded={utilitiesOpen} onClick={onUtilities}><SlidersHorizontal size={19}/></button></section>;
+}
