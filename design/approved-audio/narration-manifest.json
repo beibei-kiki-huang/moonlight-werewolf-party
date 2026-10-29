@@ -1,0 +1,146 @@
+{
+  "en": {
+    "lobby": {
+      "text": "Gather under the moon. Your table is waiting.",
+      "duration": 2.946,
+      "bytes": 33380
+    },
+    "reveal": {
+      "text": "Your secret awaits. Open your private card, then keep it close.",
+      "duration": 4.656,
+      "bytes": 49316
+    },
+    "nightfall": {
+      "text": "Night falls. Everyone, close your eyes.",
+      "duration": 3.011,
+      "bytes": 33069
+    },
+    "wolves": {
+      "text": "Werewolves, wake up and choose your victim.",
+      "duration": 4.52,
+      "bytes": 49505
+    },
+    "seer": {
+      "text": "Werewolves, close your eyes. Seer, open your eyes and discover the truth.",
+      "duration": 6.605,
+      "bytes": 70434
+    },
+    "witch": {
+      "text": "Seer, close your eyes. Witch, will you save a life or take one?",
+      "duration": 4.671,
+      "bytes": 50554
+    },
+    "dawn": {
+      "text": "The sun rises. The village awakens.",
+      "duration": 2.79,
+      "bytes": 31324
+    },
+    "voting": {
+      "text": "It's time to vote. Choose, then confirm your suspicion.",
+      "duration": 4.11,
+      "bytes": 44398
+    },
+    "verdict": {
+      "text": "The village has spoken. Another night approaches.",
+      "duration": 3.317,
+      "bytes": 36563
+    },
+    "discussion-classic": {
+      "text": "Everyone, open your eyes. Discuss what the night has left behind.",
+      "duration": 4.305,
+      "bytes": 46748
+    },
+    "discussion-quick": {
+      "text": "The table is yours. Discuss where the wolf is hiding.",
+      "duration": 3.542,
+      "bytes": 39123
+    },
+    "ended-village": {
+      "text": "The village wins. The truth came to light.",
+      "duration": 3.043,
+      "bytes": 33914
+    },
+    "ended-wolves": {
+      "text": "The werewolves win. The night belongs to them.",
+      "duration": 4.599,
+      "bytes": 49441
+    },
+    "ended-draw": {
+      "text": "A draw under the moon. This story awaits another night.",
+      "duration": 3.459,
+      "bytes": 36861
+    }
+  },
+  "zh": {
+    "lobby": {
+      "text": "月下集结，你的牌桌已就绪。",
+      "duration": 2.29,
+      "bytes": 27168
+    },
+    "reveal": {
+      "text": "秘密身份等待揭晓。查看你的身份牌，然后守好秘密。",
+      "duration": 4.437,
+      "bytes": 50302
+    },
+    "nightfall": {
+      "text": "天黑了，所有人请闭眼。",
+      "duration": 2.085,
+      "bytes": 25596
+    },
+    "wolves": {
+      "text": "狼人请睁眼，选择你们的袭击目标。",
+      "duration": 2.961,
+      "bytes": 34802
+    },
+    "seer": {
+      "text": "狼人请闭眼。预言家请睁眼，查验隐藏的真相。",
+      "duration": 3.901,
+      "bytes": 43963
+    },
+    "witch": {
+      "text": "预言家请闭眼。女巫请睁眼，今晚你会救人，还是毒人？",
+      "duration": 4.526,
+      "bytes": 51277
+    },
+    "dawn": {
+      "text": "天亮了，村庄苏醒了。",
+      "duration": 1.772,
+      "bytes": 23065
+    },
+    "voting": {
+      "text": "投票时间到了。作出选择，然后确认你的指认。",
+      "duration": 3.674,
+      "bytes": 42276
+    },
+    "verdict": {
+      "text": "村庄已作出选择，新一轮黑夜即将降临。",
+      "duration": 3.355,
+      "bytes": 38771
+    },
+    "discussion-classic": {
+      "text": "所有人请睁眼，讨论昨夜留下的线索。",
+      "duration": 3.099,
+      "bytes": 35901
+    },
+    "discussion-quick": {
+      "text": "开始讨论，找出狼人藏在哪里。",
+      "duration": 2.405,
+      "bytes": 29373
+    },
+    "ended-village": {
+      "text": "村庄获胜，真相终于浮现。",
+      "duration": 2.455,
+      "bytes": 29828
+    },
+    "ended-wolves": {
+      "text": "狼人获胜，今夜属于群狼。",
+      "duration": 2.26,
+      "bytes": 27485
+    },
+    "ended-draw": {
+      "text": "月下平局，这个故事等待下一夜继续。",
+      "duration": 3.135,
+      "bytes": 36049
+    }
+  }
+}

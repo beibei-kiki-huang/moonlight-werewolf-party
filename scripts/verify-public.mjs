@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { io } from 'socket.io-client';
 
 // An explicit, real-network acceptance test. Never imported by the deployed app.
@@ -101,8 +102,23 @@ async function quick() {
   console.log('PASS quick: both public clients completed the duel with identical results and center-card reveal.');
 }
 const heartbeat = setInterval(() => console.log('Public playtest is following normal game timers…'), 45_000);
+async function audioAssets() {
+  const manifest = JSON.parse(await readFile(new URL('../design/approved-audio/narration-manifest.json', import.meta.url), 'utf8'));
+  await Promise.all(Object.entries(manifest).flatMap(([lang, clips]) => Object.entries(clips).map(async ([key, clip]) => {
+    const response = await fetch(`${url}/audio/narration/${lang}/${key}.m4a`);
+    assert.equal(response.status, 200);
+    const bytes = Buffer.from(await response.arrayBuffer());
+    assert.equal(bytes.length, clip.bytes); assert.equal(bytes.toString('ascii', 4, 8), 'ftyp');
+  })));
+  const music = await fetch(`${url}/audio/evening-fall-piano.m4a`);
+  assert.equal(music.status, 200);
+  assert.equal(Buffer.from(await music.arrayBuffer()).toString('ascii', 4, 8), 'ftyp');
+  const credits = await fetch(`${url}/audio/CREDITS.txt`);
+  assert.equal(credits.status, 200); assert.match(await credits.text(), /Kevin MacLeod[\s\S]*creativecommons.org\/licenses\/by\/4.0/);
+  console.log('PASS audio assets: approved piano, all 28 bilingual recordings and attribution served publicly.');
+}
 try {
   const response = await fetch(`${url}/api/health`); assert.equal(response.status, 200);
   assert.equal((await response.json()).status, 'ok');
-  await Promise.all([classic(), quick()]); console.log('ALL PUBLIC ACCEPTANCE CHECKS PASSED.');
+  await Promise.all([classic(), quick(), audioAssets()]); console.log('ALL PUBLIC ACCEPTANCE CHECKS PASSED.');
 } finally { clearInterval(heartbeat); sockets.forEach(s => s.disconnect()); }

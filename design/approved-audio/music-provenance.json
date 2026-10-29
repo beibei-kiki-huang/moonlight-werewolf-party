@@ -1,0 +1,29 @@
+{
+  "title": "Evening Fall (Piano)",
+  "artist": "Kevin MacLeod",
+  "publisher": "incompetech.com",
+  "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100235",
+  "download": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Evening%20Fall%20-%20Piano.mp3",
+  "license": "CC BY 4.0 as stated by the current official catalogue/licensing page",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "licensing_page": "https://incompetech.com/music/royalty-free/licenses/",
+  "catalogue": {
+    "title": "Evening Fall (Piano)",
+    "filename": "Evening Fall - Piano.mp3",
+    "length": "00:02:45",
+    "instruments": "Piano",
+    "genre": "5",
+    "bpm": null,
+    "description": "Impromptu",
+    "feel": "Dark, Calming, Eerie",
+    "uploaded": "2005-01-01",
+    "isrc": "USUAN1100235",
+    "collection": "20",
+    "sheetmusic": null,
+    "video": null,
+    "itunes": "https://itunes.apple.com/us/album/evening-fall-piano/id945137818?i=945137825",
+    "filmmusicURL": "https://incompetech.filmmusic.io/song/3721-evening-fall-piano/"
+  },
+  "sha256": "5195c266275c694f9186dceb23e667c45ed74767d97f6615df01021fed3f048e",
+  "status": "Approved softer piano direction; production excerpt 00:04–00:30 with level adjustment and fades."
+}

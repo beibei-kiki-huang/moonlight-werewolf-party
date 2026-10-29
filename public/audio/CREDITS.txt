@@ -1,0 +1,13 @@
+Music: Evening Fall (Piano) by Kevin MacLeod (incompetech.com)
+Source: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100235
+Licensed under Creative Commons Attribution 4.0:
+https://creativecommons.org/licenses/by/4.0/
+Changes: 26-second excerpt (00:04–00:30), level adjustment, fade-in/out.
+
+English and Simplified Chinese narration: fixed original Moonlight phase scripts,
+rendered offline with the approved MeloTTS voices. Model copyright (c) 2024 MyShell.ai;
+MIT model notice retained in MELOTTS-LICENSE.txt. No reference voice cloning.
+Sources: https://github.com/myshell-ai/MeloTTS
+https://huggingface.co/csukuangfj/vits-melo-tts-en
+https://huggingface.co/csukuangfj/vits-melo-tts-zh_en
+Offline renderer: https://github.com/k2-fsa/sherpa-onnx (not shipped with game).

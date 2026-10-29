@@ -13,7 +13,7 @@ A real multiplayer Werewolf game for friends. Each player joins from their own b
 - Role privacy is enforced on the server. Browsers never receive the complete room state. Private actions and votes are sent only to authorized players; the public receives no submission counters.
 - Choose a vote locally, then confirm it. The final living player's confirmation resolves voting immediately in both modes; otherwise the deadline applies. A confirmed vote remains valid until a replacement is confirmed while voting is still open. Offline living seats count; eliminated seats do not.
 - Classic has a shared five-second nightfall, fixed wolf/Seer/Witch slots, neutral waiting screens, and public dawn results. Hidden action completion never shortens a night slot.
-- Optional English/Simplified Chinese browser narration and locally generated background ambience. Enable Sound explicitly on each device; narration and ambience have separate settings. Matching voices depend on the device/browser; written public guidance is always available. Audio never advances or blocks gameplay.
+- Optional prerecorded English/Simplified Chinese narration and quiet licensed piano music. Enable Sound explicitly on each device; narration and music have separate toggles and volume sliders. Browser speech is a fallback; written public guidance is always available. Audio never advances or blocks gameplay.
 
 ## Run locally
 
@@ -80,7 +80,7 @@ The presentation update adds four original character portraits, a private collec
 
 Rollback tag: `pre-flow-narrator-20261028` points to the working illustrated edition before this update. Commit `aa56453` separately checkpoints the tested P0 vote/night changes before audio.
 
-`shared/publicPhase.ts` contains the bilingual public script. `client/audio.ts` accepts only public scene metadata; it cannot see roles, investigations, potions, victims or vote confirmations. All night slots and scripts play even if the role is eliminated. Audio is optional and uses browser APIs only, with no uploaded recordings, external assets, service credentials, or paid APIs. Voices and autoplay behavior vary across platforms. Refresh retains sound preferences but requires Enable Sound again. Hidden/disconnected tabs stop current cues; returning uses the current phase rather than replaying a backlog.
+`shared/publicPhase.ts` contains the bilingual public script. `client/audio.ts` accepts only public scene metadata; it cannot see roles, investigations, potions, victims or vote confirmations. All night slots and scripts play even if the role is eliminated. Audio is optional. Approved recordings are served as static assets with the game, with native browser speech as a fallback. No service credentials, runtime voice models or paid APIs are used. Autoplay behavior varies across platforms. Refresh retains sound preferences but requires Enable Sound again. Hidden/disconnected tabs stop current cues; returning uses the current phase rather than replaying a backlog.
 
 ## Cross-Language Quick Chat
 
@@ -89,3 +89,13 @@ Rollback checkpoint: `pre-quick-chat-20261028` (working commit `623a8fb`). The t
 Quick Chat uses the same temporary room history, sender identity, phase/alive permissions, 80-message cap and shared five-messages-per-ten-seconds quota as free text. It adds no role-based suggestions, target parameters, translation service, accounts or permanent messaging. The learning view expands locally and does not send or modify messages. Sending a preset retains the typed draft. Ordinary chat remains untranslated.
 
 This is the competition proof of concept for **Moonlight — Play Beyond Borders**, a future game-first space for cross-cultural connection. Matchmaking, accounts, friend requests, persistent messages and live voice remain outside this MVP.
+
+## Approved sound refinement
+
+Rollback tag: `pre-approved-audio-20261028` at `26d2a69`. The user approved both MeloTTS preview voices and the softer piano direction after rejecting synthesized drones/heartbeat/noise. Those synthesized backgrounds have been removed.
+
+The 28 short AAC narration clips use the unchanged public script in English and Simplified Chinese. They were rendered offline from MIT-licensed MeloTTS models; neither models nor renderer are game dependencies. The approved 26-second excerpt of **Evening Fall (Piano)** by **Kevin MacLeod** is licensed **CC BY 4.0**, with attribution and modification notice in Audio settings and `public/audio/CREDITS.txt`. Model notices, the narration manifest and the offline reproduction recipe are retained.
+
+One approved piano recording is reused with quiet phase-based levels, reduced further during discussion and ducked during narration. Results use a brief excerpt and faction-specific spoken cue, rather than introducing unreviewed music. Public phase accents vary subtly from crimson/charcoal through silver-blue and muted gold to warm discussion and burgundy voting. Existing illustrations are unchanged.
+
+Sound remains off until a user gesture on every page load. Music defaults off; saved settings are local. Cues cancel on phase/language change, mute, hidden tab or disconnect. Delayed loads cannot start stale narration, announcements do not overlap, and failed loads never delay the server. Only public phase metadata selects recordings, colors and levels. The full audio pack is under 3 MB and loads on demand.

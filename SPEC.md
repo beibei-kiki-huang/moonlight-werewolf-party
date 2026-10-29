@@ -4,7 +4,7 @@ Updated October 28, 2026. Build order: real multiplayer Classic → public test 
 
 ## Product
 
-Private browser party game, no player accounts or installs. Shareable six-character codes and links, 2–20 character unique nicknames, 5–8-player Classic, required two-player Quick follow-up. English and Simplified Chinese, independently selected per device. Mobile-first moonlit blue/purple interface, private tap-to-reveal role cards, concise phase instructions. Basic discussion chat enables remote play; live voice chat, advanced chat, and elaborate animation are deferred. Optional public browser narration and quiet synthesized ambience are available.
+Private browser party game, no player accounts or installs. Shareable six-character codes and links, 2–20 character unique nicknames, 5–8-player Classic, required two-player Quick follow-up. English and Simplified Chinese, independently selected per device. Mobile-first moonlit blue/purple interface, private tap-to-reveal role cards, concise phase instructions. Basic discussion chat enables remote play; live voice chat, advanced chat, and elaborate animation are deferred. Optional prerecorded public narration and quiet licensed piano music are available.
 
 ## Classic
 
@@ -57,7 +57,7 @@ Advanced restart recovery, host migration, 3–4-player Quick, live voice/video 
 
 Every Classic night includes the same full-length nightfall/wolves/Seer/Witch sequence, even for eliminated roles. Only authorized living players see their own action controls. Other seats get a neutral waiting screen. Public narration, text, and ambience depend only on phase, day, mode, deadline and public winner, never hidden role ownership, completion, actions or victims. Dawn results retain the existing simultaneous resolution and victory rules.
 
-Each device must explicitly Enable Sound. Narration uses its interface language and matching native browser voices, with written guidance if unavailable or blocked. Mute and separate narration/background toggles are available; background volume is quiet and adjustable. Original ambience is synthesized locally with Web Audio. Phase changes, disconnects and hidden tabs cancel stale cues. Refresh requires activation again. No audio may block or advance gameplay.
+Each device must explicitly Enable Sound. Narration uses approved English/Simplified Chinese static recordings, with matching native browser voices as a fallback and written guidance if unavailable or blocked. Mute, separate narration/background toggles and independent volume sliders are available. The approved licensed piano excerpt plays quietly and ducks during narration; model and music attribution notices ship with the game. No runtime TTS service or model is required. Phase changes, disconnects and hidden tabs cancel stale cues. Refresh requires activation again. No audio may block or advance gameplay.
 
 ## Cross-Language Quick Chat (approved bounded addition)
 

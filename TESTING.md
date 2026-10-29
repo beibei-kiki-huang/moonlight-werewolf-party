@@ -62,3 +62,11 @@ The free server can sleep or restart, which ends rooms. Refresh recovery is same
 - Mobile widths 390px and 320px verified without horizontal overflow; all ten phrase buttons kept at least 44px tap height. Equivalent-language text starts collapsed. No browser warnings/errors during review.
 - Existing gameplay, private roles, night actions, confirmed voting, narration and illustrations remain covered by the full regression suite. Public acceptance now exercises Quick Chat and free text alongside full Classic and Duel matches with normal production clocks.
 - Full two-browser Duel completed after sending a preset during discussion. Quick Chat disappeared and free-text sending was disabled during voting; both clients received the same immediate village result after the final confirmation. The results screen restored normal chat permissions.
+
+## Approved recordings and atmosphere refinement (October 28)
+
+- Rollback checkpoint: `pre-approved-audio-20261028` (`26d2a69`). No game, protocol, dependency or hosting changes.
+- Current automated suite: **80 tests**; TypeScript and production build pass. Prior regression sections above record earlier checkpoints.
+- New checks cover all 28 EN/Chinese clip paths, script parity, AAC headers, fixed phase duration budgets, total asset budget and license notices. Mocked Web Audio tests cover opt-in, cached assets, live volume without repeated narration, ducking without restarting music, stale-load cancellation, clip failure with one native fallback, unavailable audio and improved Mandarin locale matching.
+- Independent local EN/Chinese browser seats plus three socket seats traverse fixed Classic night slots. The Chinese Witch sees her private controls while the English wolf sees a neutral screen. Narration settings show no native fallback/error during playback. Separate sliders remain usable on mobile; no horizontal overflow at 390px. Browser API checks cannot guarantee subjective audio quality or autoplay behavior on every physical phone.
+- Public acceptance must be rerun after deploying: normal-clock Classic and Duel with independent clients, private projections, chat, synchronized night/day, early confirmed voting and victory. The acceptance script also checks deployed music, bilingual narration files and attribution.

@@ -7,6 +7,7 @@ import './styles.css';
 import './polish.css';
 import './flow.css';
 import './quick-chat.css';
+import './atmosphere.css';
 import { DiscussionChat, NightSequence, Outcome, Portrait, RoleCard, VotingPanel } from './presentation';
 import { SoundControls } from './SoundControls';
 import '@fontsource/dm-sans/latin-400.css';
@@ -252,10 +253,10 @@ function App() {
       </section>
       <section className="cast-preview"><div className="cast-preview-heading"><div><p className="eyebrow">{tr('FOUR FACES OF THE NIGHT', '黑夜的四张面孔')}</p><h2>{tr('Everyone has another side.', '每个人，都有另一面。')}</h2></div><p>{tr('One village. Four roles. A thousand ways to keep a secret.', '一座村庄，四种身份，千百种守住秘密的方式。')}</p></div><div className="cast-preview-grid">{(Object.keys(roleNames) as Role[]).map(role => <div className={`cast-preview-card role-${role}`} key={role}><Portrait role={role} decorative /><div><span>{tr('THE', '身份')}</span><h3>{roleName(role)}</h3></div></div>)}</div></section>
       <section className="landing-bottom"><div><span className="section-kicker">01 / {tr('THE GATHERING', '集结')}</span><h3>{tr('One link. Everyone in.', '一条链接，好友齐聚。')}</h3><p>{tr('Join on your phone or computer. No downloads, no sign-ups.', '手机电脑都能加入，无需下载或注册。')}</p></div><div><span className="section-kicker">02 / {tr('THE SECRET', '秘密')}</span><h3>{tr('A role only you know.', '只有你知道的身份。')}</h3><p>{tr('The night has its own rules. Your private card shows the way.', '黑夜自有规则，你的身份牌将指引行动。')}</p></div><div><span className="section-kicker">03 / {tr('THE REVEAL', '揭晓')}</span><h3>{tr('Trust your instincts.', '相信你的直觉。')}</h3><p>{tr('Talk it through, cast your vote, and see who fooled whom.', '讨论推理，投出一票，看看谁骗过了谁。')}</p></div></section>
-    </main> : <main className={`game-shell phase-${view.phase}`}>
+    </main> : <main className={`game-shell phase-${view.phase} ${view.winner ? `result-${view.winner}` : ''}`}>
       <div className="table-heading"><div><p className="eyebrow">{view.mode === 'classic' ? tr('CLASSIC · 5–8 PLAYERS', '经典模式 · 5–8人') : tr('MOONLIGHT DUEL · 2 PLAYERS', '月光对决 · 2人')}</p><h1>{phaseNames[view.phase]}</h1></div><div className="room-code-block"><span>{tr('ROOM', '房间')}</span><button onClick={() => void copyRoom(false)}>{view.code}<Copy size={14} /></button><button className="icon-button" onClick={() => void copyRoom(true)} title={tr('Copy invitation link', '复制邀请链接')}><Link size={16} /></button></div></div>
       {!connected && <div className="notice reconnect"><WifiOff size={18} />{tr('Reconnecting… your seat and role are saved in this browser. Actions are disabled until connected.', '正在重连…此浏览器已保存你的座位与身份，连接恢复前无法操作。')}</div>}
-      <SoundControls scene={{ code: view.code, mode: view.mode, day: view.day, phase: view.phase, deadline: view.deadline, winner: view.winner }} language={lang} connected={connected} tr={tr} />
+      <SoundControls scene={{ code: view.code, mode: view.mode, day: view.day, phase: view.phase, deadline: view.deadline, winner: view.winner }} language={lang} connected={connected} tr={tr} clockOffset={offset.current} />
       {view.phase !== 'lobby' && view.phase !== 'ended' && <div className="phase-bar"><div className="phase-steps">{stageLabels.map((label, i) => <span key={label} className={currentStage === i ? 'current' : ''}><i>{i + 1}</i>{label}</span>)}</div><div className={`timer ${seconds <= 10 ? 'urgent' : ''}`} aria-label={tr('Time remaining', '剩余时间')}>{view.mode === 'classic' && <small>{tr(`DAY ${view.day}`, `第${view.day}天`)}</small>}<span>{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}</span></div></div>}
       {view.mode === 'classic' && (isNight || view.phase === 'dawn') && <NightSequence phase={view} language={lang} tr={tr} />}
       <div className="game-grid"><div className="main-column">

@@ -1,0 +1,21 @@
+/* Public phase accents only. Artwork, typography and private role cards retain their design. */
+.game-shell{--phase-accent:#c5b2da;--phase-wash:#24213d;--phase-edge:#bba4d13d}
+.phase-nightfall,.phase-wolves{--phase-accent:#d6a2b1;--phase-wash:#291a28;--phase-edge:#b87b914f}
+.phase-seer{--phase-accent:#c0deee;--phase-wash:#182a3a;--phase-edge:#a8d2e74d}
+.phase-witch{--phase-accent:#dac99e;--phase-wash:#292630;--phase-edge:#d2bd8248}
+.phase-dawn,.phase-discussion{--phase-accent:#e2d0b5;--phase-wash:#252231;--phase-edge:#d3bc9740}
+.phase-voting,.phase-verdict{--phase-accent:#d9a6bc;--phase-wash:#2d1b2d;--phase-edge:#c28aa24d}
+.result-village{--phase-accent:#ead6ac;--phase-wash:#282635;--phase-edge:#deca944d}
+.result-wolves{--phase-accent:#d7a1b1;--phase-wash:#2c1b2a;--phase-edge:#c17f984d}
+.result-draw{--phase-accent:#c7c6e0;--phase-wash:#23243a;--phase-edge:#b5b7d94d}
+.game-shell .phase-bar{border-color:var(--phase-edge);background:linear-gradient(120deg,var(--phase-wash),#15192c)}
+.game-shell .phase-steps .current,.game-shell .table-heading .eyebrow{color:var(--phase-accent)}
+.game-shell .night-sequence{border-color:var(--phase-edge);background:radial-gradient(ellipse at 50% -25%,var(--phase-wash),transparent 70%),linear-gradient(155deg,#151b2e,#141526)}
+.game-shell .night-moon{color:var(--phase-accent);border-color:var(--phase-edge);box-shadow:0 0 36px var(--phase-wash)}
+.game-shell .night-schedule li[aria-current]{color:var(--phase-accent)}
+.game-shell .night-schedule li[aria-current]>span{background:var(--phase-accent);box-shadow:0 0 10px var(--phase-edge)}
+.game-shell .phase-scene>.panel{border-color:var(--phase-edge);background:linear-gradient(145deg,var(--phase-wash),#151a2b 78%)}
+.game-shell .outcome-scene{border-color:var(--phase-edge)}
+.game-shell .outcome-copy .eyebrow{color:var(--phase-accent)}
+.sound-options .audio-credit{font-size:10px;line-height:1.8;overflow-wrap:anywhere}.audio-credit a{color:#d3c1e6;text-underline-offset:3px}
+@media(max-width:680px){.sound-options .audio-credit{font-size:10px}.audio-volume{flex-basis:100%;justify-content:space-between}.audio-volume input{width:48%;min-width:100px}}
