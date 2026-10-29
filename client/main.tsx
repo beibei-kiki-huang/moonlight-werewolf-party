@@ -10,6 +10,8 @@ import './quick-chat.css';
 import './atmosphere.css';
 import './submission.css';
 import { BeginnerGuide } from './BeginnerGuide';
+import {tabSeat,savedSeat as readSavedSeat,storeSeat,clearSeat} from './seatStorage';
+import {LobbyReadiness,lobbyBlockers} from './LobbyReadiness';
 import { PackChat } from './PackChat';
 import { WitchPanel } from './WitchPanel';
 import { DawnResult } from './DawnResult';
@@ -26,6 +28,7 @@ import '@fontsource/cormorant-garamond/latin-400-italic.css';
 
 type Lang = 'en' | 'zh';
 const errors: Record<ErrorCode, [string, string]> = {
+  seat_in_use: ['This seat is active in another tab. Join with a new nickname, or explicitly Resume to take control.', '此座位正在另一标签页使用。你可以用新昵称加入，或主动点击恢复来接管原座位。'],
   invalid: ['Please check your details and try again.', '请检查输入后重试。'],
   room_missing: ['This room has expired or the server restarted. Please create a new room.', '房间已过期或服务器已重启，请创建新房间。'],
   room_full: ['This table is full. Quick Mode seats exactly two.', '房间已满。快速模式仅限两人。'],
@@ -40,9 +43,6 @@ const errors: Record<ErrorCode, [string, string]> = {
   rate_limit: ['A little slower, moonwalker. Please wait a moment.', '请稍候再试。'],
   capacity: ['The server is full right now. Please try again shortly.', '服务器暂时已满，请稍后重试。'],
 };
-function readSeat(): Seat | null {
-  try { const seat = JSON.parse(localStorage.getItem('moonlight.seat') || 'null'); return seat?.code && seat?.token && seat?.playerId ? seat : null; } catch { return null; }
-}
 function storedLanguage(): Lang { try { return localStorage.getItem('moonlight.lang') === 'zh' ? 'zh' : 'en'; } catch { return 'en'; } }
 const icons = { werewolf: Moon, villager: Shield, seer: Eye, witch: FlaskConical };
 const roleNames: Record<Role, [string, string]> = { werewolf: ['Werewolf', '狼人'], villager: ['Villager', '村民'], seer: ['Seer', '预言家'], witch: ['Witch', '女巫'] };
@@ -58,8 +58,8 @@ function App() {
   const tr = (en: string, zh: string) => lang === 'en' ? en : zh;
   const roleName = (role: Role) => roleNames[role][lang === 'en' ? 0 : 1];
   const socket = useRef<Socket | null>(null);
-  const seatRef = useRef<Seat | null>(readSeat());
-  const [savedSeat, setSavedSeat] = useState(seatRef.current);
+  const seatRef = useRef<Seat | null>(tabSeat());
+  const [savedSeat, setSavedSeat] = useState(seatRef.current || readSavedSeat());
   const [view, setView] = useState<GameView | null>(null);
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -77,6 +77,7 @@ function App() {
   const [now, setNow] = useState(Date.now());
   const offset = useRef(0);
   const currentRole = useRef<string>('');
+  const takeover=useRef(false);
   useEffect(() => { try { localStorage.setItem('moonlight.lang', lang); } catch {} document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'; }, [lang]);
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(timer); }, []);
   useEffect(() => { setTarget(''); setConfirm(null); }, [view?.phase, view?.day]);
@@ -95,15 +96,15 @@ function App() {
     s.on('connect', () => {
       setConnected(true); setConnecting(false);
       const seat = seatRef.current;
-      if (seat) s.timeout(10_000).emit('resume', seat, (err: Error | null, result: Reply) => {
+      if (seat) s.timeout(10_000).emit('resume', {...seat,takeover:takeover.current}, (err: Error | null, result: Reply) => {
         if (err) { setError('connection'); return; }
         if (!result.ok) {
           setError(result.error);
           if (result.error === 'room_missing' || result.error === 'unauthorized') {
-            seatRef.current = null; setSavedSeat(null); setView(null);
-            try { localStorage.removeItem('moonlight.seat'); } catch {}
+            clearSeat(seatRef.current);seatRef.current = null; setSavedSeat(null); setView(null);
           }
         } else setError(null);
+        takeover.current=false;
       });
     });
     s.on('pack_state', (pack: PackChatState) => {
@@ -120,7 +121,7 @@ function App() {
     });
     for (const event of ['replaced', 'removed', 'expired'] as const) s.on(event, () => {
       s.disconnect(); setError(event === 'expired' ? 'room_missing' : event); setView(null);
-      if (event !== 'replaced') { seatRef.current = null; setSavedSeat(null); try { localStorage.removeItem('moonlight.seat'); } catch {} }
+      if (event !== 'replaced') { clearSeat(seatRef.current);seatRef.current = null; setSavedSeat(null); }
     });
     const requestedRoom = new URLSearchParams(location.search).get('room')?.toUpperCase();
     // Returning from the isolated demo is a landing visit, never a seat takeover.
@@ -162,14 +163,15 @@ function App() {
       const seat = await request<Seat>(tab, tab === 'create' ? { name: name.trim(), mode } : { name: name.trim(), code: code.trim().toUpperCase() });
       if (seat) {
         seatRef.current = seat; setSavedSeat(seat);
-        try { localStorage.setItem('moonlight.seat', JSON.stringify(seat)); localStorage.setItem('moonlight.name', name.trim()); } catch { setToast(tr('Browser storage unavailable: keep this tab open.', '浏览器无法保存座位，请勿关闭此页面。')); }
+        try { storeSeat(seat); localStorage.setItem('moonlight.name', name.trim()); } catch { setToast(tr('Browser storage unavailable: keep this tab open.', '浏览器无法保存座位，请勿关闭此页面。')); }
         history.replaceState(null, '', `?room=${seat.code}`);
       }
     } catch { setError('connection'); }
     finally { setConnecting(false); }
   }
   function resume() {
-    if (!savedSeat) return; setError(null); seatRef.current = savedSeat;
+    if (!savedSeat) return; setError(null); seatRef.current = savedSeat;takeover.current=true;
+    try{storeSeat(savedSeat)}catch{}
     setConnecting(true); socket.current!.disconnect(); socket.current!.connect();
     history.replaceState(null, '', `?room=${savedSeat.code}`);
   }
@@ -283,12 +285,12 @@ function App() {
         {view.phase === 'lobby' ? <section className="panel lobby-panel"><div className="lobby-moon"><Moon size={38} strokeWidth={1} /></div><p className="eyebrow">{tr('A FEW FRIENDS. A LITTLE SUSPICION.', '好友相聚，推理开局。')}</p><h2>{tr('Make room for mystery', '集结好友，准备开局')}</h2><p>{tr('Share your invitation. Everyone chooses Ready, then the host begins the story.', '分享邀请，所有玩家点击准备后，由房主开始游戏。')}</p>
           <button className="button secondary" onClick={() => void copyRoom(true)}><Copy size={16} />{tr('Copy invitation link', '复制邀请链接')}</button>
           <div className="lobby-composition">{view.mode === 'classic' ? <><span><Moon size={17} />{view.players.length >= 7 ? '2' : '1'} {tr('Werewolf', '狼人')}</span><span><Eye size={17} />1 {tr('Seer', '预言家')}</span><span><FlaskConical size={17} />1 {tr('Witch', '女巫')}</span><span><Shield size={17} />{tr('Remaining villagers', '其余为村民')}</span></> : <span>{tr('1 Werewolf + 2 Villagers · one card hidden in the center', '1张狼人 + 2张村民 · 一张牌藏在中央')}</span>}</div>
-          <div className="lobby-actions"><button className={`button ${me?.ready ? 'secondary' : 'primary'}`} disabled={pending || !connected} onClick={() => void request('ready', { ready: !me?.ready })}>{me?.ready ? <Check size={18} /> : <Shield size={18} />}{me?.ready ? tr('Ready · undo', '已准备 · 取消') : tr('I’m ready', '我准备好了')}</button>{isHost && <button className="button primary" disabled={pending || !connected || view.players.some(p => !p.ready || !p.connected) || (view.mode === 'classic' ? view.players.length < 5 : view.players.length !== 2)} onClick={() => void request('start', {})}>{tr('Begin the story', '开始故事')}<ArrowRight size={17} /></button>}</div>
-          <p className="muted small">{view.players.length < (view.mode === 'classic' ? 5 : 2) ? tr(`Waiting for ${Math.max(0, (view.mode === 'classic' ? 5 : 2) - view.players.length)} more player(s).`, `还需要${Math.max(0, (view.mode === 'classic' ? 5 : 2) - view.players.length)}位玩家。`) : tr('Everyone must be online and ready to start.', '所有玩家需在线并准备。')}</p>
+          <div className="lobby-actions"><button className={`button ${me?.ready ? 'secondary' : 'primary'}`} disabled={pending || !connected} onClick={() => void request('ready', { ready: !me?.ready })}>{me?.ready ? <Check size={18} /> : <Shield size={18} />}{me?.ready ? tr('Ready · undo', '已准备 · 取消') : tr('I’m ready', '我准备好了')}</button>{isHost && <button className="button primary" disabled={lobbyBlockers(view,connected,pending,tr).length>0} onClick={() => void request('start', {})}>{tr('Begin the story', '开始故事')}<ArrowRight size={17} /></button>}</div>
+          <LobbyReadiness view={view} connected={connected} pending={pending} tr={tr}/>
           {isHost && <div className="host-settings"><label htmlFor="lobby-mode">{tr('Game mode', '游戏模式')}</label><select id="lobby-mode" value={view.mode} disabled={pending || !connected} onChange={e => void request('mode', { mode: e.target.value })}><option value="classic">{tr('Classic · 5–8 players', '经典模式 · 5–8人')}</option><option value="quick" disabled={view.players.length > 2}>{tr('Moonlight Duel · 2 players', '月光对决 · 2人')}</option></select></div>}
           <p className="small muted">{tr('Refresh restores your seat. If the host leaves, return in the same browser. Server restarts end rooms in this early version.', '刷新可恢复座位。房主离线后需使用原浏览器返回。本测试版本在服务器重启后会结束房间。')}</p>
         </section> : <>{publishedDawn(view) && <DawnResult event={publishedDawn(view)!} tr={tr} roleName={roleName} />}<div className="phase-scene" key={`${view.day}-${view.phase}`}>{actionPanel()}</div>{seconds > 0 && view.phase === 'wolves' && view.packChat && <PackChat key={view.code+view.packChat.stageId} view={view} connected={connected} language={lang} tr={tr} send={sendPack}/>} {view.phase === 'discussion' && discussionChat()}{view.phase !== 'ended' && (view.phase === 'discussion' ? <details className="private-pocket"><summary><EyeOff size={16} />{tr('Your private character card', '你的秘密身份牌')}<ChevronRight size={16} /></summary>{roleCard()}</details> : roleCard())}{view.phase !== 'ended' && view.phase !== 'reveal' && !!view.events.length && <section className="panel journal"><p className="eyebrow">{tr('THE STORY SO FAR', '故事进展')}</p>{view.events.slice(-4).map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}{view.phase === 'ended' && <section className="panel journal"><p className="eyebrow">{tr('A NIGHT TO REMEMBER', '今夜回顾')}</p>{view.events.map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}</>}
-      </div><aside className="side-column"><section className="panel players-panel"><div className="panel-title"><h3><Users size={17} />{tr('At the table', '牌桌上的玩家')}</h3><span>{view.players.length}/{view.mode === 'classic' ? 8 : 2}</span></div><div className="player-list">{view.players.map(p => <div className={`player-row ${!p.alive ? 'eliminated' : ''}`} key={p.id}><span className={`avatar ${p.id === view.youId ? 'you-avatar' : ''}`}>{p.name.slice(0, 1).toUpperCase()}<i className={p.connected ? 'online-dot' : 'offline-dot'} /></span><div><strong>{p.name}{p.id === view.youId && <small> {tr('(you)', '(你)')}</small>}</strong><span>{p.role ? roleName(p.role) : p.id === view.hostId ? tr('Host', '房主') : p.connected ? tr('At the table', '已入座') : tr('Reconnecting', '等待重连')}{!p.alive && ` · ${tr('Eliminated', '已出局')}`}</span></div>{view.phase === 'lobby' && p.ready && <Check className="ready-check" size={17} />}{view.phase === 'lobby' && isHost && p.id !== view.youId && <button className="icon-button remove-player" title={tr('Remove from lobby', '移出大厅')} disabled={pending || !connected} onClick={() => void request('remove', { playerId: p.id })}><X size={14} /></button>}</div>)}</div><div className="connection-status">{connected ? <Wifi size={13} /> : <WifiOff size={13} />}{connected ? tr('Live · synchronized with the table', '实时 · 已与牌桌同步') : tr('Connection interrupted', '连接已中断')}</div></section>
+      </div><aside className="side-column"><section className="panel players-panel"><div className="panel-title"><h3><Users size={17} />{tr('At the table', '牌桌上的玩家')}</h3><span>{view.players.length}/{view.mode === 'classic' ? 8 : 2}</span></div><div className="player-list">{view.players.map(p => <div className={`player-row ${!p.alive ? 'eliminated' : ''}`} key={p.id}><span className={`avatar ${p.id === view.youId ? 'you-avatar' : ''}`}>{p.name.slice(0, 1).toUpperCase()}<i className={p.connected ? 'online-dot' : 'offline-dot'} /></span><div><strong>{p.name}{p.id === view.youId && <small> {tr('(you)', '(你)')}</small>}</strong><span>{view.phase==='lobby' ? `${p.id===view.hostId?tr('Host · ','房主 · '):''}${!p.connected?tr('Offline','已离线'):p.ready?tr('Ready','已准备'):tr('Not ready','未准备')}` : p.role ? roleName(p.role) : p.id === view.hostId ? tr('Host', '房主') : p.connected ? tr('At the table', '已入座') : tr('Reconnecting', '等待重连')}{!p.alive && ` · ${tr('Eliminated', '已出局')}`}</span></div>{view.phase === 'lobby' && p.ready && <Check className="ready-check" size={17} />}{view.phase === 'lobby' && isHost && p.id !== view.youId && <button className="icon-button remove-player" title={tr('Remove from lobby', '移出大厅')} disabled={pending || !connected} onClick={() => void request('remove', { playerId: p.id })}><X size={14} /></button>}</div>)}</div><div className="connection-status">{connected ? <Wifi size={13} /> : <WifiOff size={13} />}{connected ? tr('Live · synchronized with the table', '实时 · 已与牌桌同步') : tr('Connection interrupted', '连接已中断')}</div></section>
         {showChat && view.phase !== 'discussion' && discussionChat()}
         {isNight && <div className="night-note"><Moon size={18} /><p>{tr('Night actions stay private. The table chat returns at dawn.', '夜间行动保密，黎明后恢复聊天。')}</p></div>}
       </aside></div>

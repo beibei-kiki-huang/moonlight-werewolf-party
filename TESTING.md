@@ -105,3 +105,10 @@ The free server can sleep or restart, which ends rooms. Refresh recovery is same
 - Reconnection recovers current history only for authorized living wolves. Dead-seat reconnect, phase closure, deadline-boundary sends, next-night and rematch stage IDs, and stale duplicate packets are denied or have no history. Public chat still rejects night sends.
 - Eight independent local clients (two browser teammates, six socket guests): Chinese 390px and English desktop free text, localized presets, refresh recovery, independent attack choices, and removal of messages on stage exit and subsequent refresh were checked through the UI. No browser warnings/errors.
 - Public acceptance must complete after deployment: ordinary five-player Classic, Duel and the new seven-player pack match. Human/physical-phone validation remains a separate manual requirement.
+
+## P0 Classic start reliability — October 29
+
+- Reproduced in the deployed browser: opening the invitation in a second same-origin tab silently resumed the host's globally saved seat, displaced the first tab, and left the lobby at one player.
+- Fixed with per-tab session credentials, explicit saved-seat recovery, server protection against passive takeovers, exact public readiness blockers and no-op mode selection preserving Ready. Stale seats remain removable by the host; all living connected/ready requirements stay server enforced.
+- 140 tests pass, including full independent-socket Classic victories at 5/6/7/8, unready/offline/nonhost denial, passive/explicit takeover and storage isolation.
+- Actual same-origin browser UI starts at 5/6/7/8 all enabled correctly. Five-browser game completed with village victory, and refresh preserved an independent participant. Test-only action windows are longer than production for manual browser review.

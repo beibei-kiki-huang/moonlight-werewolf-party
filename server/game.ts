@@ -72,6 +72,7 @@ export class Game {
     this.host(room, id);
     if (room.phase !== 'lobby') fail('wrong_phase');
     if (mode === 'quick' && room.players.length > 2) fail('room_full');
+    if(room.mode===mode)return;
     room.mode = mode; room.players.forEach(p => p.ready = false); this.touch(room, now);
   }
   start(room: Room, id: string, now: number) {

@@ -127,11 +127,12 @@ export function createApp(game = new Game()) {
       credentials.set(player.id, token); bind(socket, room, player.id);
       return { code, playerId: player.id, token };
     });
-    handle('resume', z.object({ code: codeSchema, playerId: idSchema, token: z.string().regex(/^[a-f0-9]{64}$/) }), ({ code, playerId, token }) => {
+    handle('resume', z.object({ code: codeSchema, playerId: idSchema, token: z.string().regex(/^[a-f0-9]{64}$/), takeover:z.boolean().optional() }), ({ code, playerId, token, takeover }) => {
       limit(`resume:${ip}`, 120, 60_000);
       const room = rooms.get(code); if (!room) throw new GameError('room_missing');
       const secret = credentials.get(playerId);
       if (!secret || !room.players.some(p => p.id === playerId) || !timingSafeEqual(Buffer.from(token), Buffer.from(secret))) throw new GameError('unauthorized');
+      if (takeover===false && connections.has(playerId) && connections.get(playerId)!==socket.id) throw new GameError('seat_in_use');
       if (game.tick(room, Date.now())) emitViews(room);
       bind(socket, room, playerId); return undefined;
     });
