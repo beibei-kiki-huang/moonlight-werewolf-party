@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, ChevronDown, Eye, EyeOff, FlaskConical, Hourglass, Languages, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Eye, EyeOff, FlaskConical, Hourglass, Languages, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote, Sunrise } from 'lucide-react';
 import type { ChatMessage, GameView, PublicPlayer, Role } from '../shared/types';
 import { phaseScript, type Language, type PublicPhase } from '../shared/publicPhase';
 import { isQuickPhraseId, QUICK_PHRASES, QUICK_PHRASE_IDS, type QuickPhraseId } from '../shared/quickChat';
@@ -9,7 +9,7 @@ export function NightSequence({ phase, language, tr }: { phase: PublicPhase; lan
   const slots = ['nightfall', 'wolves', 'seer', 'witch', 'dawn'];
   const labels = [tr('Nightfall', '入夜'), tr('Wolves', '狼人'), tr('Seer', '预言家'), tr('Witch', '女巫'), tr('Dawn', '黎明')];
   return <section className={`night-sequence ${phase.phase === 'dawn' ? 'is-dawn' : ''}`} aria-label={tr('Public night guidance', '公开夜间引导')}>
-    <div className="night-moon" aria-hidden="true"><Moon size={38} strokeWidth={1} /></div>
+    <div className="night-moon" aria-hidden="true">{phase.phase === 'dawn' ? <Sunrise size={38} strokeWidth={1} /> : <Moon size={38} strokeWidth={1} />}</div>
     <p className="eyebrow">{tr('THE VOICE OF THE VILLAGE', '村庄之声')}</p>
     <p className="night-script" role="status">{phaseScript(phase, language)}</p>
     <ol className="night-schedule">{slots.map((slot, i) => <li key={slot} aria-current={phase.phase === slot ? 'step' : undefined}><span />{labels[i]}</li>)}</ol>
@@ -63,13 +63,13 @@ export function RoleCard({ view, visible, onToggle, tr, roleName }: { view: Game
       {visible ? <button className="button secondary hide-role" onClick={onToggle}><EyeOff size={16} />{tr('Hide my role', '隐藏身份')}</button>
         : <p className="card-privacy-hint"><Shield size={14} />{tr('Your card is private. Even the host cannot see it.', '你的身份保密，房主也无法查看。')}</p>}
       {visible && role === 'werewolf' && view.mode === 'classic' && <div className="private-note"><Moon size={14} />{tr('Your pack: ', '你的狼队：')}{view.players.filter(p => view.wolfTeam?.includes(p.id) && p.id !== view.youId).map(p => p.name).join(', ') || tr('You hunt alone.', '你是独狼。')}</div>}
-      {visible && role === 'seer' && !!view.investigations?.length && <div className="private-note">{view.investigations.map(i => <p key={i.day}>{tr(`Night ${i.day}`, `第${i.day}夜`)} · {i.name}: <strong>{i.isWolf ? tr('Werewolf', '狼人阵营') : tr('Not Werewolf', '好人阵营')}</strong></p>)}</div>}
+      {visible && role === 'seer' && !!view.investigations?.length && <div className="private-note">{view.investigations.map(i => <p key={i.day}>{tr(`Night ${i.day}`, `第${i.day}夜`)} · {i.name}: <strong>{i.isWolf ? tr('Werewolf Team', '狼人阵营') : tr('Good Team', '好人阵营')}</strong></p>)}</div>}
     </div>
   </section>;
 }
 
 function choiceName(value: string | undefined, view: GameView, tr: Translate) {
-  return value === 'skip' ? tr('Skip elimination', '跳过放逐') : value === 'other'
+  return value === 'skip' ? tr('Abstain', '弃票') : value === 'other'
     ? tr('The other player', '另一名玩家') : value === 'center' ? tr('The center card', '中央身份牌')
     : view.players.find(p => p.id === value)?.name || '';
 }
@@ -82,7 +82,7 @@ export function VotingPanel({ view, eligible, selected, onSelect, onConfirm, dis
   const saved = view.acted && !changed;
   const quick = view.mode === 'quick';
   const choices = quick ? [{ id: 'other', name: tr('The other player', '另一名玩家'), note: view.players.find(p => p.id !== view.youId)?.name }, { id: 'center', name: tr('The center card', '中央身份牌'), note: tr('An untouched secret', '无人触碰的秘密') }]
-    : [...eligible.map(p => ({ id: p.id, name: p.name, note: tr('At the table', '牌桌上的玩家') })), { id: 'skip', name: tr('Skip elimination', '跳过放逐'), note: tr('Let everyone live another night', '让所有人再度迎接黑夜') }];
+    : [...eligible.map(p => ({ id: p.id, name: p.name, note: tr('At the table', '牌桌上的玩家') })), { id: 'skip', name: tr('Abstain', '弃票'), note: tr('Cast no accusation', '不指认任何玩家') }];
   return <section className="panel voting-panel">
     <div className="section-heading"><span className="section-icon"><Vote size={23} /></span><div><p className="eyebrow">{tr('THE MOMENT OF TRUTH', '真相时刻')}</p><h2>{quick ? tr('Where is the wolf?', '狼人在哪里？') : tr('Who do you believe?', '你会相信谁？')}</h2></div></div>
     <p className="voting-intro">{quick ? tr('A face across the table, or a card in the dark. Make your accusation.', '是对面的那个人，还是暗藏的中央牌？作出你的指认。') : tr('Choose a suspect, or give the village another night. Your ballot stays secret until the reveal.', '选择嫌疑人，或让村庄再等一夜。揭晓前，你的选票始终保密。')}</p>

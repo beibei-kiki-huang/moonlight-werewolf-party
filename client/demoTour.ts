@@ -12,6 +12,12 @@ export class GuidedTour {
   cardOpen: boolean | null = null; phrase: 'hello' | 'suspect' | 'explain_again' = 'suspect';
   phraseSent = false; equivalent = false; selected: DemoChoice | null = null; confirmed: DemoChoice | null = null;
   witchOpen = false; witchChoice: 'heal'|'poison'|'pass'|null = null;
+  seerOpen = false; wolfOpen = false; mainClueOpen = false;
+  seerTarget: DemoChoice | null = null; seerConfirmed: DemoChoice | null = null; seerClueOpen = false;
+  wolfTarget: 'kai'|'rui'|'mei'|'sam'|'lin'|null = null; wolfResolved = false;
+  get exampleOpen() { return this.witchOpen || this.seerOpen || this.wolfOpen; }
+  get seerResult() { return this.seerConfirmed ? this.seerConfirmed === 'alex' ? 'wolves' : 'village' : null; }
+  get wolfVictim() { return this.wolfResolved && this.wolfTarget === 'kai' ? 'kai' : null; }
   get finished() { return this.elapsed >= DEMO_DURATION; }
   get step() { return DEMO_BOUNDARIES.filter(t => this.elapsed >= t).length - 1; }
   get revealed() { return this.cardOpen === true; }
@@ -22,7 +28,7 @@ export class GuidedTour {
   get witchDeaths(): string[] | undefined { return this.witchChoice === null ? undefined : this.witchChoice === 'heal' ? [] : this.witchChoice === 'poison' ? ['Kai','Rui'] : ['Kai']; }
   start() { this.started = true; this.paused = false; }
   tick(ms: number) {
-    if (!this.started || this.paused || this.witchOpen || this.finished || !Number.isFinite(ms) || ms <= 0) return;
+    if (!this.started || this.paused || this.exampleOpen || this.finished || !Number.isFinite(ms) || ms <= 0) return;
     const before = this.elapsed;
     this.elapsed = Math.min(DEMO_DURATION, this.elapsed + ms);
     // Scripted events commit explicit local state once; reviewing never rewinds consumption or choices.
@@ -31,18 +37,28 @@ export class GuidedTour {
     if (before < 43_000 && this.elapsed >= 43_000 && this.selected === null) this.selected = 'alex';
     if (before < 48_000 && this.elapsed >= 48_000 && this.confirmed === null) this.confirmed = this.selected ?? 'alex';
   }
-  next() { this.started = true; this.paused = true; this.witchOpen = false; this.elapsed = DEMO_BOUNDARIES[this.step + 1] ?? DEMO_DURATION; }
-  previous() { if (this.step === 0) return; this.started = true; this.paused = true; this.witchOpen = false; this.elapsed = DEMO_BOUNDARIES[this.step - 1]; }
-  togglePause() { if (this.started && !this.finished && !this.witchOpen) this.paused = !this.paused; }
+  closeExamples() { this.witchOpen = false; this.seerOpen = false; this.wolfOpen = false; this.seerClueOpen = false; this.mainClueOpen = false; this.paused = true; }
+  next() { this.started = true; this.closeExamples(); this.elapsed = DEMO_BOUNDARIES[this.step + 1] ?? DEMO_DURATION; }
+  previous() { if (this.step === 0) return; this.started = true; this.closeExamples(); this.elapsed = DEMO_BOUNDARIES[this.step - 1]; }
+  togglePause() { if (this.started && !this.finished && !this.exampleOpen) this.paused = !this.paused; }
   select(choice: DemoChoice) { if (this.step === 3 && !this.sealed) this.selected = choice; }
   confirm() { if (this.step === 3 && this.ballot && !this.sealed) { this.confirmed = this.ballot; this.paused = true; this.elapsed = 53_000; } }
-  openWitch() { if (this.step === 1) { this.witchOpen = true; this.paused = true; } }
+  openWitch() { if (this.step === 1) { this.closeExamples(); this.witchOpen = true; } }
   closeWitch() { this.witchOpen = false; this.paused = true; }
   chooseWitch(choice: 'heal'|'poison'|'pass') { if (this.witchOpen && this.witchChoice === null) this.witchChoice = choice; }
   resetWitch() { this.witchChoice = null; this.paused = true; }
+  openSeer() { if (this.step === 1) { this.closeExamples(); this.seerOpen = true; } }
+  selectSeer(target: DemoChoice) { if (this.seerOpen && !this.seerConfirmed && SAMPLE_PLAYERS.some(p=>p.id===target)) this.seerTarget=target; }
+  confirmSeer() { if (this.seerOpen && this.seerTarget && !this.seerConfirmed) { this.seerConfirmed=this.seerTarget; this.seerClueOpen=true; } }
+  resetSeer() { this.seerTarget=null; this.seerConfirmed=null; this.seerClueOpen=false; }
+  openWolf() { if (this.step === 1) { this.closeExamples(); this.wolfOpen=true; } }
+  selectWolf(target: string) { if (this.wolfOpen && !this.wolfResolved && (target==='kai'||target==='rui'||target==='mei'||target==='sam'||target==='lin')) this.wolfTarget=target; }
+  resolveWolf() { if (this.wolfOpen && this.wolfTarget) this.wolfResolved=true; }
+  resetWolf() { this.wolfTarget=null; this.wolfResolved=false; }
   replay() {
     this.elapsed = 0; this.started = false; this.paused = false; this.cardOpen = null;
     this.phrase = 'suspect'; this.phraseSent = false; this.equivalent = false; this.selected = null; this.confirmed = null;
     this.witchOpen = false; this.witchChoice = null;
+    this.seerOpen=false; this.wolfOpen=false; this.mainClueOpen=false; this.resetSeer(); this.resetWolf();
   }
 }

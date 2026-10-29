@@ -88,3 +88,10 @@ The free server can sleep or restart, which ends rooms. Refresh recovery is same
 - The 32 fixed bilingual recordings match their manifests and published scripts, remain within timing/loading budgets, and preserve existing attribution.
 - Previous/Next preserve selections and pause playback; Replay clears all state; the separate fictional Witch exercise verifies all three actions. Compiled demo remains isolated from multiplayer transport and credential storage.
 - Local production-style UI checks cover private Witch confirmation and refresh, neutral waiting on another English client, peaceful dawn, terminal-night results, mobile layouts and both demo languages. Final normal-clock public Classic/Duel acceptance is recorded after deployment.
+
+## Stage 1 role fidelity and terminology — October 29
+
+- Baseline checkpoint: pre-role-examples-20261029 (submission-final-20261029).
+- Independently passed 114 tests, TypeScript/production build and compiled demo isolation before any Pack Chat implementation.
+- Browser checks: both Seer factions, hide/reopen and fresh-example retry; Werewolf agreement/tie, teammate identity and valid targets; Witch retry/return; explicit Abstain confirmation with Previous preserving the ballot. Chinese 390px and English 320px have no overflow or browser warnings/errors.
+- Stage 1 does not alter server, protocol, attack resolution, voting payloads, role distribution, audio or artwork. Main-story clues are hidden until explicitly opened. Duel still has no abstention.
