@@ -2,7 +2,7 @@
 
 ## Verified October 28, 2026
 
-- 29 automated rules/privacy/socket tests passed; TypeScript and production build passed.
+- 58 automated rules/privacy/socket/presentation/audio tests passed; TypeScript and production build passed.
 - Public beta deployed successfully on Render Free: https://moonlight-werewolf-party.onrender.com/
 - Five independent public WebSocket clients completed Classic with normal timers: private roles, Seer investigation, synchronized phases, discussion chat, secret voting, elimination and identical village victory.
 - Two independent public WebSocket clients completed Quick with normal timers, hidden accusations and matching final result/center-card reveal.
@@ -21,10 +21,10 @@ Run `npm test` and `npm run build`. Tests use short injected engine timers only;
 1. On a computer, create a Classic room as the host. Send the invitation to four other browser profiles/devices. Each should show the same player list and code.
 2. Verify duplicate names are rejected and starting with fewer than five players or an unready/offline player is unavailable.
 3. Everyone selects Ready. Host starts. Each player opens their own private role card, then hides it. Other living roles must stay hidden in player lists and received network messages. A host has no extra access.
-4. Observe each fixed night stage. Only the proper living role can act. Wolves see fellow wolves and pack selections. Seer information stays private. Witch alone sees an attack victim while heal remains.
+4. Observe nightfall and every fixed night stage, including after Seer/Witch elimination. Only the proper living role can act. Wolves see fellow wolves and pack selections. Seer information stays private. Witch alone sees an attack victim while heal remains.
 5. Refresh one device after role reveal. Verify the same name, role, investigations/potions, phase and countdown return. The role card should be hidden again initially.
 6. Send a discussion message. Verify it appears on other devices. Dead players cannot send during discussion; chat is unavailable during night actions.
-7. Vote from every surviving device. Votes must not appear to others before resolution. Check the same elimination and revealed role everywhere. A tie/Skip result must advance without eliminating anyone.
+7. Choose without confirming: no ballot is submitted. Confirm from every surviving device: the final distinct confirmation must resolve immediately on every client. Leave one living player unconfirmed/offline to verify deadline fallback. Duplicate or late confirmations must not resolve again. Votes must not appear to others before resolution. Check the same elimination and revealed role everywhere. A tie/Skip result must advance without eliminating anyone.
 8. Continue until one faction wins; verify every device agrees and all roles are revealed. Host opens a rematch; everyone readies and gets a new secret deal.
 9. Create a Moonlight Duel with two devices. Confirm a third cannot join. Finish reveal, discussion and accusations. Both screens should agree on winner and reveal the center card.
 10. Switch one device to Chinese mid-match. Other devices should keep their language, and the game must not reset.
@@ -44,3 +44,11 @@ Check a 390px phone viewport, a narrow 320px viewport, and desktop. Ensure contr
 ## Known MVP limitations
 
 The free server can sleep or restart, which ends rooms. Refresh recovery is same-browser only. No automatic host migration, voice chat, device-to-device seat transfers, or three/four-player Quick. Two-player Duel is a light bluffing game; Classic is the main social deduction experience.
+
+## Flow/audio regression checks (October 28 update)
+
+- P0 passed 52 tests and a production build before audio work started; saved in commit `aa56453`. Pre-change rollback tag: `pre-flow-narrator-20261028`.
+- Current suite: 58 tests, including actual independent Socket.IO clients in both modes. Checks immediate completion, duplicate confirms, secret packet delivery, offline timeout, dead-seat exclusion, invalid targets, fixed slots, repeated nights, opt-in audio, language changes, delayed/missing voices, cancellation and sound-source cleanup.
+- Sound must remain off until Enable Sound on each page load. Check Mute/Unmute, separate narration/background toggles, quiet volume, EN/Chinese public cues, language change, tab hiding, reconnect and refresh. No microphone or paid service is involved.
+- Browser speech voices and autoplay behavior depend on the device. Verify that written guidance and gameplay continue if speech is missing or reports an error. Automated audio checks validate API behavior and cancellation; they do not establish subjective audibility or quality on every physical phone.
+- Local browser review: two independent origins plus three socket seats traversed nightfall, wolf/Seer/Witch actions and dawn. Private wolf targeting and Witch healing remained absent from the other browser's controls. Chinese chat synchronized; refresh restored the seat, concealed its card and required sound activation again. Phone widths 390px/320px had no horizontal overflow; chat input stayed 16px. Native speech failure displayed written guidance and did not interrupt phases.

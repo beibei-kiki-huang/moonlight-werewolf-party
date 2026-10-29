@@ -7,6 +7,7 @@ import './styles.css';
 import './polish.css';
 import './flow.css';
 import { DiscussionChat, NightSequence, Outcome, Portrait, RoleCard, VotingPanel } from './presentation';
+import { SoundControls } from './SoundControls';
 import '@fontsource/dm-sans/latin-400.css';
 import '@fontsource/dm-sans/latin-500.css';
 import '@fontsource/dm-sans/latin-600.css';
@@ -253,6 +254,7 @@ function App() {
     </main> : <main className={`game-shell phase-${view.phase}`}>
       <div className="table-heading"><div><p className="eyebrow">{view.mode === 'classic' ? tr('CLASSIC · 5–8 PLAYERS', '经典模式 · 5–8人') : tr('MOONLIGHT DUEL · 2 PLAYERS', '月光对决 · 2人')}</p><h1>{phaseNames[view.phase]}</h1></div><div className="room-code-block"><span>{tr('ROOM', '房间')}</span><button onClick={() => void copyRoom(false)}>{view.code}<Copy size={14} /></button><button className="icon-button" onClick={() => void copyRoom(true)} title={tr('Copy invitation link', '复制邀请链接')}><Link size={16} /></button></div></div>
       {!connected && <div className="notice reconnect"><WifiOff size={18} />{tr('Reconnecting… your seat and role are saved in this browser. Actions are disabled until connected.', '正在重连…此浏览器已保存你的座位与身份，连接恢复前无法操作。')}</div>}
+      <SoundControls scene={{ code: view.code, mode: view.mode, day: view.day, phase: view.phase, deadline: view.deadline, winner: view.winner }} language={lang} connected={connected} tr={tr} />
       {view.phase !== 'lobby' && view.phase !== 'ended' && <div className="phase-bar"><div className="phase-steps">{stageLabels.map((label, i) => <span key={label} className={currentStage === i ? 'current' : ''}><i>{i + 1}</i>{label}</span>)}</div><div className={`timer ${seconds <= 10 ? 'urgent' : ''}`} aria-label={tr('Time remaining', '剩余时间')}>{view.mode === 'classic' && <small>{tr(`DAY ${view.day}`, `第${view.day}天`)}</small>}<span>{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}</span></div></div>}
       {view.mode === 'classic' && (isNight || view.phase === 'dawn') && <NightSequence phase={view} language={lang} tr={tr} />}
       <div className="game-grid"><div className="main-column">

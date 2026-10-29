@@ -10,6 +10,9 @@ A real multiplayer Werewolf game for friends. Each player joins from their own b
 - Two-player Moonlight Duel: hidden center card, timed discussion, secret accusations, automatic results.
 - Refresh recovery in the same browser, private reconnect snapshots, duplicate-tab takeover, ready lobby, rematches, basic text chat, English / Simplified Chinese, responsive dark interface.
 - Role privacy is enforced on the server. Browsers never receive the complete room state. Private actions and votes are sent only to authorized players; the public receives no submission counters.
+- Choose a vote locally, then confirm it. The final living player's confirmation resolves voting immediately in both modes; otherwise the deadline applies. A confirmed vote remains valid until a replacement is confirmed while voting is still open. Offline living seats count; eliminated seats do not.
+- Classic has a shared five-second nightfall, fixed wolf/Seer/Witch slots, neutral waiting screens, and public dawn results. Hidden action completion never shortens a night slot.
+- Optional English/Simplified Chinese browser narration and locally generated background ambience. Enable Sound explicitly on each device; narration and ambience have separate settings. Matching voices depend on the device/browser; written public guidance is always available. Audio never advances or blocks gameplay.
 
 ## Run locally
 
@@ -66,8 +69,14 @@ Use one server instance. Horizontal scaling and durable game recovery are out of
 
 ## Scope notes
 
-No simulated multiplayer, publicly available debug role assignment, client-side secret game state, paid dependencies, voice/video, AI bots, accounts, matchmaking, or rankings. Three/four-player Quick variants and advanced restart recovery are deferred.
+No simulated multiplayer, publicly available debug role assignment, client-side secret game state, paid dependencies, live voice/video chat, AI bots, accounts, matchmaking, or rankings. Three/four-player Quick variants and advanced restart recovery are deferred.
 
 ## Illustrated edition
 
 The presentation update adds four original character portraits, a private collectible-style reveal, clear draft/confirmed ballot states, illustrated victory screens, expanded mobile discussion, and brief reduced-motion-aware transitions. No server, protocol, gameplay, dependency, or hosting architecture changes. See [design/README.md](design/README.md) for assets, prompts, optimization and the pre-redesign rollback checkpoint.
+
+## Flow and sound update
+
+Rollback tag: `pre-flow-narrator-20261028` points to the working illustrated edition before this update. Commit `aa56453` separately checkpoints the tested P0 vote/night changes before audio.
+
+`shared/publicPhase.ts` contains the bilingual public script. `client/audio.ts` accepts only public scene metadata; it cannot see roles, investigations, potions, victims or vote confirmations. All night slots and scripts play even if the role is eliminated. Audio is optional and uses browser APIs only, with no uploaded recordings, external assets, service credentials, or paid APIs. Voices and autoplay behavior vary across platforms. Refresh retains sound preferences but requires Enable Sound again. Hidden/disconnected tabs stop current cues; returning uses the current phase rather than replaying a backlog.

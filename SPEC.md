@@ -4,7 +4,7 @@ Updated October 28, 2026. Build order: real multiplayer Classic → public test 
 
 ## Product
 
-Private browser party game, no player accounts or installs. Shareable six-character codes and links, 2–20 character unique nicknames, 5–8-player Classic, required two-player Quick follow-up. English and Simplified Chinese, independently selected per device. Mobile-first moonlit blue/purple interface, private tap-to-reveal role cards, concise phase instructions. Basic discussion chat enables remote play; voice, advanced chat, animation, and effects are deferred.
+Private browser party game, no player accounts or installs. Shareable six-character codes and links, 2–20 character unique nicknames, 5–8-player Classic, required two-player Quick follow-up. English and Simplified Chinese, independently selected per device. Mobile-first moonlit blue/purple interface, private tap-to-reveal role cards, concise phase instructions. Basic discussion chat enables remote play; live voice chat, advanced chat, and elaborate animation are deferred. Optional public browser narration and quiet synthesized ambience are available.
 
 ## Classic
 
@@ -15,18 +15,18 @@ Private browser party game, no player accounts or installs. Shareable six-charac
 | 7 | 2 | 3 | 1 | 1 |
 | 8 | 2 | 4 | 1 | 1 |
 
-Everyone ready and online → host starts → role reveal (30s) → wolves (25s) → Seer (15s) → Witch (20s) → dawn (8s) → discussion (120s) → secret vote (30s) → verdict (8s) → repeat or results. Night slots retain fixed duration even when their role is dead. Server owns deadlines. Alive-at-night-start actors act before simultaneous dawn deaths.
+Everyone ready and online → host starts → role reveal (30s) → nightfall (5s) → wolves (25s) → Seer (15s) → Witch (20s) → dawn (8s) → discussion (120s) → secret vote (up to 30s) → verdict (8s) → repeat or results. Night slots retain fixed duration even when their role is dead. Server owns deadlines. Alive-at-night-start actors act before simultaneous dawn deaths.
 
 - Wolves know living/dead teammates and see private team target selections. Each may revise a target until the deadline. Unique plurality attacks a living non-wolf; tied or absent selections mean no attack.
 - Seer checks one other living player each night: wolf or not wolf. One confirmed investigation per night, private history.
 - Witch has one heal and one poison per game, at most one potion per night. Can heal herself. Knows the wolf victim only while heal remains. Poison targets another living player and cannot be healed. Passing consumes no potion. Confirmed actions cannot be changed.
-- Everyone alive can vote another living player or Skip; can revise before deadline. Missing vote = Skip. Unique leader must exceed Skip to be eliminated; otherwise nobody dies. Reveal ballots at resolution. Exact eliminated roles become public.
+- Everyone alive can vote another living player or Skip; select locally, then explicitly confirm; confirmed choices can be replaced while voting is open. All living seats confirming resolves immediately; otherwise the server deadline resolves. Offline living seats count, eliminated seats do not. Missing vote = Skip. Unique leader must exceed Skip to be eliminated; otherwise nobody dies. Reveal ballots at resolution. Exact eliminated roles become public.
 - After all dawn deaths together and each verdict: no living players = draw; no living wolves = village; wolves >= other living players = wolves. Three consecutive full night/day cycles without deaths = draw. Eliminated team members share their team's win.
 - Dead players read public events/chat but cannot act or chat. Roles and public event recap revealed at end. Host can return everyone to lobby for rematch, roles reshuffle on start.
 
 ## Quick follow-up (exactly two players)
 
-Moonlight Duel: shuffle one wolf and two villagers; deal one to each player, one hidden in center. No Seer, Witch, killing, or parity victory. Reveal (30s) → discussion (90s) → accusation (30s) → result. Each chooses "other player" or "center". If a player is wolf, the sole villager's correct accusation wins village; otherwise wolf wins. Wolf's accusation is a decoy. If both are villagers, both must choose center for village victory. Missing accusation is incorrect. Reveal all three cards at results. This is a lighter deduction duel, not balanced Classic. Three/four-player Quick is deferred to reduce rule/implementation branches.
+Moonlight Duel: shuffle one wolf and two villagers; deal one to each player, one hidden in center. No Seer, Witch, killing, or parity victory. Reveal (30s) → discussion (90s) → accusation (up to 30s, or until both players confirm) → result. Each chooses "other player" or "center". If a player is wolf, the sole villager's correct accusation wins village; otherwise wolf wins. Wolf's accusation is a decoy. If both are villagers, both must choose center for village victory. Missing accusation is incorrect. Reveal all three cards at results. This is a lighter deduction duel, not balanced Classic. Three/four-player Quick is deferred to reduce rule/implementation branches.
 
 ## Reliability and privacy
 
@@ -51,4 +51,10 @@ Acceptance: 5–8 independent sessions complete Classic over actual sockets; bot
 
 ## Deferred
 
-Advanced restart recovery, host migration, 3–4-player Quick, voice/video, AI narration/bots, spectators/ghost chat, public matchmaking, accounts/ranking, custom roles/timers, elaborate animation. First simplify decoration if time becomes tight, not security or complete gameplay.
+Advanced restart recovery, host migration, 3–4-player Quick, live voice/video chat, paid AI narration/bots, spectators/ghost chat, public matchmaking, accounts/ranking, custom roles/timers, elaborate animation. First simplify decoration if time becomes tight, not security or complete gameplay.
+
+## Optional sound and public night guidance
+
+Every Classic night includes the same full-length nightfall/wolves/Seer/Witch sequence, even for eliminated roles. Only authorized living players see their own action controls. Other seats get a neutral waiting screen. Public narration, text, and ambience depend only on phase, day, mode, deadline and public winner, never hidden role ownership, completion, actions or victims. Dawn results retain the existing simultaneous resolution and victory rules.
+
+Each device must explicitly Enable Sound. Narration uses its interface language and matching native browser voices, with written guidance if unavailable or blocked. Mute and separate narration/background toggles are available; background volume is quiet and adjustable. Original ambience is synthesized locally with Web Audio. Phase changes, disconnects and hidden tabs cancel stale cues. Refresh requires activation again. No audio may block or advance gameplay.
