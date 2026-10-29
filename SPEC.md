@@ -1,6 +1,6 @@
 # Moonlight — Play Beyond Borders · MVP specification
 
-Updated October 28, 2026. Build order: real multiplayer Classic → public test → two-player Quick → Chinese → polish. No purchases are authorized.
+Updated October 29, 2026. Build order: real multiplayer Classic → public test → two-player Quick → Chinese → polish. No purchases are authorized.
 
 ## Product
 
@@ -15,14 +15,14 @@ Private browser party game, no player accounts or installs. Shareable six-charac
 | 7 | 2 | 3 | 1 | 1 |
 | 8 | 2 | 4 | 1 | 1 |
 
-Everyone ready and online → host starts → role reveal (30s) → nightfall (5s) → wolves (25s) → Seer (15s) → Witch (20s) → dawn (8s) → discussion (120s) → secret vote (up to 30s) → verdict (8s) → repeat or results. Night slots retain fixed duration even when their role is dead. Server owns deadlines. Alive-at-night-start actors act before simultaneous dawn deaths.
+Everyone ready and online → host starts → role reveal (30s) → nightfall (5s) → wolves (25s) → Seer (15s) → Witch (20s) → dawn (8s) → Structured discussion (seat order, 45s each; host can choose 30/45/60s) or Open Discussion (120s) → secret vote (up to 30s) → Structured daytime elimination: last words (30s) → verdict (8s) → repeat or results. Only the current speaker can send public text/presets in Structured mode or finish early; automatic timeout advances. Settings lock at start. Only the eliminated player can speak during last words; night deaths get none. Open mode remains simultaneous living-player discussion. Night slots retain fixed duration even when their role is dead. Server owns deadlines. Alive-at-night-start actors act before simultaneous dawn deaths.
 
 - Wolves know living/dead teammates and see private team target selections. Each may revise a target until the deadline. The highest valid vote attacks a living non-wolf. Tied leading targets are selected uniformly with cryptographic randomness; with no valid votes, choose uniformly among eligible living non-wolves. Exactly one attack is chosen when living wolves and eligible targets exist.
 - Seer checks one other living player each night: Good Team or Werewolf Team. One confirmed investigation per night, private history.
 - Witch has one heal and one poison per game, at most one potion per night. Can heal herself. Knows the wolf victim only while heal remains. Poison targets another living player and cannot be healed. Passing consumes no potion. Confirmed actions cannot be changed.
 - Everyone alive can vote another living player or Abstain; select locally, then explicitly confirm; confirmed choices can be replaced while voting is open. All living seats confirming resolves immediately; otherwise the server deadline resolves. Offline living seats count, eliminated seats do not. Missing vote = Abstain. Unique leader must exceed Abstain to be eliminated; otherwise nobody dies. Reveal ballots at resolution. Exact eliminated roles become public.
 - After all dawn deaths together and each verdict: no living players = draw; no living wolves = village; wolves >= other living players = wolves. Three consecutive full night/day cycles without deaths = draw. Eliminated team members share their team's win.
-- Dead players read public events/chat but cannot act or chat. Roles and public event recap revealed at end. Host can return everyone to lobby for rematch, roles reshuffle on start.
+- Dead players read public events/chat but cannot act or chat, except the just-eliminated daytime player during their Structured last-words window. Roles and public event recap revealed at end. Host can return everyone to lobby for rematch, roles reshuffle on start.
 
 ## Quick follow-up (exactly two players)
 
@@ -30,7 +30,7 @@ Moonlight Duel: shuffle one wolf and two villagers; deal one to each player, one
 
 ## Reliability and privacy
 
-- One server keeps rooms in memory. Browser refresh resumes seat using a random private browser credential; room code and nickname cannot reclaim a seat. Same browser/storage only; no cross-device seat recovery. Latest connection controls a seat; older tab displays takeover notice.
+- One server keeps rooms in memory. Browser refresh resumes seat using a random private browser credential; room code and nickname cannot reclaim a seat. Same browser/storage only; no cross-device seat recovery. Each tab stores its own seat for automatic refresh recovery. A new invite tab never silently takes over another tab: explicit Resume may replace the old connection, which displays a notice.
 - Server validates actor identity, role, alive status, phase, target, and deadline. Per-player projections only; never send full game state to a browser. No hidden action participation counts/timing changes. Secrets excluded from public chat/events/errors/logs.
 - Online ready players required to start. Late joining locked. Lobby host may remove a seat. During matches, disconnected seats stay and default actions apply. Host absence does not stop automated gameplay. Host migration/server restart recovery deferred. Server restart ends rooms; client explains room expiration. All-offline rooms expire after ten minutes. Idle lobbies expire after two hours.
 - Random six-character collision-checked codes, unguessable seat tokens, bounded chat/names, create/join/action rate limits, duplicate/late action rejection, HTTPS in production. No host access to secrets.
@@ -63,7 +63,7 @@ Each device must explicitly Enable Sound. Narration uses approved English/Simpli
 
 Ten fixed phrases in English/Simplified Chinese, using shared stable IDs and server-authored fallback text. Each recipient sees their selected interface language. A collapsed language control on each preset reveals the equivalent phrase locally. A compact collapsed picker offers all ten phrases equally to all eligible players; it never reads private role or action data. Presets preserve typed drafts and mix with unchanged free-text messages.
 
-Existing chat permissions, room-only lifetime/history cap, sender authentication and shared rate limit apply. No night chat, no eliminated-player discussion messages, no player targeting, auto-translated free text, accounts, permanent messages or translation APIs. No gameplay, artwork, dependency or hosting changes.
+Existing chat permissions, room-only lifetime/history cap, sender authentication and shared rate limit apply. Public presets/text follow Structured speaking turns and last words. No public night chat, no eliminated-player normal discussion messages, no player targeting, auto-translated free text, accounts, permanent messages or translation APIs. No gameplay, artwork, dependency or hosting changes.
 
 ## Bounded judge access and feature freeze
 

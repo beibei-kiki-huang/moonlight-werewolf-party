@@ -22,3 +22,54 @@
 .identity-access{padding:0;position:sticky;top:10px;z-index:6;overflow:hidden}.identity-toggle{display:flex;gap:10px;align-items:center;justify-content:center;width:100%;border:0;padding:16px;background:#1a1d31;color:#e9def3;font-size:13px;min-height:48px}.identity-toggle>svg:last-child{margin-left:auto}.identity-contents{padding:18px;max-height:65vh;max-height:65dvh;overflow:auto}.identity-title{display:flex;gap:14px;align-items:center}.identity-title img{width:48px;height:72px;border-radius:6px;object-fit:cover}.identity-title h3{font-size:27px;margin:7px 0}.identity-title .eyebrow{font-size:9px}.identity-contents>p{font-size:14px;line-height:1.8}.identity-contents h4{font-size:17px}.private-history{margin:12px 0;font-size:13px}.private-history summary{min-height:44px;padding:12px 0;cursor:pointer}.identity-contents .investigation-result{padding:14px}.identity-contents .investigated-name{font-size:22px}.identity-contents .investigation-result h3{font-size:24px}.identity-potions p{display:flex;align-items:center;gap:7px;font-size:13px}.identity-potions .gold{color:#eed39c}.identity-potions .silver{color:#dce6f6}
 @media(max-width:760px){.game-grid{display:flex;flex-direction:column}.side-column{display:contents}.identity-access{order:-1;top:5px;margin-bottom:4px;flex-shrink:0}.main-column{order:0}.players-panel{order:1}.side-column>.discussion-chat{order:2}.night-note{order:3}.identity-contents{max-height:62vh;max-height:62dvh}.identity-toggle{padding:13px 16px}}
 .avatar.participant-avatar{background:var(--participant-tint);color:var(--participant-color);border:1px solid var(--participant-color);flex-shrink:0}.conversation-message>div{border-left:2px solid var(--participant-color);padding-left:12px}.conversation-message>div>strong{color:var(--participant-color)}.conversation-message .participant-avatar{width:30px;height:30px;font-size:12px}.pack-message{border-left:2px solid var(--participant-color);padding:10px 12px;margin:10px 0;background:var(--participant-tint);border-radius:7px}.pack-message .participant-avatar{width:26px;height:26px;display:inline-flex;margin-right:9px}.pack-message>strong{color:var(--participant-color)}.speaking-turn{border-left:3px solid var(--participant-color,#bca5d3)}.speaking-turn h2{display:flex;align-items:center;gap:12px}.speaking-turn h2 .avatar{width:40px;height:40px;font:600 17px 'DM Sans',sans-serif}
+
+/* Conversation leads; phase controls and private access support it. */
+.phase-discussion .main-column,.phase-last_words .main-column{gap:14px}
+.speaking-turn{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 18px;padding:18px 22px;align-items:center;border-left:3px solid var(--participant-color,#bcabd9)}
+.speaking-turn .eyebrow{grid-column:1/-1;margin:0;font-size:10px}
+.speaking-turn h2{display:flex;gap:10px;align-items:center;font-size:27px;margin:0;overflow-wrap:anywhere}
+.speaking-turn>strong{font-size:16px;font-weight:500;color:#e9e1f3;font-variant-numeric:tabular-nums}
+.speaking-turn>p:not(.eyebrow){font-size:13px;line-height:1.5;margin:0;color:#bdb5cc}
+.speaking-turn>.button{grid-column:2;grid-row:3;min-height:44px;font-size:13px;padding:9px 14px}
+.dawn-summary{border:1px solid #c9a66d40;border-radius:12px;color:#e4c99e;background:#25222c66}
+.dawn-summary>summary{display:flex;align-items:center;gap:9px;cursor:pointer;padding:13px 16px;font-size:13px;min-height:44px;overflow-wrap:anywhere}
+.dawn-summary>summary:after{content:'⌄';margin-left:auto}.dawn-summary[open]>summary:after{content:'⌃'}
+.dawn-summary .dawn-result{border:0;border-top:1px solid #c9a66d30;margin:0;border-radius:0}
+.journal-collapsed{padding:0 20px}.journal-collapsed>summary{cursor:pointer;min-height:48px;padding:15px 0;font-size:13px;color:#c7bed4}
+.phase-discussion .sound-panel,.phase-last_words .sound-panel{padding:10px 15px;margin-bottom:12px}
+.phase-discussion .narrator-caption,.phase-last_words .narrator-caption{margin-top:8px;font-size:12px;line-height:1.5}
+.phase-discussion .narrator-caption>span,.phase-last_words .narrator-caption>span{display:none}
+.phase-discussion .phase-bar,.phase-last_words .phase-bar{margin-bottom:14px}
+.discussion-open .conversation{height:clamp(230px,43dvh,440px)}
+.discussion-chat .chat-invitation{font-size:13px!important;color:#c6bfd4!important;line-height:1.65!important;margin-top:13px}
+.discussion-chat .conversation-message p{font-size:15px;line-height:1.75}
+.discussion-chat .conversation-message strong{font-size:12px}.discussion-chat .conversation-message strong small{font-size:10px}
+.discussion-chat .chat-compose-hint{font-size:11px!important;color:#b5abc6!important}
+.discussion-chat .quick-picker>summary{font-size:13px;min-height:44px}
+.discussion-chat .quick-choices button{min-height:44px;font-size:13px}
+.discussion-chat .conversation-compose{scroll-margin-block:20px}
+.action-panel>p:not(.eyebrow),.instruction>p:not(.eyebrow){font-size:14px;line-height:1.75}
+@media(max-width:680px){
+ .speaking-turn{padding:15px 17px;gap:8px 10px}.speaking-turn h2{font-size:24px}.speaking-turn>strong{font-size:14px}.speaking-turn>.button{grid-column:1/-1;grid-row:auto;width:100%}
+ .phase-discussion .sound-caption,.phase-last_words .sound-caption{display:none}
+ .phase-discussion .table-heading,.phase-last_words .table-heading{margin-bottom:14px}
+ .phase-discussion .discussion-chat,.phase-last_words .discussion-chat{padding:21px 17px}
+ .discussion-open .conversation{height:clamp(210px,39dvh,350px)}
+ .discussion-chat .conversation-compose textarea{font-size:16px}
+ .discussion-chat .send-message{min-width:44px;min-height:44px}
+ .game-shell{overflow-wrap:anywhere}.main-column,.side-column{min-width:0}
+}
+
+/* Avoid repeating the speaker clock and keep mobile private access out of the chat. */
+.phase-discussion.discussion-structured .phase-bar,.phase-last_words .phase-bar{display:none}
+@media(max-width:760px){
+ .identity-access{position:relative;top:auto;margin:0;z-index:2}.game-grid{gap:12px}
+}
+@media(max-width:680px){
+ .phase-discussion .table-heading,.phase-last_words .table-heading{flex-direction:row;align-items:center;gap:12px}
+ .phase-discussion .table-heading h1,.phase-last_words .table-heading h1{font-size:29px;line-height:1.15;letter-spacing:0}
+ .phase-discussion .room-code-block,.phase-last_words .room-code-block{align-self:center;padding:5px 7px;gap:6px}
+ .phase-discussion .room-code-block>span,.phase-last_words .room-code-block>span{display:none}
+ .phase-discussion .room-code-block>button:not(.icon-button),.phase-last_words .room-code-block>button:not(.icon-button){font-size:13px}
+}
+@media(max-width:760px){.players-panel,.side-column>.discussion-chat{width:100%}.room-code-block{flex-shrink:0}.room-code-block>button:not(.icon-button){white-space:nowrap;flex-shrink:0}}
