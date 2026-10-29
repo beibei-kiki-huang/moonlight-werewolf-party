@@ -66,4 +66,8 @@ Use one server instance. Horizontal scaling and durable game recovery are out of
 
 ## Scope notes
 
-No simulated multiplayer, publicly available debug role assignment, client-side secret game state, paid dependencies, voice/video, AI bots, accounts, matchmaking, rankings, or decorative animation. Three/four-player Quick variants and advanced restart recovery are deferred.
+No simulated multiplayer, publicly available debug role assignment, client-side secret game state, paid dependencies, voice/video, AI bots, accounts, matchmaking, or rankings. Three/four-player Quick variants and advanced restart recovery are deferred.
+
+## Illustrated edition
+
+The presentation update adds four original character portraits, a private collectible-style reveal, clear draft/confirmed ballot states, illustrated victory screens, expanded mobile discussion, and brief reduced-motion-aware transitions. No server, protocol, gameplay, dependency, or hosting architecture changes. See [design/README.md](design/README.md) for assets, prompts, optimization and the pre-redesign rollback checkpoint.

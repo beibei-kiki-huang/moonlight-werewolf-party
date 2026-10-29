@@ -77,6 +77,8 @@ describe('real multiplayer transport', () => {
     const result = await send<Seat>(wolf, 'create', { name: 'Moon', mode: 'quick' }); if (!result.ok) throw new Error('create');
     await send(villager, 'join', { code: result.data.code, name: 'Star' });
     await send(wolf, 'ready', { ready: true }); await send(villager, 'ready', { ready: true }); await send(wolf, 'start', {});
+    // Host acknowledgement does not imply another connection has received its private packet yet.
+    await expect.poll(() => [wolfView?.role, villagerView?.role], { interval: 10 }).toEqual(['werewolf', 'villager']);
     expect(wolfView?.role).toBe('werewolf'); expect(villagerView?.role).toBe('villager');
     expect(wolfView?.centerRole).toBeUndefined();
     await expect.poll(() => villagerView?.phase, { interval: 25 }).toBe('voting');

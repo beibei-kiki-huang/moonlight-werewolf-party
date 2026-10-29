@@ -4,6 +4,8 @@ import { io, type Socket } from 'socket.io-client';
 import { ArrowRight, Check, ChevronRight, Copy, Eye, EyeOff, FlaskConical, Globe2, Heart, Info, Link, LogOut, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote, Wifi, WifiOff, X } from 'lucide-react';
 import type { Action, ErrorCode, GameEvent, GameView, Mode, Reply, Role, Seat } from '../shared/types';
 import './styles.css';
+import './polish.css';
+import { DiscussionChat, Outcome, Portrait, RoleCard, VotingPanel } from './presentation';
 import '@fontsource/dm-sans/latin-400.css';
 import '@fontsource/dm-sans/latin-500.css';
 import '@fontsource/dm-sans/latin-600.css';
@@ -60,17 +62,18 @@ function App() {
   const [rules, setRules] = useState(false);
   const [roleVisible, setRoleVisible] = useState(false);
   const [target, setTarget] = useState('');
-  const [message, setMessage] = useState('');
-  const [chatOpen, setChatOpen] = useState(false);
   const [confirm, setConfirm] = useState<Action | null>(null);
   const [now, setNow] = useState(Date.now());
-  const chatEnd = useRef<HTMLDivElement>(null);
   const offset = useRef(0);
   const currentRole = useRef<string>('');
   useEffect(() => { try { localStorage.setItem('moonlight.lang', lang); } catch {} document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'; }, [lang]);
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(timer); }, []);
   useEffect(() => { setTarget(''); setConfirm(null); }, [view?.phase, view?.day]);
-  useEffect(() => { chatEnd.current?.scrollIntoView({ block: 'nearest' }); }, [view?.chat.length, chatOpen]);
+  useEffect(() => {
+    if (!view?.code) return;
+    // Load the same four public portraits for every seat, regardless of its secret role.
+    for (const role of ['werewolf', 'villager', 'seer', 'witch']) { const image = new Image(); image.src = `/art/${role}-360.webp`; }
+  }, [view?.code]);
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(''), 3000); return () => clearTimeout(timer); }, [toast]);
   useEffect(() => {
     const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { setRules(false); setConfirm(null); } };
@@ -186,6 +189,9 @@ function App() {
   const myTurn = !!view && !!me?.alive && ((view.phase === 'wolves' && view.role === 'werewolf') || (view.phase === 'seer' && view.role === 'seer') || (view.phase === 'witch' && view.role === 'witch'));
   const canChat = !!view && ['lobby', 'discussion', 'ended'].includes(view.phase) && (view.phase !== 'discussion' || me?.alive);
   const showChat = !!view && !isNight && view.phase !== 'reveal';
+  function discussionChat() {
+    return view ? <DiscussionChat view={view} canChat={!!canChat} connected={connected} pending={pending} tr={tr} send={async text => (await request('chat', { text })) !== null} /> : null;
+  }
 
   function targetButtons(forPoison = false) {
     return <div className="target-grid">{eligible.map(p => <button key={p.id} className={`target ${target === p.id ? 'chosen' : ''}`} disabled={disabled || (view?.acted && view.phase !== 'wolves' && view.phase !== 'voting')} onClick={() => setTarget(p.id)}>
@@ -194,17 +200,7 @@ function App() {
     </button>)}</div>;
   }
   function roleCard() {
-    if (!view?.role) return null;
-    const RoleIcon = icons[view.role];
-    return <section className={`role-card role-${roleVisible ? view.role : 'hidden'}`}>
-      <div className="role-art" aria-hidden="true"><span className="orbit orbit-one" /><span className="orbit orbit-two" /><span className="role-emblem">{roleVisible ? <RoleIcon size={58} strokeWidth={1} /> : <Moon size={58} strokeWidth={1} />}</span><Sparkles className="role-sparkle" size={18} /></div>
-      <p className="eyebrow">{tr('FOR YOUR EYES ONLY', '仅你可见')}</p>
-      <h2>{roleVisible ? roleName(view.role) : tr('A secret to keep', '一个待守护的秘密')}</h2>
-      <p>{roleVisible ? view.mode === 'quick' ? view.role === 'werewolf' ? tr('Convince your opponent the wolf is in the center. Your accusation is a decoy; the Villager’s guess decides your fate.', '说服对方狼人藏在中央。你的指认只是伪装，村民的猜测决定胜负。') : tr('Is the wolf your opponent or the center card? Guess correctly to win. If you are both Villagers, both must choose center.', '狼人是对方还是中央牌？猜对即可获胜；若两人都是村民，则都需猜中央。') : roleDescriptions[view.role][lang === 'en' ? 0 : 1] : tr('Make sure only you can see your screen.', '请确保只有你能看到屏幕。')}</p>
-      <button className="button secondary" onClick={() => setRoleVisible(!roleVisible)}>{roleVisible ? <EyeOff size={16} /> : <Eye size={16} />}{roleVisible ? tr('Hide my role', '隐藏身份') : tr('Reveal my role', '查看身份')}</button>
-      {roleVisible && view.role === 'werewolf' && view.mode === 'classic' && <div className="private-note">{tr('Your pack: ', '你的狼队：')}{view.players.filter(p => view.wolfTeam?.includes(p.id) && p.id !== view.youId).map(p => p.name).join(', ') || tr('You hunt alone.', '你是独狼。')}</div>}
-      {roleVisible && view.role === 'seer' && !!view.investigations?.length && <div className="private-note">{view.investigations.map(i => <p key={i.day}>{tr(`Night ${i.day}`, `第${i.day}夜`)} · {i.name}: {i.isWolf ? tr('Werewolf', '狼人') : tr('Not Werewolf', '非狼人')}</p>)}</div>}
-    </section>;
+    return view?.role ? <RoleCard view={view} visible={roleVisible} onToggle={() => setRoleVisible(!roleVisible)} tr={tr} roleName={roleName} /> : null;
   }
   function ballotList() {
     if (!view?.ballots) return null;
@@ -212,17 +208,8 @@ function App() {
   }
   function actionPanel() {
     if (!view || !me) return null;
-    if (view.phase === 'ended') return <section className="panel outcome">
-      <span className={`outcome-icon ${view.winner === 'wolves' ? 'wolf-color' : ''}`}>{view.winner === 'wolves' ? <Moon size={36} /> : <Shield size={36} />}</span>
-      <p className="eyebrow">{tr('THE STORY ENDS', '故事落幕')}</p>
-      <h2>{view.winner === 'draw' ? tr('A night without a victor', '今夜无人获胜') : view.winner === 'village' ? tr('The village lives on', '村庄迎来曙光') : tr('The night belongs to the wolves', '黑夜属于狼人')}</h2>
-      <p>{view.winner === 'draw' ? tr('No faction won this round.', '本局双方平局。') : (view.role === 'werewolf') === (view.winner === 'wolves') ? tr('Your faction won. Well played.', '你的阵营获胜。精彩的一局！') : tr('Your faction lost. Another moon, another chance.', '你的阵营落败。下轮再战。')}</p>
-      <div className="reveal-grid">{view.players.map(p => { const Icon = icons[p.role!]; return <div key={p.id} className={`reveal-person role-${p.role}`}><Icon size={25} /><strong>{p.name}</strong><span>{roleName(p.role!)}</span></div>; })}</div>
-      {view.centerRole && <p className="private-note">{tr('Center card: ', '中央身份牌：')}{roleName(view.centerRole)}</p>}
-      {ballotList()}
-      {isHost ? <button className="button primary" disabled={pending || !connected} onClick={() => void request('rematch', {})}>{tr('Gather for another round', '再来一局')}<ArrowRight size={17} /></button> : <p className="muted">{tr('Waiting for the host to open a rematch.', '等待房主开启下一局。')}</p>}
-    </section>;
-    if (view.phase === 'reveal') return <section className="panel instruction"><Sparkles size={28} /><h2>{tr('Meet your other self', '认识你的秘密身份')}</h2><p>{tr('Open your private card below. Read your ability, then hide it before anyone looks over your shoulder.', '打开下方的身份牌，阅读技能，然后隐藏身份。')}</p><div className="notice">{view.mode === 'classic' ? tr('The first night begins automatically when the timer ends.', '倒计时结束后自动进入第一个夜晚。') : tr('One wolf. Two villagers. One card hidden in the center.', '一张狼人牌，两张村民牌，其中一张藏在中央。')}</div></section>;
+    if (view.phase === 'ended') return <Outcome view={view} host={isHost} disabled={pending || !connected} onRematch={() => void request('rematch', {})} tr={tr} roleName={roleName} ballots={ballotList()} />;
+    if (view.phase === 'reveal') return <div className="reveal-guidance"><Sparkles size={17} /><p>{tr('Your story begins with a secret. Open your card, then keep it close.', '故事始于一个秘密。揭开身份，再将它藏好。')}</p></div>;
     if (isNight) {
       if (!myTurn) return <section className="panel instruction night-wait"><Moon size={32} /><p className="eyebrow">{tr('THE VILLAGE SLEEPS', '村庄沉睡中')}</p><h2>{me.alive ? tr('Keep your secrets close', '守好你的秘密') : tr('Watch the story unfold', '静观故事发展')}</h2><p>{tr('Other roles are acting in private. Every screen follows the same clock. There is nothing you need to do right now.', '其他身份正在秘密行动。所有屏幕遵循同一个倒计时，你现在无需操作。')}</p></section>;
       if (view.acted && view.phase !== 'wolves') return <section className="panel instruction"><Check size={30} /><h2>{tr('Your choice is sealed', '行动已确认')}</h2><p>{tr('Your private action is confirmed. The night continues until the timer ends.', '你的秘密行动已确认，倒计时结束后夜晚继续。')}</p></section>;
@@ -235,11 +222,7 @@ function App() {
         {view.acted && <p className="saved"><Check size={14} />{tr('Saved: ', '已保存：')}{view.players.find(p => p.id === view.selection)?.name}</p>}
       </section>;
     }
-    if (view.phase === 'voting' && me.alive) return <section className="panel action-panel"><p className="eyebrow">{tr('SECRET BALLOT', '秘密投票')}</p><h2>{view.mode === 'quick' ? tr('Where is the wolf?', '狼人在哪里？') : tr('Who will face the village?', '谁将面对村庄的审判？')}</h2><p>{view.mode === 'quick' ? tr('Choose the other player or the center. Your last confirmed accusation is final when the timer ends.', '选择另一名玩家或中央牌。倒计时结束时，以最后确认的指认为准。') : tr('Pick a suspect or skip elimination. Ballots stay secret until the timer ends. You may change your vote.', '选择嫌疑人或跳过放逐。倒计时结束前选票保密，你可以更改投票。')}</p>
-      {view.mode === 'quick' ? <div className="target-grid">{(['other', 'center'] as const).map(value => <button key={value} className={`target ${target === value ? 'chosen' : ''}`} disabled={disabled} onClick={() => setTarget(value)}>{value === 'other' ? <Users size={20} /> : <Moon size={20} />}{value === 'other' ? tr('The other player', '另一名玩家') : tr('The center card', '中央身份牌')}</button>)}</div> : <>{targetButtons()}<button className={`target skip ${target === 'skip' ? 'chosen' : ''}`} disabled={disabled} onClick={() => setTarget('skip')}><Shield size={20} />{tr('Skip elimination', '跳过放逐')}</button></>}
-      <button className="button primary" disabled={disabled || !target} onClick={() => void request('vote', { target })}><Vote size={17} />{tr('Confirm my vote', '确认投票')}</button>
-      {view.acted && <p className="saved"><Check size={14} />{tr('Vote saved: ', '投票已保存：')}{view.selection === 'skip' ? tr('Skip', '跳过') : view.selection === 'other' ? tr('Other player', '另一名玩家') : view.selection === 'center' ? tr('Center', '中央牌') : view.players.find(p => p.id === view.selection)?.name}</p>}
-    </section>;
+    if (view.phase === 'voting' && me.alive) return <VotingPanel view={view} eligible={eligible} selected={target} onSelect={setTarget} onConfirm={value => void request('vote', { target: value })} disabled={disabled} pending={pending} tr={tr} />;
     if (view.phase === 'discussion') return <section className="panel instruction"><MessageCircle size={30} /><p className="eyebrow">{tr('THE FLOOR IS YOURS', '现在轮到你们发言')}</p><h2>{me.alive ? tr('Every story has a loose thread', '每个故事都有破绽') : tr('Your voice rests. Your team plays on.', '你已出局，队友仍在奋战。')}</h2><p>{me.alive ? tr('Share what you know. Ask a question. Watch who changes their story. Use the table chat or talk together aloud.', '分享线索、提出问题、留意改口的人。使用聊天区或直接语音讨论。') : tr('Follow the discussion quietly. Your faction can still win for you.', '请安静观战，你仍与自己的阵营共享胜利。')}</p><div className="notice">{view.mode === 'quick' ? tr('The wolf could be the other player—or the untouched center card. Bluffing is part of the game.', '狼人可能是另一名玩家，也可能是中央牌。大胆推理与伪装。') : tr('Voting starts automatically when the discussion ends.', '讨论结束后自动开始投票。')}</div></section>;
     const last = [...view.events].reverse().find(e => e.kind === (view.phase === 'dawn' ? 'dawn' : 'elimination') || (view.phase === 'verdict' && e.kind === 'no_elimination'));
     return <section className="panel instruction"><Moon size={30} /><h2>{phaseNames[view.phase]}</h2><p>{last ? eventText(last) : tr('Stay with the table. The next phase begins shortly.', '下一阶段即将开始，请稍候。')}</p>{view.phase === 'voting' && !me.alive && <p>{tr('Eliminated players do not vote.', '出局玩家无法投票。')}</p>}{ballotList()}</section>;
@@ -264,8 +247,9 @@ function App() {
         </form><p className="entry-footnote"><Link size={13} />{tr('Private room. Share a code. Play anywhere.', '私人房间，分享号码，随时开局。')}</p>
         {savedSeat && <button className="resume-button" disabled={connecting} onClick={resume}>{tr(`Resume your table · ${savedSeat.code}`, `恢复你的牌桌 · ${savedSeat.code}`)}<ArrowRight size={14} /></button>}
       </section>
+      <section className="cast-preview"><div className="cast-preview-heading"><div><p className="eyebrow">{tr('FOUR FACES OF THE NIGHT', '黑夜的四张面孔')}</p><h2>{tr('Everyone has another side.', '每个人，都有另一面。')}</h2></div><p>{tr('One village. Four roles. A thousand ways to keep a secret.', '一座村庄，四种身份，千百种守住秘密的方式。')}</p></div><div className="cast-preview-grid">{(Object.keys(roleNames) as Role[]).map(role => <div className={`cast-preview-card role-${role}`} key={role}><Portrait role={role} decorative /><div><span>{tr('THE', '身份')}</span><h3>{roleName(role)}</h3></div></div>)}</div></section>
       <section className="landing-bottom"><div><span className="section-kicker">01 / {tr('THE GATHERING', '集结')}</span><h3>{tr('One link. Everyone in.', '一条链接，好友齐聚。')}</h3><p>{tr('Join on your phone or computer. No downloads, no sign-ups.', '手机电脑都能加入，无需下载或注册。')}</p></div><div><span className="section-kicker">02 / {tr('THE SECRET', '秘密')}</span><h3>{tr('A role only you know.', '只有你知道的身份。')}</h3><p>{tr('The night has its own rules. Your private card shows the way.', '黑夜自有规则，你的身份牌将指引行动。')}</p></div><div><span className="section-kicker">03 / {tr('THE REVEAL', '揭晓')}</span><h3>{tr('Trust your instincts.', '相信你的直觉。')}</h3><p>{tr('Talk it through, cast your vote, and see who fooled whom.', '讨论推理，投出一票，看看谁骗过了谁。')}</p></div></section>
-    </main> : <main className="game-shell">
+    </main> : <main className={`game-shell phase-${view.phase}`}>
       <div className="table-heading"><div><p className="eyebrow">{view.mode === 'classic' ? tr('CLASSIC · 5–8 PLAYERS', '经典模式 · 5–8人') : tr('MOONLIGHT DUEL · 2 PLAYERS', '月光对决 · 2人')}</p><h1>{phaseNames[view.phase]}</h1></div><div className="room-code-block"><span>{tr('ROOM', '房间')}</span><button onClick={() => void copyRoom(false)}>{view.code}<Copy size={14} /></button><button className="icon-button" onClick={() => void copyRoom(true)} title={tr('Copy invitation link', '复制邀请链接')}><Link size={16} /></button></div></div>
       {!connected && <div className="notice reconnect"><WifiOff size={18} />{tr('Reconnecting… your seat and role are saved in this browser. Actions are disabled until connected.', '正在重连…此浏览器已保存你的座位与身份，连接恢复前无法操作。')}</div>}
       {view.phase !== 'lobby' && view.phase !== 'ended' && <div className="phase-bar"><div className="phase-steps">{stageLabels.map((label, i) => <span key={label} className={currentStage === i ? 'current' : ''}><i>{i + 1}</i>{label}</span>)}</div><div className={`timer ${seconds <= 10 ? 'urgent' : ''}`} aria-label={tr('Time remaining', '剩余时间')}>{view.mode === 'classic' && <small>{tr(`DAY ${view.day}`, `第${view.day}天`)}</small>}<span>{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}</span></div></div>}
@@ -277,9 +261,9 @@ function App() {
           <p className="muted small">{view.players.length < (view.mode === 'classic' ? 5 : 2) ? tr(`Waiting for ${Math.max(0, (view.mode === 'classic' ? 5 : 2) - view.players.length)} more player(s).`, `还需要${Math.max(0, (view.mode === 'classic' ? 5 : 2) - view.players.length)}位玩家。`) : tr('Everyone must be online and ready to start.', '所有玩家需在线并准备。')}</p>
           {isHost && <div className="host-settings"><label htmlFor="lobby-mode">{tr('Game mode', '游戏模式')}</label><select id="lobby-mode" value={view.mode} disabled={pending || !connected} onChange={e => void request('mode', { mode: e.target.value })}><option value="classic">{tr('Classic · 5–8 players', '经典模式 · 5–8人')}</option><option value="quick" disabled={view.players.length > 2}>{tr('Moonlight Duel · 2 players', '月光对决 · 2人')}</option></select></div>}
           <p className="small muted">{tr('Refresh restores your seat. If the host leaves, return in the same browser. Server restarts end rooms in this early version.', '刷新可恢复座位。房主离线后需使用原浏览器返回。本测试版本在服务器重启后会结束房间。')}</p>
-        </section> : <>{actionPanel()}{view.phase !== 'ended' && roleCard()}{view.phase !== 'ended' && !!view.events.length && <section className="panel journal"><p className="eyebrow">{tr('THE STORY SO FAR', '故事进展')}</p>{view.events.slice(-4).map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}{view.phase === 'ended' && <section className="panel journal"><p className="eyebrow">{tr('A NIGHT TO REMEMBER', '今夜回顾')}</p>{view.events.map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}</>}
+        </section> : <><div className="phase-scene" key={`${view.day}-${view.phase}`}>{actionPanel()}</div>{view.phase === 'discussion' && discussionChat()}{view.phase !== 'ended' && (view.phase === 'discussion' ? <details className="private-pocket"><summary><EyeOff size={16} />{tr('Your private character card', '你的秘密身份牌')}<ChevronRight size={16} /></summary>{roleCard()}</details> : roleCard())}{view.phase !== 'ended' && view.phase !== 'reveal' && !!view.events.length && <section className="panel journal"><p className="eyebrow">{tr('THE STORY SO FAR', '故事进展')}</p>{view.events.slice(-4).map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}{view.phase === 'ended' && <section className="panel journal"><p className="eyebrow">{tr('A NIGHT TO REMEMBER', '今夜回顾')}</p>{view.events.map(event => <p key={event.id}>{eventText(event)}</p>)}</section>}</>}
       </div><aside className="side-column"><section className="panel players-panel"><div className="panel-title"><h3><Users size={17} />{tr('At the table', '牌桌上的玩家')}</h3><span>{view.players.length}/{view.mode === 'classic' ? 8 : 2}</span></div><div className="player-list">{view.players.map(p => <div className={`player-row ${!p.alive ? 'eliminated' : ''}`} key={p.id}><span className={`avatar ${p.id === view.youId ? 'you-avatar' : ''}`}>{p.name.slice(0, 1).toUpperCase()}<i className={p.connected ? 'online-dot' : 'offline-dot'} /></span><div><strong>{p.name}{p.id === view.youId && <small> {tr('(you)', '(你)')}</small>}</strong><span>{p.role ? roleName(p.role) : p.id === view.hostId ? tr('Host', '房主') : p.connected ? tr('At the table', '已入座') : tr('Reconnecting', '等待重连')}{!p.alive && ` · ${tr('Eliminated', '已出局')}`}</span></div>{view.phase === 'lobby' && p.ready && <Check className="ready-check" size={17} />}{view.phase === 'lobby' && isHost && p.id !== view.youId && <button className="icon-button remove-player" title={tr('Remove from lobby', '移出大厅')} disabled={pending || !connected} onClick={() => void request('remove', { playerId: p.id })}><X size={14} /></button>}</div>)}</div><div className="connection-status">{connected ? <Wifi size={13} /> : <WifiOff size={13} />}{connected ? tr('Live · synchronized with the table', '实时 · 已与牌桌同步') : tr('Connection interrupted', '连接已中断')}</div></section>
-        {showChat && <section className={`panel chat-panel ${chatOpen ? 'chat-expanded' : ''}`}><button className="panel-title chat-title" onClick={() => setChatOpen(!chatOpen)}><h3><MessageCircle size={17} />{tr('Table talk', '牌桌聊天')}</h3><span>{tr('Open', '展开')}<ChevronRight size={14} /></span></button><div className="chat-content"><div className="chat-messages">{!view.chat.length && <p className="chat-empty">{tr('A friendly hello. A suspicious alibi. The conversation starts here.', '一句问候，一个可疑的不在场证明。对话从这里开始。')}</p>}{view.chat.map(m => <div className={`chat-message ${m.playerId === view.youId ? 'mine' : ''}`} key={m.id}><strong>{m.name}</strong><p>{m.text}</p></div>)}<div ref={chatEnd} /></div><form className="chat-form" onSubmit={e => { e.preventDefault(); if (!message.trim() || pending) return; void request('chat', { text: message.trim() }).then(result => { if (result !== null) setMessage(''); }); }}><input aria-label={tr('Message to the table', '发送消息')} placeholder={canChat ? tr('Say something…', '说点什么…') : tr('Listen for now…', '请安静观战…')} maxLength={300} value={message} onChange={e => setMessage(e.target.value)} disabled={!canChat || !connected} /><button className="icon-button" aria-label={tr('Send message', '发送消息')} disabled={!canChat || pending || !connected || !message.trim()}><Send size={17} /></button></form></div></section>}
+        {showChat && view.phase !== 'discussion' && discussionChat()}
         {isNight && <div className="night-note"><Moon size={18} /><p>{tr('Night actions stay private. The table chat returns at dawn.', '夜间行动保密，黎明后恢复聊天。')}</p></div>}
       </aside></div>
     </main>}
