@@ -1,5 +1,7 @@
 # Moonlight — October 30 reliability release candidate
 
+Historical pre-deployment assessment of 1633675. The creator subsequently approved deployment, public acceptance passed, and final copy/demo refinements followed. This document records the original gate; it is not the current deployment-status report.
+
 Status: LOCAL CANDIDATE ONLY. Not merged, pushed, or deployed. Production remains frozen at `1c56b86` (application `cba5360`). No translation integration, provider calls, billing changes, dependencies, role balance, attack resolution, voting scoring, or win-condition changes.
 
 ## Diagnosis and evidence

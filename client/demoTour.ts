@@ -1,4 +1,11 @@
-// Fictional presentation data only. This module cannot import the game, credentials or transport.
+// Public timing constants and fictional data only; no game state, credentials or transport.
+import {CLASSIC_NIGHT_ACTION_MS} from '../shared/rules';
+export function demoNightCaption(language: 'en' | 'zh'): string {
+  const seconds = CLASSIC_NIGHT_ACTION_MS / 1000;
+  return language === 'zh'
+    ? `此处夜晚经过压缩：真实狼人、预言家与女巫阶段各${seconds}秒。可暂停体验独立的虚构身份示例。`
+    : `Condensed night: real Werewolf, Seer and Witch stages each last ${seconds} seconds. Pause for a fictional role example.`;
+}
 export const DEMO_DURATION = 60_000;
 export const DEMO_BOUNDARIES = [0, 10_000, 20_000, 40_000, 53_000] as const;
 export type DemoChoice = 'alex' | 'mei' | 'sam' | 'lin' | 'skip';

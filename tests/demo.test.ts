@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { GuidedTour, DEMO_DURATION, SAMPLE_BALLOTS, SAMPLE_PLAYERS } from '../client/demoTour';
+import { GuidedTour, DEMO_DURATION, SAMPLE_BALLOTS, SAMPLE_PLAYERS, demoNightCaption } from '../client/demoTour';
+import {CLASSIC_NIGHT_ACTION_MS} from '../shared/rules';
 import { QUICK_PHRASES } from '../shared/quickChat';
 
 describe('isolated scripted tour', () => {
@@ -63,3 +64,5 @@ describe('isolated scripted tour', () => {
     const source=readFileSync('client/demo.ts','utf8'); expect(source).toContain('href="/?welcome=1"'); expect(source).toContain('Not a live multiplayer match');
   });
 });
+
+it.each(['en','zh'] as const)('keeps the %s demo caption aligned with real Classic night timing while preserving the 60-second tour',language=>{expect(demoNightCaption(language)).toContain(language==='en'?`${CLASSIC_NIGHT_ACTION_MS/1000} seconds`:`各${CLASSIC_NIGHT_ACTION_MS/1000}秒`);expect(DEMO_DURATION).toBe(60000);expect(demoNightCaption(language)).not.toContain(language==='en'?'60 seconds':'各60秒')});

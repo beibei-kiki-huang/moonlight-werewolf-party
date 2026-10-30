@@ -1,5 +1,5 @@
 // Separate browser entry: no React App, game engine, socket, seat storage, API or audio imports.
-import { GuidedTour, SAMPLE_PLAYERS, SAMPLE_BALLOTS, type DemoChoice } from './demoTour';
+import { GuidedTour, SAMPLE_PLAYERS, SAMPLE_BALLOTS, demoNightCaption, type DemoChoice } from './demoTour';
 import { seerExample, wolfExample } from './demoExamples';
 import { QUICK_PHRASES } from '../shared/quickChat';
 import './styles.css';
@@ -21,7 +21,7 @@ const name = (id: string) => id === 'you' ? tr('You', '你') : id === 'skip' ? t
 const titles = () => [tr('A secret, just for you.', '只属于你的秘密。'), tr('The village guides itself.', '村庄，自有引导。'), tr('One phrase. Two languages.', '一句话，两种语言。'), tr('Choose. Then confirm.', '先选择，再确认。'), tr('The truth comes to light.', '真相，终将浮现。')];
 const captions = () => [
   tr('A fictional five-player Classic round. Your sample role is the Seer: discover whether one other player is a wolf each night.', '一轮虚构的五人经典对局。你的示例身份是预言家：每晚查验一位其他玩家是否为狼人。'),
-  tr('Condensed night: real Werewolf, Seer and Witch stages each last 60 seconds. Pause for a fictional role example.', '此处夜晚经过压缩：真实狼人、预言家与女巫阶段各60秒。可暂停体验独立的虚构身份示例。'),
+  demoNightCaption(language === 'zh' ? 'zh' : 'en'),
   tr('Two sample recipients see the same phrase in English and Chinese. Live Quick Chat also supports Korean, Japanese and Spanish; typed text stays original.', '两位示例接收者分别看到同一句短语的中英文。真实快捷短语还支持韩语、日语和西班牙语；手动输入保持原文。'),
   tr('Selecting is a draft. Confirm to submit. Real votes remain private until resolution; everyone confirming ends voting immediately.', '选中只是草稿，确认才会提交。真实选票在结算前保密；所有存活玩家确认后立即结算。'),
   tr('The sample village eliminated its only wolf. The three other village-team players voted for Alex, so the outcome stays consistent with your sample vote.', '示例好人阵营通过投票放逐了唯一狼人。其余三位好人阵营玩家都投给 Alex，因此你选择任何示例选票，结果都符合规则。'),
