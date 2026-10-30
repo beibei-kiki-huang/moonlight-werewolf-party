@@ -9,13 +9,15 @@ import { z } from 'zod';
 import { Game, GameError, newPlayer, newRoom, type Room } from './game.js';
 import type { ErrorCode, Reply } from '../shared/types.js';
 import { isQuickPhraseId } from '../shared/quickChat.js';
+import { safeChatText } from '../shared/chatText.js';
 
 const nameSchema = z.string().trim().min(2).max(20).regex(/^[^\p{Cc}\p{Cf}<>]+$/u);
 const codeSchema = z.string().trim().toUpperCase().regex(/^[A-HJ-NP-Z2-9]{6}$/);
 const idSchema = z.string().uuid();
 const modeSchema = z.enum(['classic', 'quick']);
+const chatTextSchema = z.string().trim().min(1).max(300).refine(safeChatText);
 const packSchema = z.union([
-  z.object({stageId:idSchema,clientMessageId:idSchema,text:z.string().trim().min(1).max(300)}).strict(),
+  z.object({stageId:idSchema,clientMessageId:idSchema,text:chatTextSchema}).strict(),
   z.object({stageId:idSchema,clientMessageId:idSchema,phraseId:z.string().refine(isQuickPhraseId)}).strict(),
 ]);
 const actionSchema = z.discriminatedUnion('kind', [
@@ -85,7 +87,7 @@ export function createApp(game = new Game()) {
     if (oldId && oldId !== socket.id) {
       io.to(oldId).emit('replaced'); io.sockets.sockets.get(oldId)?.disconnect(true);
     }
-    game.player(room, playerId).connected = true; room.allOfflineSince = null;
+    game.connectionChanged(room, playerId, true, Date.now()); room.allOfflineSince = null;
     game.touch(room, Date.now()); emitViews(room);
   }
   function unbound(socket: Socket) {
@@ -167,7 +169,7 @@ export function createApp(game = new Game()) {
     });
     command('discussion_settings',z.object({discussionMode:z.enum(['structured','open']),turnSeconds:z.union([z.literal(30),z.literal(45),z.literal(60)])}).strict(),({room,playerId},d)=>game.configureDiscussion(room,playerId,d.discussionMode,d.turnSeconds,Date.now()));
     command('finish_speaking',z.object({turnId:idSchema}).strict(),({room,playerId},d)=>game.finishSpeaking(room,playerId,d.turnId,Date.now()));
-    command('chat', z.object({ text: z.string().trim().min(1).max(300),turnId:idSchema.optional() }), ({ room, playerId }, { text,turnId }) => {
+    command('chat', z.object({ text: chatTextSchema,turnId:idSchema.optional() }), ({ room, playerId }, { text,turnId }) => {
       limit(`chat:${playerId}`, 5, 10_000); game.chat(room, playerId, text, Date.now(),turnId);
     });
     command('quick_chat', z.object({ phraseId: z.string().max(40).refine(isQuickPhraseId),turnId:idSchema.optional() }).strict(), ({ room, playerId }, { phraseId,turnId }) => {
@@ -185,7 +187,7 @@ export function createApp(game = new Game()) {
       if (connections.get(playerId) !== socket.id) return;
       connections.delete(playerId);
       const room = rooms.get(code); if (!room) return;
-      const player = room.players.find(p => p.id === playerId); if (player) player.connected = false;
+      const player = room.players.find(p => p.id === playerId); if (player) game.connectionChanged(room, playerId, false, Date.now());
       if (room.players.every(p => !p.connected)) room.allOfflineSince = Date.now();
       game.touch(room, Date.now()); emitViews(room);
     });

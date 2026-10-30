@@ -72,7 +72,7 @@ describe('confirmed ballots and fixed night ritual', () => {
           // The automatic fallback still resolves if no wolf submits a vote.
         }
         game.tick(room, deadline);
-        const nextDuration = phase === 'witch' ? 8000 : 60000;
+        const nextDuration = phase === 'witch' ? 8000 : 45000;
         if(room.phase==='ended'){expect(phase).toBe('witch');expect(room.deadline).toBeNull();return;}
         expect(room.deadline).toBe(deadline + nextDuration);
       }

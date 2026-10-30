@@ -19,14 +19,14 @@ async function table(count){
  await send(peers[0].socket,'start',{});await wait(peers,v=>v.phase==='reveal','start');
  assert(peers.every(p=>p.view.players.every(x=>!x.role)));
  const wolves=peers.filter(p=>p.view.role==='werewolf'),witch=peers.find(p=>p.view.role==='witch'),seer=peers.find(p=>p.view.role==='seer');
- await wait(peers,v=>v.phase==='wolves','wolves');assert(peers.every(p=>p.view.deadline-p.view.serverNow>59000&&p.view.deadline-p.view.serverNow<=60000),'Every role slot must retain its full 60-second clock');
+ await wait(peers,v=>v.phase==='wolves','wolves');assert(peers.every(p=>p.view.deadline-p.view.serverNow>44000&&p.view.deadline-p.view.serverNow<=45000),'Every role slot must retain its full 45-second clock');
  const nightDeadline=peers[0].view.deadline;assert(peers.every(p=>p.view.deadline===nightDeadline));
  // No attacks submitted: the server must choose an eligible random target at the fixed deadline.
- await wait(peers,v=>v.phase==='seer','seer');assert(peers.every(p=>p.view.deadline-p.view.serverNow>59000&&p.view.deadline-p.view.serverNow<=60000),'Every role slot must retain its full 60-second clock');
+ await wait(peers,v=>v.phase==='seer','seer');assert(peers.every(p=>p.view.deadline-p.view.serverNow>44000&&p.view.deadline-p.view.serverNow<=45000),'Every role slot must retain its full 45-second clock');
  await send(seer.socket,'action',{kind:'inspect',target:wolves[0].view.youId});
  assert.equal(seer.view.investigations.at(-1).isWolf,true);
  assert(peers.filter(p=>p!==seer).every(p=>p.view.investigations===undefined));
- await wait(peers,v=>v.phase==='witch','witch');assert(peers.every(p=>p.view.deadline-p.view.serverNow>59000&&p.view.deadline-p.view.serverNow<=60000),'Every role slot must retain its full 60-second clock');
+ await wait(peers,v=>v.phase==='witch','witch');assert(peers.every(p=>p.view.deadline-p.view.serverNow>44000&&p.view.deadline-p.view.serverNow<=45000),'Every role slot must retain its full 45-second clock');
  const victim=witch.view.victim;assert(victim&&witch.view.players.find(p=>p.id===victim)?.alive);assert(!wolves.some(p=>p.view.youId===victim));
  assert(peers.filter(p=>p!==witch).every(p=>p.view.victim===undefined&&p.view.potions===undefined));
  await send(witch.socket,'action',wolves.length===1?{kind:'heal'}:{kind:'poison',target:wolves[0].view.youId});

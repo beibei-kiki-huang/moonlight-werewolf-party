@@ -4,14 +4,14 @@ export type DiscussionMode = 'structured' | 'open';
 export type Mode = 'classic' | 'quick';
 export type Phase = 'lobby' | 'reveal' | 'nightfall' | 'wolves' | 'seer' | 'witch' | 'dawn' | 'discussion' | 'voting' | 'tie_discussion' | 'runoff' | 'verdict' | 'last_words' | 'ended';
 export type Winner = 'village' | 'wolves' | 'draw';
-export type ErrorCode = 'seat_in_use' | 'invalid' | 'room_missing' | 'room_full' | 'name_taken' | 'started' | 'unauthorized' | 'not_host' | 'not_ready' | 'wrong_phase' | 'invalid_target' | 'already_acted' | 'rate_limit' | 'capacity';
+export type ErrorCode = 'room_expired' | 'seat_in_use' | 'invalid' | 'room_missing' | 'room_full' | 'name_taken' | 'started' | 'unauthorized' | 'not_host' | 'not_ready' | 'wrong_phase' | 'invalid_target' | 'already_acted' | 'rate_limit' | 'capacity';
 export interface PublicPlayer { colorIndex?:number;id: string; name: string; connected: boolean; ready: boolean; alive: boolean; role?: Role }
-export interface GameEvent { id: number; kind: 'tie' | 'start' | 'dawn' | 'elimination' | 'no_elimination' | 'result'; day: number; players?: { name: string; role: Role }[]; winner?: Winner; candidates?: string[]; reason?: 'abstained'|'runoff_tie'|'no_eligible' }
+export interface GameEvent { id: number; kind: 'host_transfer' | 'tie' | 'start' | 'dawn' | 'elimination' | 'no_elimination' | 'result'; day: number; hostName?: string; players?: { name: string; role: Role }[]; winner?: Winner; candidates?: string[]; reason?: 'abstained'|'no_ballots'|'partial_abstention'|'runoff_tie'|'no_eligible' }
 export interface ChatMessage { id: string; playerId: string; name: string; text: string; phraseId?: QuickPhraseId }
 export interface PackChatState { stageId: string; messages: ChatMessage[] }
 export type PackSubmission = { stageId: string; clientMessageId: string } & ({ text: string; phraseId?: never } | { phraseId: QuickPhraseId; text?: never });
 export interface Investigation { day: number; targetId: string; name: string; isWolf: boolean }
-export interface VoteRound { day:number; round:'initial'|'runoff'; ballots:Record<string,string> }
+export interface VoteRound { day:number; round:'initial'|'runoff'; ballots:Record<string,string>; submitted?:string[] }
 export interface GameView {
   code: string; mode: Mode; phase: Phase; day: number; serverNow: number; deadline: number | null;
   hostId: string; youId: string; players: PublicPlayer[]; events: GameEvent[]; chat: ChatMessage[];

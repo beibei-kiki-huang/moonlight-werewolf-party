@@ -2,6 +2,7 @@ import { randomInt, randomUUID } from 'node:crypto';
 import type { Action, ChatMessage, ErrorCode, GameEvent, GameView, Investigation, Mode, Phase, Role, Winner, DiscussionMode, PackChatState, PackSubmission, VoteRound } from '../shared/types.js';
 import { CLASSIC_NIGHT_ACTION_MS, TIE_SPEAKING_MS, LAST_WORDS_MS } from '../shared/rules.js';
 import { isQuickPhraseId, QUICK_PHRASES } from '../shared/quickChat.js';
+import { safeChatText } from '../shared/chatText.js';
 
 export class GameError extends Error {
   constructor(public code: ErrorCode) { super(code); }
@@ -52,10 +53,54 @@ export function newRoom(code: string, mode: Mode, host: Player, now: number): Ro
 export class Game {
   // Private, bounded current-stage storage; never part of public Room chat/events/revisions.
   private packStores = new WeakMap<Room, PackChatState & { receipts: Map<string, ChatMessage> }>();
+  private offlineHosts = new WeakMap<Room, { id: string; since: number }>();
+  private offlineSpeakers = new WeakMap<Room, { turnId: string; since: number }>();
   constructor(private durations: Durations = DURATIONS, private deal: (cards: Role[]) => Role[] = shuffle, private chooseIndex:(size:number)=>number=randomInt) {}
   player(room: Room, id: string): Player { return room.players.find(p => p.id === id) ?? fail('unauthorized'); }
   touch(room: Room, now: number) { room.revision++; room.lastActivity = now; }
   host(room: Room, id: string) { if (room.hostId !== id) fail('not_host'); }
+  connectionChanged(room: Room, id: string, connected: boolean, now: number) {
+    // Expire any elapsed grace/deadline before a late reconnect can cancel it.
+    this.tick(room, now);
+    this.player(room, id).connected = connected;
+    this.tick(room, now);
+    this.touch(room, now);
+  }
+  // Public connection recovery only. Night actions never affect these timers.
+  private recoverConnections(room: Room, now: number): boolean {
+    let changed = false;
+    const host = this.player(room, room.hostId);
+    if ((room.phase === 'lobby' || room.phase === 'ended') && !host.connected) {
+      let pending = this.offlineHosts.get(room);
+      if (!pending || pending.id !== host.id) {
+        pending = { id: host.id, since: now }; this.offlineHosts.set(room, pending);
+      }
+      if (now >= pending.since + 20_000) {
+        const successor = room.players.find(p => p.connected && p.id !== host.id);
+        if (successor) {
+          room.hostId = successor.id; this.offlineHosts.delete(room);
+          this.event(room, { kind: 'host_transfer', day: room.day, hostName: successor.name });
+          changed = true;
+        }
+      }
+    } else this.offlineHosts.delete(room);
+    const speaking = room.mode === 'classic' && (room.phase === 'tie_discussion' || room.phase === 'last_words' || room.phase === 'discussion' && room.discussionMode === 'structured');
+    const speakerId = room.phase === 'last_words' ? room.lastWordsId : room.speakingOrder[room.speakerIndex];
+    const speaker = speaking ? room.players.find(p => p.id === speakerId) : undefined;
+    if (speaker && !speaker.connected && room.turnId && room.deadline !== null && now < room.deadline) {
+      let pending = this.offlineSpeakers.get(room);
+      if (!pending || pending.turnId !== room.turnId) {
+        pending = { turnId: room.turnId, since: now }; this.offlineSpeakers.set(room, pending);
+      }
+      if (now >= pending.since + 5_000) {
+        this.offlineSpeakers.delete(room);
+        if (room.phase === 'last_words') this.completeVerdict(room, now);
+        else this.advanceSpeaker(room, now);
+        changed = true;
+      }
+    } else this.offlineSpeakers.delete(room);
+    return changed;
+  }
   join(room: Room, name: string, now: number): Player {
     if (room.phase !== 'lobby') fail('started');
     if (room.players.length >= (room.mode === 'classic' ? 8 : 2)) fail('room_full');
@@ -221,7 +266,7 @@ export class Game {
     if (phraseId!==undefined && !isQuickPhraseId(phraseId)) fail('invalid');
     if ((input.text===undefined)===(phraseId===undefined)) fail('invalid');
     const text=phraseId===undefined ? input.text!.trim() : QUICK_PHRASES[phraseId].en;
-    if (!text || text.length>300 || !/^[0-9a-f-]{36}$/i.test(input.clientMessageId)) fail('invalid');
+    if (!text || text.length>300 || !safeChatText(text) || !/^[0-9a-f-]{36}$/i.test(input.clientMessageId)) fail('invalid');
     const key=id+'/'+input.clientMessageId, existing=store.receipts.get(key);
     if (existing) {
       if (existing.text!==text || existing.phraseId!==phraseId) fail('invalid');
@@ -238,6 +283,7 @@ export class Game {
     this.appendChat(room, id, { text: QUICK_PHRASES[phraseId].en, phraseId }, now,turnId);
   }
   private appendChat(room: Room, id: string, message: Pick<ChatMessage, 'text' | 'phraseId'>, now: number,turnId?:string) {
+    if (!safeChatText(message.text)) fail('invalid');
     const player = this.player(room, id);
     if(!['lobby','discussion','tie_discussion','last_words','ended'].includes(room.phase))fail('wrong_phase');
     if(!this.canPublicChat(room,id,now))fail('unauthorized');
@@ -293,7 +339,7 @@ export class Game {
       this.finish(room,eligible.filter(p=>p.role==='villager').every(p=>room.votes[p.id]===correct)?'village':'wolves',now);
       return true;
     }
-    room.voteHistory.push({day:room.day,round:runoff?'runoff':'initial',ballots:{...room.ballots}});
+    room.voteHistory.push({day:room.day,round:runoff?'runoff':'initial',ballots:{...room.ballots},submitted:eligible.filter(p=>room.votes[p.id]!==undefined).map(p=>p.id)});
     const totals=new Map<string,number>();
     for(const target of Object.values(room.ballots))if(target!=='skip')totals.set(target,(totals.get(target)??0)+1);
     const highest=Math.max(0,...totals.values());
@@ -308,14 +354,21 @@ export class Game {
     if(target){
       const player=this.player(room,target);player.alive=false;room.deathThisCycle=true;
       this.event(room,{kind:'elimination',day:room.day,players:[{name:player.name,role:player.role!}]});
-    }else this.event(room,{kind:'no_elimination',day:room.day,reason:!eligible.length?'no_eligible':highest===0?'abstained':'runoff_tie'});
+    }else {
+      const submitted = eligible.filter(p => room.votes[p.id] !== undefined).length;
+      this.event(room,{kind:'no_elimination',day:room.day,reason:!eligible.length?'no_eligible':highest===0?(submitted===0?'no_ballots':submitted===eligible.length?'abstained':'partial_abstention'):'runoff_tie'});
+    }
     room.quietCycles=room.deathThisCycle?0:room.quietCycles+1;
     if(target){this.phase(room,'last_words',now);room.lastWordsId=target;room.turnId=randomUUID()}
     else this.completeVerdict(room,now);
     return true;
   }
   tick(room: Room, now: number): boolean {
-    if (room.deadline === null || now < room.deadline) return false;
+    const recovered = this.recoverConnections(room, now);
+    if (room.deadline === null || now < room.deadline) {
+      if (recovered) this.touch(room, now);
+      return recovered;
+    }
     if (room.mode === 'quick') {
       if (room.phase === 'reveal') this.phase(room, 'discussion', now);
       else if (room.phase === 'discussion') { room.votes = {}; this.phase(room, 'voting', now); }
@@ -367,7 +420,7 @@ export class Game {
     };
     if(room.mode==='classic'){
       view.discussionMode=room.discussionMode;view.turnSeconds=room.turnSeconds;
-      view.voteHistory=room.voteHistory.map(r=>({...r,ballots:{...r.ballots}}));
+      view.voteHistory=room.voteHistory.map(r=>({...r,ballots:{...r.ballots},submitted:r.submitted?[...r.submitted]:undefined}));
       if(['tie_discussion','runoff'].includes(room.phase))view.tiedCandidates=[...room.tiedCandidates];
       if(room.phase==='tie_discussion'||room.phase==='discussion'&&room.discussionMode==='structured'){
         view.speakerId=room.speakingOrder[room.speakerIndex];view.nextSpeakerId=room.speakingOrder.slice(room.speakerIndex+1).find(id=>room.players.find(p=>p.id===id)?.alive);view.turnId=room.turnId;

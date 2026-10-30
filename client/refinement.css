@@ -85,3 +85,6 @@
 .witch-inventory .poison-draft{font-size:14px;color:#d8dfed}
 .tie-candidates{grid-column:1/-1;font-size:14px!important;margin:0!important}
 @media(max-width:900px){.witch-inventory .potion-cards{grid-template-columns:1fr}}
+
+/* Bounded release readability: game status and action explanations. */
+.elimination-notice{display:block;border-color:#bd92a266;background:#34212b;padding:16px 18px;line-height:1.7}.elimination-notice strong{font-size:17px;color:#ffe4eb}.elimination-notice p{font-size:13px;margin:7px 0 0;color:#eed7df}.host-transfer{font-size:13px;line-height:1.7}.night-sequence small,.chat-compose-hint,.chat-invitation,.ballot-footnote,.witch-inventory p,.private-action-draft,.duel-result-explanation{font-size:12px!important;line-height:1.8!important}.duel-result-explanation{padding:12px;border-left:2px solid #d6b6df;background:#161521b0;color:#e8d5ed}.chat-compose-hint{overflow-wrap:anywhere}
