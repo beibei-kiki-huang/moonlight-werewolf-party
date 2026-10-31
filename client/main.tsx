@@ -296,6 +296,7 @@ function App() {
         <p className="demo-disclosure">{tr('Scripted tour · no other players needed · not a live match', '脚本演示 · 无需其他玩家 · 非真实对局')}</p>
         <div className="hero-meta"><span><Users size={16} />{tr('Classic 5–8 · Duel 2', '经典5–8人 · 对决2人')}</span><span><Shield size={15} />{tr('No accounts. Just friends.', '无需账号，好友即玩。')}</span></div>
       </section>
+      <div className="hero-portrait-wrap" aria-hidden="true"><img className="hero-portrait" src="/art/v2/werewolf-720.webp" alt="" /></div>
       <section className="demo-cta-section" aria-label={tr('Guided Demo','引导演示')}>
         <div className="demo-cta-inner">
           <div className="demo-cta-copy">
