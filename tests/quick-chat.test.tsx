@@ -46,15 +46,33 @@ describe('Quick Chat catalogue, permissions and presentation', () => {
     game.quickChat(room, player.id, 'trust_me', 1);
     expect(room.phase).toBe('discussion'); expect(room.votes).toEqual({}); expect(room.attacks).toEqual({}); expect(room.inspected.size).toBe(0);
   });
-  it('localizes the primary sentence per recipient and keeps the other language collapsed by default', () => {
-    for (const [language, tr, primary, alternate] of [['en', en, 'Could you explain again?', '可以再解释一下吗？'], ['zh', zh, '可以再解释一下吗？', 'Could you explain again?']] as const) {
-      const html = renderToStaticMarkup(<ChatMessageContent message={message} language={language} tr={tr} />);
-      expect(html).toContain(`<p lang="${language === 'en' ? 'en' : 'zh-CN'}">${primary}</p>`);
-      expect(html).toContain('class="phrase-learning"'); expect(html).not.toContain(' open');
-      expect(html).toContain(alternate); expect(html.indexOf(alternate)).toBeGreaterThan(html.indexOf('<details'));
-    }
+  it('shows the viewer language plus only the sender original language, collapsed by default', () => {
+    // Sender in English, viewer in Chinese: show Chinese primary + English original collapsed
+    const enSent = { ...message, senderLanguage: 'en' as const };
+    const zhHtml = renderToStaticMarkup(<ChatMessageContent message={enSent} language="zh" tr={zh} />);
+    expect(zhHtml).toContain('<p lang="zh-CN">可以再解释一下吗？</p>');
+    expect(zhHtml).toContain('class="phrase-learning"'); expect(zhHtml).not.toContain(' open');
+    expect(zhHtml).toContain('Could you explain again?');
+    expect(zhHtml.match(/class="phrase-equivalent"/g)).toHaveLength(1);
+
+    // Sender in Chinese, viewer in English: show English primary + Chinese original collapsed
+    const zhSent = { ...message, senderLanguage: 'zh' as const };
+    const enHtml = renderToStaticMarkup(<ChatMessageContent message={zhSent} language="en" tr={en} />);
+    expect(enHtml).toContain('<p lang="en">Could you explain again?</p>');
+    expect(enHtml).toContain('class="phrase-learning"');
+    expect(enHtml).toContain('可以再解释一下吗？');
+    expect(enHtml.match(/class="phrase-equivalent"/g)).toHaveLength(1);
+
+    // Sender and viewer same language: no details section
+    const sameHtml = renderToStaticMarkup(<ChatMessageContent message={enSent} language="en" tr={en} />);
+    expect(sameHtml).toContain('<p lang="en">Could you explain again?</p>');
+    expect(sameHtml).not.toContain('class="phrase-learning"');
+
+    // Free text is unaffected
     const free = renderToStaticMarkup(<ChatMessageContent message={{ ...message, phraseId: undefined, text: '<script>原文</script>' }} language="en" tr={en} />);
     expect(free).toBe('<p>&lt;script&gt;原文&lt;/script&gt;</p>');
+
+    // Unknown phraseId falls back to raw text
     const unknown = { ...message, phraseId: 'future_id' } as unknown as ChatMessage;
     expect(renderToStaticMarkup(<ChatMessageContent message={unknown} language="zh" tr={zh} />)).toBe('<p>Could you explain again?</p>');
   });
@@ -87,12 +105,17 @@ describe('Quick Chat through independent multiplayer clients', () => {
     a.on('state', v => av = v); b.on('state', v => bv = v);
     const made = await send<Seat>(a, 'create', { name: 'Moon', mode,discussionMode:'open' }); if (!made.ok) throw Error('create');
     const joined = await send<Seat>(b, 'join', { code: made.data.code, name: '星星' }); if (!joined.ok) throw Error('join');
-    expect((await send(a, 'quick_chat', { phraseId: 'explain_again' })).ok).toBe(true);
+    expect((await send(a, 'quick_chat', { phraseId: 'explain_again', senderLanguage: 'en' })).ok).toBe(true);
     expect((await send(b, 'chat', { text: '自由发言, no translation.' })).ok).toBe(true);
     await expect.poll(() => [av?.chat.length, bv?.chat.length]).toEqual([2, 2]);
     expect(av!.chat).toEqual(bv!.chat); expect(av!.chat[1].phraseId).toBeUndefined();
+    expect(av!.chat[0].senderLanguage).toBe('en');
     expect(renderToStaticMarkup(<ChatMessageContent message={av!.chat[0]} language="en" tr={en} />)).toContain('<p lang="en">Could you explain again?</p>');
+    // Same sender and viewer language: no details/equivalent section
+    expect(renderToStaticMarkup(<ChatMessageContent message={av!.chat[0]} language="en" tr={en} />)).not.toContain('class="phrase-learning"');
     expect(renderToStaticMarkup(<ChatMessageContent message={bv!.chat[0]} language="zh" tr={zh} />)).toContain('<p lang="zh-CN">可以再解释一下吗？</p>');
+    // Different sender (en) and viewer (zh): exactly one equivalent shown
+    expect(renderToStaticMarkup(<ChatMessageContent message={bv!.chat[0]} language="zh" tr={zh} />).match(/class="phrase-equivalent"/g)).toHaveLength(1);
     expect((await send(a, 'quick_chat', { phraseId: 'unknown' }))).toEqual({ ok: false, error: 'invalid' });
     expect((await send(a, 'quick_chat', { phraseId: 'hello', name: 'Forged', text: 'Hidden role', target: joined.data.playerId }))).toEqual({ ok: false, error: 'invalid' });
     b.disconnect(); const resumed = await connected(url); resumed.on('state', v => bv = v);

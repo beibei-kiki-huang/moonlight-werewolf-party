@@ -16,9 +16,10 @@ const codeSchema = z.string().trim().toUpperCase().regex(/^[A-HJ-NP-Z2-9]{6}$/);
 const idSchema = z.string().uuid();
 const modeSchema = z.enum(['classic', 'quick']);
 const chatTextSchema = z.string().trim().min(1).max(300).refine(safeChatText);
+const senderLanguageSchema = z.enum(['en','zh','ko','ja','es']).optional();
 const packSchema = z.union([
-  z.object({stageId:idSchema,clientMessageId:idSchema,text:chatTextSchema}).strict(),
-  z.object({stageId:idSchema,clientMessageId:idSchema,phraseId:z.string().refine(isQuickPhraseId)}).strict(),
+  z.object({stageId:idSchema,clientMessageId:idSchema,text:chatTextSchema,senderLanguage:senderLanguageSchema}).strict(),
+  z.object({stageId:idSchema,clientMessageId:idSchema,phraseId:z.string().refine(isQuickPhraseId),senderLanguage:senderLanguageSchema}).strict(),
 ]);
 const actionSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('attack'), target: idSchema }),
@@ -172,8 +173,8 @@ export function createApp(game = new Game()) {
     command('chat', z.object({ text: chatTextSchema,turnId:idSchema.optional() }), ({ room, playerId }, { text,turnId }) => {
       limit(`chat:${playerId}`, 5, 10_000); game.chat(room, playerId, text, Date.now(),turnId);
     });
-    command('quick_chat', z.object({ phraseId: z.string().max(40).refine(isQuickPhraseId),turnId:idSchema.optional() }).strict(), ({ room, playerId }, { phraseId,turnId }) => {
-      limit(`chat:${playerId}`, 5, 10_000); game.quickChat(room, playerId, phraseId, Date.now(),turnId);
+    command('quick_chat', z.object({ phraseId: z.string().max(40).refine(isQuickPhraseId),turnId:idSchema.optional(),senderLanguage:z.enum(['en','zh','ko','ja','es']).optional() }).strict(), ({ room, playerId }, { phraseId,turnId,senderLanguage }) => {
+      limit(`chat:${playerId}`, 5, 10_000); game.quickChat(room, playerId, phraseId, Date.now(),turnId,senderLanguage);
     });
     command('rematch', z.object({}), ({ room, playerId }) => game.rematch(room, playerId, Date.now()));
     command('remove', z.object({ playerId: idSchema }), ({ room, playerId }, data) => {

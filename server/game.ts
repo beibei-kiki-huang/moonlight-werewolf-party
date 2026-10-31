@@ -1,7 +1,7 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import type { Action, ChatMessage, ErrorCode, GameEvent, GameView, Investigation, Mode, Phase, Role, Winner, DiscussionMode, PackChatState, PackSubmission, VoteRound } from '../shared/types.js';
-import { CLASSIC_NIGHT_ACTION_MS, TIE_SPEAKING_MS, LAST_WORDS_MS } from '../shared/rules.js';
-import { isQuickPhraseId, QUICK_PHRASES } from '../shared/quickChat.js';
+import { CLASSIC_REVEAL_MS, CLASSIC_NIGHT_ACTION_MS, TIE_SPEAKING_MS, LAST_WORDS_MS, DUEL_REVEAL_MS } from '../shared/rules.js';
+import { isQuickPhraseId, QUICK_PHRASES, type ChatLanguage, isChatLanguage } from '../shared/quickChat.js';
 import { safeChatText } from '../shared/chatText.js';
 
 export class GameError extends Error {
@@ -20,10 +20,11 @@ export interface Room {
   discussionMode:DiscussionMode;turnSeconds:30|45|60;speakingOrder:string[];speakerIndex:number;turnId?:string;lastWordsId?:string;
   events: GameEvent[]; chat: ChatMessage[]; deathThisCycle: boolean; quietCycles: number;
 }
-export type Durations = Partial<Record<Phase, number>> & { quickDiscussion?: number };
+export type Durations = Partial<Record<Phase, number>> & { quickDiscussion?: number; duelReveal?: number };
 export const DURATIONS: Durations = {
-  reveal: 30_000, nightfall: 5_000, wolves: CLASSIC_NIGHT_ACTION_MS, seer: CLASSIC_NIGHT_ACTION_MS, witch: CLASSIC_NIGHT_ACTION_MS, dawn: 8_000,
+  reveal: CLASSIC_REVEAL_MS, nightfall: 5_000, wolves: CLASSIC_NIGHT_ACTION_MS, seer: CLASSIC_NIGHT_ACTION_MS, witch: CLASSIC_NIGHT_ACTION_MS, dawn: 8_000,
   discussion: 120_000, tie_discussion:TIE_SPEAKING_MS,runoff:30_000,last_words:LAST_WORDS_MS, quickDiscussion: 90_000, voting: 30_000, verdict: 8_000,
+  duelReveal: DUEL_REVEAL_MS,
 };
 export const DISTRIBUTIONS: Record<number, Role[]> = {
   5: ['werewolf', 'villager', 'villager', 'seer', 'witch'],
@@ -181,8 +182,11 @@ export class Game {
     if(!['discussion','tie_discussion','last_words'].includes(phase))room.turnId=undefined;
     if(phase!=='last_words')room.lastWordsId=undefined;
     room.phase = phase;
-    room.deadline = phase === 'lobby' || phase === 'ended' ? null : now +
-      (room.mode === 'quick' && phase === 'discussion' ? this.durations.quickDiscussion ?? 90_000 : this.durations[phase] ?? 1000);
+    const duration = phase === 'reveal' && room.mode === 'quick'
+      ? (this.durations.duelReveal ?? this.durations.reveal ?? DUEL_REVEAL_MS)
+      : room.mode === 'quick' && phase === 'discussion' ? this.durations.quickDiscussion ?? 90_000
+      : this.durations[phase] ?? 1000;
+    room.deadline = phase === 'lobby' || phase === 'ended' ? null : now + duration;
   }
   private actor(room: Room, id: string, phase: Phase, role: Role | null, now: number): Player {
     if (room.phase !== phase || room.deadline === null || now >= room.deadline) fail('wrong_phase');
@@ -273,16 +277,17 @@ export class Game {
       return {messageId:existing.id,duplicate:true};
     }
     if (store.receipts.size>=60) fail('rate_limit');
-    const player=this.player(room,id),message:ChatMessage={id:randomUUID(),playerId:id,name:player.name,text,...(phraseId?{phraseId}:{})};
+    const senderLanguage=isChatLanguage(input.senderLanguage)?input.senderLanguage:undefined;
+    const player=this.player(room,id),message:ChatMessage={id:randomUUID(),playerId:id,name:player.name,text,...(phraseId?{phraseId}:{}),...(senderLanguage?{senderLanguage}:{})};
     store.receipts.set(key,message);store.messages.push(message);store.messages=store.messages.slice(-30);
     return {messageId:message.id,duplicate:false};
   }
-  quickChat(room: Room, id: string, phraseId: string, now: number,turnId?:string) {
+  quickChat(room: Room, id: string, phraseId: string, now: number,turnId?:string,senderLanguage?:string) {
     if (!isQuickPhraseId(phraseId)) return fail('invalid');
     // The server supplies the fallback, never a client's translation or identity.
-    this.appendChat(room, id, { text: QUICK_PHRASES[phraseId].en, phraseId }, now,turnId);
+    this.appendChat(room, id, { text: QUICK_PHRASES[phraseId].en, phraseId, ...(isChatLanguage(senderLanguage) ? { senderLanguage } : {}) }, now,turnId);
   }
-  private appendChat(room: Room, id: string, message: Pick<ChatMessage, 'text' | 'phraseId'>, now: number,turnId?:string) {
+  private appendChat(room: Room, id: string, message: Pick<ChatMessage, 'text' | 'phraseId' | 'senderLanguage'>, now: number,turnId?:string) {
     if (!safeChatText(message.text)) fail('invalid');
     const player = this.player(room, id);
     if(!['lobby','discussion','tie_discussion','last_words','ended'].includes(room.phase))fail('wrong_phase');

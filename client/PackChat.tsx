@@ -16,7 +16,7 @@ export function PackChat({view,connected,language,onLanguageChange,tr,send}:{vie
     const message=text.trim();if(!phraseId&&!message)return;
     const old=retry.current;
     const input:PackSubmission=old?.stageId===pack.stageId && (phraseId ? old.phraseId===phraseId : old.text===message)
-      ? old : {stageId:pack.stageId,clientMessageId:crypto.randomUUID(),...(phraseId?{phraseId}:{text:message})};
+      ? old : {stageId:pack.stageId,clientMessageId:crypto.randomUUID(),senderLanguage:language,...(phraseId?{phraseId}:{text:message})};
     busy.current=true;setPending(true);setError(null);retry.current=input;
     try{const failure=await send(input);setError(failure);if(!failure){retry.current=null;if(!phraseId)setText('');if(picker.current)picker.current.open=false}}
     finally{busy.current=false;setPending(false)}

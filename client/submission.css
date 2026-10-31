@@ -11,6 +11,20 @@
 .beginner-guide li{display:flex;align-items:flex-start;gap:11px}.guide-number{font-family:'Cormorant Garamond',serif;display:grid;place-items:center;border:1px solid #c9b4df44;border-radius:50%;width:29px;height:29px;flex-shrink:0;color:#d3c0e6;font-size:20px}
 .beginner-guide h3{font:500 13px/1.6 'DM Sans',sans-serif;margin:2px 0 8px;color:#e4d9f1}.beginner-guide li p,.guide-goals{font-size:11px;line-height:1.9;color:#b9b2c7;margin:0}
 .guide-goals{margin-top:9px}.guide-goals strong{color:#ddcee9;font-weight:500}.rules-modal .beginner-guide{padding:20px;margin:25px 0}.rules-modal .beginner-guide ol{grid-template-columns:1fr;gap:17px}.rules-modal .beginner-guide h2{font-size:30px}
+.demo-cta-section{grid-column:1/-1;padding:0 20px;margin:-10px 0 10px}
+.demo-cta-inner{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;max-width:780px;margin:0 auto;padding:30px 34px;border:1px solid #c6b0da28;border-radius:16px;background:linear-gradient(135deg,#1a1d30,#151a2e)}
+.demo-cta-copy .eyebrow{margin-bottom:4px}.demo-cta-copy h2{font-size:26px;margin:0 0 10px;letter-spacing:-0.5px}
+.demo-cta-copy>p{font-size:13px;line-height:1.8;color:#bfb7ce;margin:0 0 16px;max-width:440px}
+.demo-cta-highlights{list-style:none;padding:0;margin:0 0 18px;display:flex;flex-wrap:wrap;gap:8px 16px}
+.demo-cta-highlights li{display:flex;align-items:center;gap:6px;font-size:12px;color:#d3c0e6}
+.demo-cta-highlights li svg{color:#a78bca;flex-shrink:0}
+.demo-cta-copy .button{text-decoration:none;display:inline-flex;margin-bottom:8px}
+.demo-cta-copy small{font-size:11px;color:#9b90ab;line-height:1.6;display:block}
+.demo-cta-preview{width:140px;height:180px;border-radius:14px;border:1px solid #c9b4df22;background:linear-gradient(160deg,#1e2240,#161b2f);display:grid;place-items:center;text-align:center;flex-shrink:0}
+.demo-cta-card{display:flex;flex-direction:column;align-items:center;gap:6px;color:#c9b4df}
+.demo-cta-moon{opacity:.7}.demo-cta-wordmark{font-family:'Cormorant Garamond',serif;font-size:18px;letter-spacing:1px}
+.demo-cta-sub{font-size:9px;letter-spacing:2.5px;color:#a89bba;text-transform:uppercase}
+@media(max-width:680px){.demo-cta-inner{grid-template-columns:1fr;gap:20px;padding:24px 20px}.demo-cta-preview{display:none}.demo-cta-copy h2{font-size:22px}}
 .site-footer a{color:#b8aac9;text-underline-offset:3px}
 a:focus-visible{outline:2px solid #e5d3ff;outline-offset:4px}
 @media(max-width:1000px){.beginner-guide ol{grid-template-columns:repeat(2,minmax(0,1fr))}.hero .positioning-title{font-size:55px}}

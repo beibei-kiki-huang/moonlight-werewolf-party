@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { io, type Socket } from 'socket.io-client';
-import { Sun, ArrowRight, Check, ChevronRight, Copy, Eye, EyeOff, FlaskConical, Globe2, Heart, Info, Link, LogOut, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote, Wifi, WifiOff, X } from 'lucide-react';
+import { Sun, ArrowRight, Check, ChevronRight, Copy, Eye, EyeOff, FlaskConical, Globe2, Heart, Info, Languages, Link, LogOut, MessageCircle, Moon, Send, Shield, Sparkles, Users, Vote, Wifi, WifiOff, X } from 'lucide-react';
 import type { PackChatState, PackSubmission, Action, ErrorCode, GameEvent, GameView, Mode, Reply, Role, Seat } from '../shared/types';
 import './styles.css';
 import './polish.css';
@@ -243,7 +243,7 @@ function App() {
   const canChat = !!view && maySpeak(view);
   const showChat = !!view && !isNight && view.phase !== 'reveal';
   function discussionChat() {
-    return view ? <DiscussionChat view={view} canChat={!!canChat} connected={connected} pending={pending} language={chatLanguage} onLanguageChange={changeChatLanguage} tr={tr} send={async text => (await request('chat', { text,...(view.turnId?{turnId:view.turnId}:{}) })) !== null} sendQuick={async phraseId => (await request('quick_chat', { phraseId,...(view.turnId?{turnId:view.turnId}:{}) })) !== null} /> : null;
+    return view ? <DiscussionChat view={view} canChat={!!canChat} connected={connected} pending={pending} language={chatLanguage} onLanguageChange={changeChatLanguage} tr={tr} send={async text => (await request('chat', { text,...(view.turnId?{turnId:view.turnId}:{}) })) !== null} sendQuick={async phraseId => (await request('quick_chat', { phraseId,senderLanguage:chatLanguage,...(view.turnId?{turnId:view.turnId}:{}) })) !== null} /> : null;
   }
 
   function targetButtons(forPoison = false) {
@@ -295,6 +295,26 @@ function App() {
         <div className="hero-actions"><a className="button primary" href={`/demo.html?lang=${lang}`}>{tr('Try the 60-second demo', '体验60秒演示')}<ArrowRight size={16} /></a><a className="button secondary" href="#join-table">{tr('Play with friends', '与好友一起玩')}</a></div>
         <p className="demo-disclosure">{tr('Scripted tour · no other players needed · not a live match', '脚本演示 · 无需其他玩家 · 非真实对局')}</p>
         <div className="hero-meta"><span><Users size={16} />{tr('Classic 5–8 · Duel 2', '经典5–8人 · 对决2人')}</span><span><Shield size={15} />{tr('No accounts. Just friends.', '无需账号，好友即玩。')}</span></div>
+      </section>
+      <section className="demo-cta-section" aria-label={tr('Guided Demo','引导演示')}>
+        <div className="demo-cta-inner">
+          <div className="demo-cta-copy">
+            <p className="eyebrow">{tr('SEE IT IN ACTION','立即体验')}</p>
+            <h2>{tr('60 seconds. No players needed.','60秒演示，无需其他玩家。')}</h2>
+            <p>{tr('Walk through a fictional five-player Classic round: role reveal, night phases, cross-language Quick Chat, voting and results — all scripted, all bilingual.','体验一轮虚构的五人经典对局：身份揭晓、夜间阶段、跨语言快捷短语、投票与结果 — 全程脚本，中英双语。')}</p>
+            <ul className="demo-cta-highlights">
+              <li><Eye size={16}/>{tr('Private role reveal','秘密身份揭晓')}</li>
+              <li><Moon size={16}/>{tr('Automated night phases','自动夜间阶段')}</li>
+              <li><Languages size={16}/>{tr('Five-language Quick Chat','五语快捷短语')}</li>
+              <li><Vote size={16}/>{tr('Secret ballot & results','秘密投票与结果')}</li>
+            </ul>
+            <a className="button primary" href={`/demo.html?lang=${lang}`}>{tr('Start the guided demo','开始引导演示')}<ArrowRight size={16}/></a>
+            <small>{tr('Scripted tour — not a live match. Opens in this tab.','脚本演示 — 非真实对局。在当前标签页中打开。')}</small>
+          </div>
+          <div className="demo-cta-preview" aria-hidden="true">
+            <div className="demo-cta-card"><span className="demo-cta-moon"><Moon size={32} strokeWidth={1}/></span><span className="demo-cta-wordmark">moonlight</span><span className="demo-cta-sub">GUIDED DEMO</span></div>
+          </div>
+        </div>
       </section>
       <section className="entry-card" id="join-table"><p className="eyebrow">{tr('YOUR TABLE IS WAITING', '准备与好友开局')}</p><h2>{tr('Gather under the moon', '月下集结')}</h2><p className="muted">{tr('Bring your friends. Keep your poker face.', '带上好友，藏好心事。')}</p>
         <div className="tabs" role="tablist"><button role="tab" aria-selected={tab === 'create'} className={tab === 'create' ? 'active' : ''} onClick={() => setTab('create')}>{tr('Create a room', '创建房间')}</button><button role="tab" aria-selected={tab === 'join'} className={tab === 'join' ? 'active' : ''} onClick={() => setTab('join')}>{tr('Join friends', '加入好友')}</button></div>

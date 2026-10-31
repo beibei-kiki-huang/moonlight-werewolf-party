@@ -3,6 +3,7 @@ import { ArrowRight, Check, ChevronDown, Eye, EyeOff, FlaskConical, Hourglass, L
 import type { ChatMessage, GameView, PublicPlayer, Role } from '../shared/types';
 import {ParticipantAvatar,participantStyle} from './Participant';
 import { phaseScript, type Language, type PublicPhase } from '../shared/publicPhase';
+import {CLASSIC_REVEAL_MS} from '../shared/rules';
 import {ChatLanguagePicker} from './ChatLanguagePicker';
 import {CHAT_LANGUAGES,CHAT_LANGUAGE_NAMES,type ChatLanguage, phraseText, isQuickPhraseId, QUICK_PHRASES, QUICK_PHRASE_IDS, type QuickPhraseId } from '../shared/quickChat';
 
@@ -133,8 +134,10 @@ export function Outcome({ view, host, disabled, onRematch, tr, roleName, ballots
 export function ChatMessageContent({ message, language, tr }: { message: ChatMessage; language: ChatLanguage; tr: Translate }) {
   if (!isQuickPhraseId(message.phraseId)) return <p>{message.text}</p>;
   const phrase=QUICK_PHRASES[message.phraseId];
-  const label=language==='en'?tr('See this phrase in Chinese','查看这句话的中文'):language==='zh'?tr('See this phrase in English','查看这句话的英文'):tr('Other translations','其他语言');
-  return <><p lang={language==='zh'?'zh-CN':language}>{phraseText(message.phraseId,language)}</p><div className="preset-tools"><span>{tr('Quick Chat','快捷短语')}</span><details className="phrase-learning"><summary aria-label={label} title={label}><Languages size={14}/><span>{language==='en'?'中':language==='zh'?'EN':tr('Languages','其他语言')}</span></summary>{CHAT_LANGUAGES.filter(code=>code!==language).map(code=><p key={code} className="phrase-equivalent" lang={code==='zh'?'zh-CN':code}><small>{CHAT_LANGUAGE_NAMES[code]} · </small>{phrase[code]}</p>)}</details></div></>;
+  const senderLang:ChatLanguage=message.senderLanguage&&CHAT_LANGUAGES.includes(message.senderLanguage)?message.senderLanguage:'en';
+  if(language===senderLang)return <><p lang={language==='zh'?'zh-CN':language}>{phraseText(message.phraseId,language)}</p><div className="preset-tools"><span>{tr('Quick Chat','快捷短语')}</span></div></>;
+  const label=tr(`Original · ${CHAT_LANGUAGE_NAMES[senderLang]}`,`原文 · ${CHAT_LANGUAGE_NAMES[senderLang]}`);
+  return <><p lang={language==='zh'?'zh-CN':language}>{phraseText(message.phraseId,language)}</p><div className="preset-tools"><span>{tr('Quick Chat','快捷短语')}</span><details className="phrase-learning"><summary aria-label={label} title={label}><Languages size={14}/><span>{CHAT_LANGUAGE_NAMES[senderLang].slice(0,2)}</span></summary><p className="phrase-equivalent" lang={senderLang==='zh'?'zh-CN':senderLang}><small>{CHAT_LANGUAGE_NAMES[senderLang]} · </small>{phrase[senderLang]}</p></details></div></>;
 }
 
 export function DiscussionChat({ view, canChat, connected, pending, send, sendQuick, language, onLanguageChange, tr }: { view: GameView; canChat: boolean; connected: boolean; pending: boolean; send: (text: string) => Promise<boolean>; sendQuick: (phraseId: QuickPhraseId) => Promise<boolean>; language: ChatLanguage; onLanguageChange?:(language:ChatLanguage)=>void; tr: Translate }) {
