@@ -12,7 +12,7 @@ A bilingual Werewolf game for friends that needs no moderator. Each player joins
 
 ## About this project
 
-Moonlight is an independent product project by **Beibei (Kiki) Huang**, built for the **Handshake AI Skills Studio Challenge** (October 2026). The goal is to let friends who don't share a first language play Werewolf together, without anyone having to sit out as the moderator.
+Moonlight is an independent product project by **Beibei (Kiki) Huang**, built for **Create a Multiplayer Game with OpenAI**, the October 2026 monthly challenge on Handshake's AI Skills Studio (Handshake × OpenAI). Results haven't been announced yet. The goal is to let friends who don't share a first language play Werewolf together, without anyone having to sit out as the moderator.
 
 ### My role
 
