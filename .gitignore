@@ -7,3 +7,15 @@ playwright-report/
 test-results/
 .DS_Store
 .auth/
+
+# Internal competition and design-review materials (kept locally, not published)
+/design/review-v2/
+/design/art-source/
+/submission/
+/submission-final-*/
+/release-candidate-*/
+/design/audio-review-*/
+/translation-poc/
+/RELEASE_CANDIDATE.md
+/TESTING.md
+/docs/TRANSLATION_ASSESSMENT.md
