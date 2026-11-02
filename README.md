@@ -4,6 +4,33 @@ A bilingual, moderator-free multiplayer Werewolf game for friends. Each player j
 
 **Public beta:** https://moonlight-werewolf-party.onrender.com/ · Hosted on Render Free.
 
+![Moonlight gameplay](submission/cover-gameplay.jpg)
+
+## About this project
+
+**Try it:** [Play with friends](https://moonlight-werewolf-party.onrender.com/) · [60-second solo demo](https://moonlight-werewolf-party.onrender.com/demo.html?lang=en) (no other players needed; the free server may take about a minute to wake up)
+
+Moonlight is an independent product project by **Beibei (Kiki) Huang**, built for Handshake's *Create a Multiplayer Game* challenge (October 2026). The goal: let friends who don't share a first language play Werewolf together, without anyone having to sit out as the moderator.
+
+### My role
+
+I owned the product from idea to launch: the concept, the rules, the privacy requirements, the user flows, and testing priorities. **The code was generated with AI coding tools.** I directed the work through requirements, reviews and test feedback, and decided what to fix next.
+
+- **Defined the product:** a moderator-free game for 2–8 players with two modes. Classic (5–8 players: Werewolf, Seer, Witch, Villagers) is the full game. Duel (2 players + a hidden center card) is a quick bluffing round.
+- **Designed cross-language communication:** an English/Chinese interface and narration, plus Quick Chat. Quick Chat has 10 preset phrases that each player reads in their own choice of English, Chinese, Korean, Japanese or Spanish. Typed messages stay as written.
+- **Tested and iterated:** played through desktop and mobile flows and wrote bug and usability reports. I then prioritized fixes to fairness, reconnection, host handover and mobile layout across several releases.
+
+### Product decisions worth discussing
+
+| Decision | Why |
+|---|---|
+| Every night role's turn lasts the same fixed time, even if that player is dead or has already acted | If the timer ended early, players could work out who holds which role |
+| Preset phrases instead of machine translation | Translations can't be wrong or embarrassing, nothing is sent to a translation service, and typed text keeps the speaker's own voice |
+| Roles are assigned and checked on the server; each phone receives only what that player may see | Nobody can find hidden roles by inspecting the browser |
+| Discussion in seat order by default (30/45/60 s per speaker), with Open Discussion as an option | Beginners and second-language speakers get guaranteed time to speak |
+| Ties get candidate speeches, then exactly one runoff vote | Results stay decisive without endless re-votes |
+| The host role passes to another player if the host goes offline, and offline speakers are skipped after 5 s | One dropped connection shouldn't stall the whole table |
+
 ## What works
 
 - Classic for 5–8: server-assigned private roles, wolf team targeting, Seer investigations, Witch heal/poison, synchronized night/day timers, discussion, secret votes, elimination, automatic faction victory and draws.
@@ -41,7 +68,7 @@ Each player should use a separate browser profile/device. A second tab in the sa
 
 The supplied `render.yaml` also declares the Free plan. No database, storage add-on, API key, or separate frontend service is needed. If an account setup asks for a paid resource, stop and review before accepting.
 
-Free hosting has cold starts (about a minute on Render) and can restart. **Rooms live in this one server's memory. A restart/redeploy ends all active rooms.** Browser refresh recovery works while the room's server remains running. Automatic host migration is deferred: the host must return in their original browser to start/rematch. Timed active matches continue without the host.
+Free hosting has cold starts (about a minute on Render) and can restart. **Rooms live in this one server's memory. A restart/redeploy ends all active rooms.** Browser refresh recovery works while the room's server remains running. If the host stays offline for 20 seconds in the lobby or on the results screen, hosting passes to the next connected player. Timed active matches continue without the host, and an offline speaker's turn is skipped after 5 seconds.
 
 ## Test
 
