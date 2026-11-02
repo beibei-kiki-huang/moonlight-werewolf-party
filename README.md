@@ -10,7 +10,7 @@ A bilingual, moderator-free multiplayer Werewolf game for friends. Each player j
 
 **Try it:** [Play with friends](https://moonlight-werewolf-party.onrender.com/) · [60-second solo demo](https://moonlight-werewolf-party.onrender.com/demo.html?lang=en) (no other players needed; the free server may take about a minute to wake up)
 
-Moonlight is an independent product project by **Beibei (Kiki) Huang**, built for Handshake's *Create a Multiplayer Game* challenge (October 2026). The goal: let friends who don't share a first language play Werewolf together, without anyone having to sit out as the moderator.
+Moonlight is an independent product project by **Beibei (Kiki) Huang**, built for the **Handshake AI Skills Studio Challenge** (October 2026). The goal: let friends who don't share a first language play Werewolf together, without anyone having to sit out as the moderator.
 
 ### My role
 
